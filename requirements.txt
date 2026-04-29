@@ -1,0 +1,9 @@
+python-dotenv
+pymongo
+pandas
+fastapi
+uvicorn
+langchain
+langgraph
+langchain-ollama
+langchain_community
