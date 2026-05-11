@@ -80,54 +80,64 @@ docker run -p 8000:8000 --env-file .env driverbook-diagnostics
 
 ## API
 
-### `POST /analyze-fault`
+### `POST /analyze-vehicle/{vehicle_id}`
 
-Run the full diagnostic pipeline for a vehicle's fault payload.
+Run the full diagnostic pipeline for the latest DTC-bearing source document of a vehicle.
 
-**Request**
-```json
-{
-  "vehicleId": "TRUCK-001",
-  "dtcJson": {
-    "dtcs": {
-      "SPN 521133": { "ecu": "Engine #2", "desc": "FMI 13 Out of Calibration" }
-    }
-  },
-  "telemetry": {
-    "engineCoolantTemperature": 98,
-    "engineOilPressure": 35,
-    "speed": 0,
-    "fuelLevel": 72,
-    "defLevel": 80,
-    "engineSpeed": 750
-  }
-}
+- Looks up the most recent document in the source MongoDB collection where `vehicleId == ObjectId(vehicle_id)` and `metaData.dtcRecords.dtcs` is non-empty.
+- Stages it into `fault_vehicles` (idempotent on `source_id`).
+- Invokes the LangGraph pipeline (KB hits short-circuit; misses extend the KB and queue into `unknown_faults`).
+- Returns the diagnostics list. If the document was already staged and `reanalyze=false` (default), returns the cached `diagnostics_output` rows instead of re-running the graph.
+
+**Query params**
+
+| Name | Default | Description |
+|---|---|---|
+| `reanalyze` | `false` | Force the graph to re-run even if the document has been processed before. |
+
+**Example**
+
+```bash
+curl -X POST "http://localhost:8000/analyze-vehicle/68b89e444f65cd554d751336"
+curl -X POST "http://localhost:8000/analyze-vehicle/68b89e444f65cd554d751336?reanalyze=true"
 ```
 
 **Response**
+
 ```json
 {
-  "vehicleId": "TRUCK-001",
+  "vehicleId": "68b89e444f65cd554d751336",
+  "source_id": "68c2a1f4564b518eb1a99066",
+  "newly_staged": false,
+  "reanalyzed": false,
   "diagnostics": [
     {
-      "code": "SPN 521133",
-      "ecu": "Engine #2",
-      "fmi": 13,
-      "purpose": "Controls fuel injection timing and calibration",
-      "issue": "Engine calibration mismatch detected",
-      "impact": "Reduced fuel efficiency and potential engine damage if ignored",
-      "severity": "Medium",
-      "urgency": "Schedule Maintenance",
-      "confidence": 82,
-      "explanation": "The engine control unit detected a calibration offset...",
-      "resolution_steps": ["Step 1: ...", "Step 2: ..."],
-      "who_can_fix": "Certified technician required",
+      "code": "SPN 0",
+      "ecu": "Communications Unit, Radio",
+      "fmi": 0,
+      "severity": "Low",
+      "urgency": "Monitor",
+      "confidence": 100,
+      "from_kb": true,
+      "issue": "...",
+      "explanation": "...",
+      "resolution_steps": ["..."],
+      "who_can_fix": "Fleet maintenance team",
       "parts_likely_needed": [],
-      "estimated_downtime": "2–4 hours"
+      "estimated_downtime": "Unknown"
     }
-  ]
+  ],
+  "unknown_codes": []
 }
 ```
+
+**Errors**
+
+| Status | When |
+|---|---|
+| `400` | `vehicle_id` is not a valid ObjectId |
+| `404` | No DTC-bearing document exists for that vehicleId |
+| `422` | Document found but contained no parseable DTCs |
 
 ### `GET /knowledge-base`
 

@@ -1,67 +1,36 @@
 # DriverBook Diagnostics Frontend (Streamlit)
 
-Interactive web interface to test the DriverBook Diagnostics API.
+Minimal web interface for the DriverBook Diagnostics API. Enter a `vehicleId` and the latest DTC-bearing source document is fetched, staged, and analyzed.
 
 ## Setup
 
-### 1. Install all dependencies (backend + frontend)
-From the project root directory:
 ```bash
-pip install -r requirements.txt
+pip install -r ../../requirements.txt          # backend + frontend deps live in the same file
 ```
 
-### 2. Run the Streamlit app
+## Run
+
 ```bash
-cd frontend/streamlit_app
-streamlit run app.py
+streamlit run frontend/streamlit_app/app.py
 ```
 
-This opens the app on `http://localhost:8501` in your browser.
+Opens at `http://localhost:8501`.
 
-## Usage
+## Configuration
 
-1. **Enter Vehicle ID** - Give your vehicle a unique identifier (e.g., TRUCK-001)
-
-2. **Add Fault Codes** - Enter SPN or DTC codes with their ECU and description
-
-3. **Set Telemetry** - Use sliders to adjust vehicle signals:
-   - Engine coolant temperature
-   - Oil pressure
-   - Speed
-   - Fuel level
-   - DEF level
-   - Engine speed
-
-4. **Click "Send Diagnostic Request"** - The app sends the payload to the API
-
-5. **View Results** - See the diagnostic output with:
-   - Severity & Urgency assessment
-   - Root cause explanation
-   - Step-by-step resolution steps
-   - Parts needed & estimated downtime
-
-## Features
-
-✅ Interactive form for all input parameters
-✅ Real-time payload preview in JSON format
-✅ Visual display of diagnostic results
-✅ Shows API response time
-✅ Expandable sections for each fault code
-✅ Links to check knowledge base and unknown faults
-✅ Error handling and connection validation
+| Env var | Default | Description |
+|---|---|---|
+| `API_URL` | `http://localhost:8000` | Base URL of the diagnostics API |
 
 ## Prerequisites
 
-- API must be running: `uvicorn api:app --reload --port 8000`
-- MongoDB must be accessible
-- Ollama must be serving on port 11434
+- API running: `uvicorn api:app --reload --port 8000`
+- MongoDB accessible (both local app DB and remote source DB)
+- Ollama running on `OLLAMA_BASE_URL` (only needed when KB-miss faults trigger LLM enrichment)
 
-## File Structure
+## What the UI does
 
-```
-frontend/
-└── streamlit_app/
-    ├── app.py                 # Main Streamlit application
-    ├── requirements.txt       # Python dependencies
-    └── README.md              # This file
-```
+1. Takes a `vehicleId` (Mongo ObjectId of the vehicle in the source collection).
+2. Optional `reanalyze` checkbox to force the LangGraph pipeline to re-run instead of returning cached `diagnostics_output`.
+3. POSTs to `/analyze-vehicle/{vehicle_id}`.
+4. Renders metrics (`newly_staged`, `reanalyzed`, diagnostic count) and an expandable per-fault breakdown (severity, urgency, confidence, KB origin, issue, explanation, resolution steps, parts, downtime).

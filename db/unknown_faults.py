@@ -4,7 +4,7 @@
 from datetime import datetime, timezone
 
 
-def save_unknown_fault(db, fault: dict, telemetry_snapshot: dict) -> None:
+def save_unknown_fault(db, fault: dict, telemetry_snapshot: dict, diagnostic: dict | None = None) -> None:
     """Insert or update an unknown fault record.
 
     On first encounter: full document is inserted with status "unresolved".
@@ -15,10 +15,12 @@ def save_unknown_fault(db, fault: dict, telemetry_snapshot: dict) -> None:
         db:                MongoDB database handle.
         fault:             Structured fault dict from dtc_parser (must contain "code").
         telemetry_snapshot: Telemetry context dict from telemetry_context.py.
+        diagnostic:        Generated diagnostic/explanation payload for this code.
     """
     collection = db["unknown_faults"]
     now = datetime.now(timezone.utc).isoformat()
     code = fault.get("code", "").strip().upper()
+    diagnostic = diagnostic or {}
 
     collection.update_one(
         {"code": code},
@@ -34,6 +36,7 @@ def save_unknown_fault(db, fault: dict, telemetry_snapshot: dict) -> None:
             "$set": {
                 "last_seen": now,
                 "sample_telemetry": telemetry_snapshot,
+                "latest_diagnostic": diagnostic,
             },
             "$inc": {"occurrence_count": 1},
         },

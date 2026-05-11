@@ -54,18 +54,67 @@ def increment_occurrence(db, code: str) -> None:
     )
 
 
-def auto_learn_from_diagnosis(db, fault: dict, diagnostic: dict) -> None:
-    """Create or update a KB entry for a previously unknown fault code using
-    the LLM diagnostic output.
+def extract_and_insert_from_document(db, fault: dict) -> bool:
+    """Insert a minimal KB entry built from the source document only — no LLM.
 
-    Only inserts if the code does not already exist in the KB. This prevents
-    overwriting hand-authored seed entries.  The entry is tagged with
-    ``source: "auto_learned"`` so it can be reviewed and promoted later.
+    Used on KB miss to grow the knowledge base monotonically with the cheap
+    information available in the source record (code, ecu, fmi, raw description).
+    Tagged ``source: "extracted_from_doc"`` so it can later be enriched by
+    auto_learn_from_diagnosis without being overwritten (both helpers use
+    $setOnInsert).
+
+    Returns True if a new KB row was inserted, False if the code already existed.
+    """
+    code = (fault.get("code") or "").strip().upper()
+    if not code:
+        return False
+
+    now = datetime.now(timezone.utc).isoformat()
+    ecu = (fault.get("ecu") or "Unknown").strip() or "Unknown"
+    description = (fault.get("description") or "").strip()
+
+    result = db["knowledge_base"].update_one(
+        {"code": code},
+        {
+            "$setOnInsert": {
+                "code": code,
+                "system": ecu,
+                "component": ecu,
+                "fmi": fault.get("fmi"),
+                "meaning": description,
+                "raw_description": description,
+                "causes": [],
+                "severity": "Low",
+                "urgency": "Monitor",
+                "source": "extracted_from_doc",
+                "first_seen": now,
+                "last_seen": now,
+                "occurrence_count": 1,
+            }
+        },
+        upsert=True,
+    )
+    return result.upserted_id is not None
+
+
+def auto_learn_from_diagnosis(db, fault: dict, diagnostic: dict) -> None:
+    """Create or upgrade a KB entry using the LLM diagnostic output.
+
+    Behavior:
+    - If the code does not exist yet: insert a fully-populated entry tagged
+      ``source: "auto_learned"``.
+    - If a cheap ``source: "extracted_from_doc"`` row exists: fill in the
+      missing LLM-derived fields (resolution_steps, parts, downtime, etc.)
+      and promote it to ``source: "auto_learned"``.
+    - Seed entries (no ``source`` field) and existing ``auto_learned`` entries
+      are NEVER touched, preserving curated data.
 
     Args:
         db:         MongoDB database handle.
         fault:      Structured fault dict from dtc_parser.
-        diagnostic: LLM diagnostic result dict (purpose, issue, severity, etc.).
+        diagnostic: Merged LLM output (diagnose + explain) — purpose, issue,
+                    severity, urgency, explanation, resolution_steps,
+                    who_can_fix, parts_likely_needed, estimated_downtime.
     """
     code = fault.get("code", "").strip().upper()
     if not code:
@@ -73,19 +122,29 @@ def auto_learn_from_diagnosis(db, fault: dict, diagnostic: dict) -> None:
 
     collection = db["knowledge_base"]
     now = datetime.now(timezone.utc).isoformat()
+    ecu = fault.get("ecu", "Unknown") or "Unknown"
 
-    # Build a KB-shaped document from the LLM output — only set on first insert
+    enrichment = {
+        "meaning": diagnostic.get("purpose", ""),
+        "causes": [diagnostic.get("issue", "")] if diagnostic.get("issue") else [],
+        "severity": diagnostic.get("severity", "Low"),
+        "urgency": diagnostic.get("urgency", "Monitor"),
+        "explanation": diagnostic.get("explanation", ""),
+        "resolution_steps": diagnostic.get("resolution_steps", []),
+        "who_can_fix": diagnostic.get("who_can_fix", ""),
+        "parts_likely_needed": diagnostic.get("parts_likely_needed", []),
+        "estimated_downtime": diagnostic.get("estimated_downtime", ""),
+    }
+
+    # Path A — first-time insert (no row exists for this code yet).
     collection.update_one(
         {"code": code},
         {
             "$setOnInsert": {
                 "code": code,
-                "system": fault.get("ecu", "Unknown"),
-                "component": fault.get("ecu", "Unknown"),
-                "meaning": diagnostic.get("purpose", ""),
-                "causes": [diagnostic.get("issue", "")] if diagnostic.get("issue") else [],
-                "severity": diagnostic.get("severity", "Low"),
-                "urgency": diagnostic.get("urgency", "Monitor"),
+                "system": ecu,
+                "component": ecu,
+                **enrichment,
                 "source": "auto_learned",
                 "first_seen": now,
                 "last_seen": now,
@@ -94,3 +153,13 @@ def auto_learn_from_diagnosis(db, fault: dict, diagnostic: dict) -> None:
         },
         upsert=True,
     )
+
+    # Path B — upgrade a cheap "extracted_from_doc" row in-place. Fills in only
+    # non-empty LLM fields and promotes the source tag. Seed and already-
+    # auto_learned rows are excluded by the filter so curated data is safe.
+    set_fields = {k: v for k, v in enrichment.items() if v}
+    if set_fields:
+        collection.update_one(
+            {"code": code, "source": "extracted_from_doc"},
+            {"$set": {**set_fields, "source": "auto_learned", "last_seen": now}},
+        )
