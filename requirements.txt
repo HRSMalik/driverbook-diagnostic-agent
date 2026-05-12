@@ -10,3 +10,4 @@ langchain_community
 streamlit
 requests
 mongomock
+python-docx

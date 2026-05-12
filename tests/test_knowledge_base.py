@@ -3,17 +3,23 @@ Knowledge Base — unit test suite.
 
 Tests lookup, increment_occurrence, extract_and_insert_from_document,
 and auto_learn_from_diagnosis using mongomock (in-memory MongoDB).
+Writes results to tests/reports/report_knowledge_base.docx.
 
 Run from diagnostic_agent/:
     conda run -n driverbook python tests/test_knowledge_base.py
 """
 
-import sys
 import os
+import sys
+from datetime import datetime
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 import mongomock
+
+from docx import Document
+from docx.shared import RGBColor
+from docx.enum.text import WD_ALIGN_PARAGRAPH
 
 from core.knowledge_base import (
     lookup,
@@ -22,13 +28,17 @@ from core.knowledge_base import (
     auto_learn_from_diagnosis,
 )
 
+DOC_PATH = os.path.join(os.path.dirname(__file__), "reports", "report_knowledge_base.docx")
+
+_GREEN = RGBColor(0x00, 0xAA, 0x55)
+_RED   = RGBColor(0xCC, 0x00, 0x00)
+
 
 # ============================================================================
 # Helpers
 # ============================================================================
 
 def _fresh_db():
-    """Return a clean in-memory MongoDB database for each test."""
     client = mongomock.MongoClient()
     db = client["test_diagnostics"]
     db["knowledge_base"].create_index("code", unique=True)
@@ -41,121 +51,100 @@ def _seed(db, code: str, source: str = "seed", **kwargs) -> None:
 
 
 # ============================================================================
-# Test cases
+# Test runners — each returns list of (label, status, diffs, fields)
 # ============================================================================
 
-def _run(label: str, condition: bool, detail: str = "") -> bool:
-    status = "PASS" if condition else "FAIL"
-    print(f"  [{status}] {label}")
-    if not condition and detail:
-        print(f"         x {detail}")
-    return condition
+def test_lookup() -> list[tuple]:
+    rows = []
 
+    def _case(label: str, condition: bool, detail: str = "", **fields) -> None:
+        ok = bool(condition)
+        rows.append((label, "PASS" if ok else "FAIL",
+                     [] if ok else [detail], {"Test": label, "Notes": detail or ""}))
 
-# ── lookup ────────────────────────────────────────────────────────────────────
-
-def test_lookup() -> tuple[int, int]:
-    print("=== lookup ===")
-    results = []
-
-    # hit — exact case
     db = _fresh_db()
     _seed(db, "SPN 521133", meaning="Calibration error")
     entry = lookup(db, "SPN 521133")
-    results.append(_run("hit exact", entry is not None and entry.get("meaning") == "Calibration error"))
+    _case("hit exact", entry is not None and entry.get("meaning") == "Calibration error")
 
-    # hit — case-insensitive
     db = _fresh_db()
     _seed(db, "SPN 521133")
-    entry = lookup(db, "spn 521133")
-    results.append(_run("hit case-insensitive", entry is not None))
+    _case("hit case-insensitive", lookup(db, "spn 521133") is not None)
 
-    # hit — leading/trailing whitespace
     db = _fresh_db()
     _seed(db, "SPN 521133")
-    entry = lookup(db, "  SPN 521133  ")
-    results.append(_run("hit whitespace stripped", entry is not None))
+    _case("hit whitespace stripped", lookup(db, "  SPN 521133  ") is not None)
 
-    # miss
     db = _fresh_db()
-    entry = lookup(db, "SPN 9999")
-    results.append(_run("miss returns None", entry is None))
+    _case("miss returns None", lookup(db, "SPN 9999") is None)
 
-    # _id never returned
     db = _fresh_db()
     _seed(db, "SPN 0")
     entry = lookup(db, "SPN 0")
-    results.append(_run("_id excluded from result", entry is not None and "_id" not in entry))
+    _case("_id excluded from result", entry is not None and "_id" not in entry,
+          "_id was present in returned doc")
 
-    passed = sum(results)
-    return passed, len(results)
+    return rows
 
 
-# ── increment_occurrence ──────────────────────────────────────────────────────
+def test_increment_occurrence() -> list[tuple]:
+    rows = []
 
-def test_increment_occurrence() -> tuple[int, int]:
-    print("\n=== increment_occurrence ===")
-    results = []
+    def _case(label: str, condition: bool, detail: str = "") -> None:
+        ok = bool(condition)
+        rows.append((label, "PASS" if ok else "FAIL",
+                     [] if ok else [detail], {"Test": label, "Notes": detail or ""}))
 
     db = _fresh_db()
     _seed(db, "SPN 100", occurrence_count=3)
     increment_occurrence(db, "SPN 100")
     doc = db["knowledge_base"].find_one({"code": "SPN 100"})
-    results.append(_run("count incremented to 4", doc and doc.get("occurrence_count") == 4,
-                        f"got {doc.get('occurrence_count') if doc else None}"))
+    _case("count incremented to 4", doc and doc.get("occurrence_count") == 4,
+          f"got {doc.get('occurrence_count') if doc else None}")
 
     increment_occurrence(db, "SPN 100")
     doc = db["knowledge_base"].find_one({"code": "SPN 100"})
-    results.append(_run("count incremented to 5 on second call", doc and doc.get("occurrence_count") == 5))
+    _case("count incremented to 5 on second call", doc and doc.get("occurrence_count") == 5)
 
-    # case-insensitive key
     db = _fresh_db()
     _seed(db, "SPN 200", occurrence_count=0)
     increment_occurrence(db, "spn 200")
     doc = db["knowledge_base"].find_one({"code": "SPN 200"})
-    results.append(_run("increment case-insensitive", doc and doc.get("occurrence_count") == 1))
+    _case("increment case-insensitive", doc and doc.get("occurrence_count") == 1)
 
-    passed = sum(results)
-    return passed, len(results)
+    return rows
 
 
-# ── extract_and_insert_from_document ──────────────────────────────────────────
-
-def test_extract_and_insert() -> tuple[int, int]:
-    print("\n=== extract_and_insert_from_document ===")
-    results = []
-
+def test_extract_and_insert() -> list[tuple]:
+    rows = []
     fault = {"code": "SPN 9001", "ecu": "Engine #3", "fmi": 7, "description": "Voltage Low"}
 
-    # first insert returns True
+    def _case(label: str, condition: bool, detail: str = "") -> None:
+        ok = bool(condition)
+        rows.append((label, "PASS" if ok else "FAIL",
+                     [] if ok else [detail], {"Test": label, "Notes": detail or ""}))
+
     db = _fresh_db()
     inserted = extract_and_insert_from_document(db, fault)
-    results.append(_run("first insert returns True", inserted is True))
+    _case("first insert returns True", inserted is True)
 
     doc = db["knowledge_base"].find_one({"code": "SPN 9001"})
-    results.append(_run("document created", doc is not None))
-    results.append(_run("source is extracted_from_doc", doc and doc.get("source") == "extracted_from_doc"))
-    results.append(_run("meaning from description", doc and doc.get("meaning") == "Voltage Low"))
+    _case("document created", doc is not None)
+    _case("source=extracted_from_doc", doc and doc.get("source") == "extracted_from_doc")
+    _case("meaning from description", doc and doc.get("meaning") == "Voltage Low")
 
-    # duplicate insert returns False
     inserted_again = extract_and_insert_from_document(db, fault)
-    results.append(_run("duplicate insert returns False", inserted_again is False))
+    _case("duplicate insert returns False", inserted_again is False)
 
-    # empty code returns False
     db = _fresh_db()
-    results.append(_run("empty code returns False", extract_and_insert_from_document(db, {"code": ""}) is False))
+    _case("empty code returns False", extract_and_insert_from_document(db, {"code": ""}) is False)
 
-    passed = sum(results)
-    return passed, len(results)
+    return rows
 
 
-# ── auto_learn_from_diagnosis ──────────────────────────────────────────────────
-
-def test_auto_learn() -> tuple[int, int]:
-    print("\n=== auto_learn_from_diagnosis ===")
-    results = []
-
-    fault = {"code": "SPN 8888", "ecu": "Transmission"}
+def test_auto_learn() -> list[tuple]:
+    rows = []
+    fault      = {"code": "SPN 8888", "ecu": "Transmission"}
     diagnostic = {
         "purpose": "Gear ratio error",
         "issue": "Slipping clutch pack",
@@ -165,39 +154,115 @@ def test_auto_learn() -> tuple[int, int]:
         "resolution_steps": ["Inspect clutch", "Replace if worn"],
     }
 
-    # Path A — new code: inserts a full auto_learned entry
+    def _case(label: str, condition: bool, detail: str = "") -> None:
+        ok = bool(condition)
+        rows.append((label, "PASS" if ok else "FAIL",
+                     [] if ok else [detail], {"Test": label, "Notes": detail or ""}))
+
+    # Path A — new code
     db = _fresh_db()
     auto_learn_from_diagnosis(db, fault, diagnostic)
     doc = db["knowledge_base"].find_one({"code": "SPN 8888"})
-    results.append(_run("Path A: document created", doc is not None))
-    results.append(_run("Path A: source=auto_learned", doc and doc.get("source") == "auto_learned"))
-    results.append(_run("Path A: meaning set", doc and doc.get("meaning") == "Gear ratio error"))
-    results.append(_run("Path A: severity=High", doc and doc.get("severity") == "High"))
+    _case("Path A: document created",     doc is not None)
+    _case("Path A: source=auto_learned",  doc and doc.get("source") == "auto_learned")
+    _case("Path A: meaning set",          doc and doc.get("meaning") == "Gear ratio error")
+    _case("Path A: severity=High",        doc and doc.get("severity") == "High")
 
-    # Path A — existing auto_learned entry is NOT overwritten (setOnInsert guard)
+    # Path A — existing auto_learned NOT overwritten
     auto_learn_from_diagnosis(db, fault, {**diagnostic, "purpose": "SHOULD NOT OVERWRITE"})
     doc = db["knowledge_base"].find_one({"code": "SPN 8888"})
-    results.append(_run("Path A: existing auto_learned not overwritten",
-                        doc and doc.get("meaning") == "Gear ratio error"))
+    _case("Path A: existing auto_learned not overwritten",
+          doc and doc.get("meaning") == "Gear ratio error",
+          f"meaning was {doc.get('meaning') if doc else None}")
 
-    # Path B — upgrade extracted_from_doc row in-place
+    # Path B — upgrade extracted_from_doc in-place
     db = _fresh_db()
     _seed(db, "SPN 8888", source="extracted_from_doc", meaning="", severity="Low")
     auto_learn_from_diagnosis(db, fault, diagnostic)
     doc = db["knowledge_base"].find_one({"code": "SPN 8888"})
-    results.append(_run("Path B: source promoted to auto_learned", doc and doc.get("source") == "auto_learned"))
-    results.append(_run("Path B: meaning upgraded", doc and doc.get("meaning") == "Gear ratio error"))
+    _case("Path B: source promoted to auto_learned", doc and doc.get("source") == "auto_learned")
+    _case("Path B: meaning upgraded",               doc and doc.get("meaning") == "Gear ratio error")
 
-    # Seed entry (no source field) is never touched
+    # Seed entry never touched
     db = _fresh_db()
     _seed(db, "SPN 8888", meaning="Original seed meaning")
     auto_learn_from_diagnosis(db, fault, diagnostic)
     doc = db["knowledge_base"].find_one({"code": "SPN 8888"})
-    results.append(_run("seed entry meaning not overwritten",
-                        doc and doc.get("meaning") == "Original seed meaning"))
+    _case("seed entry meaning not overwritten",
+          doc and doc.get("meaning") == "Original seed meaning",
+          f"meaning was {doc.get('meaning') if doc else None}")
 
-    passed = sum(results)
-    return passed, len(results)
+    return rows
+
+
+# ============================================================================
+# Console print
+# ============================================================================
+
+def _print_rows(section: str, rows: list[tuple]) -> int:
+    print(f"=== {section} ===")
+    passed = 0
+    for label, status, diffs, _ in rows:
+        print(f"  [{status}] {label}")
+        for d in diffs:
+            print(f"         x {d}")
+        if status == "PASS":
+            passed += 1
+    return passed
+
+
+# ============================================================================
+# Doc generation
+# ============================================================================
+
+def _add_section(doc: Document, title: str, rows: list[tuple]) -> None:
+    doc.add_heading(title, level=2)
+    table = doc.add_table(rows=1, cols=3)
+    table.style = "Table Grid"
+    for i, h in enumerate(["Test Case", "Status", "Notes"]):
+        cell = table.rows[0].cells[i]
+        cell.text = h
+        cell.paragraphs[0].runs[0].bold = True
+
+    for label, status, diffs, fields in rows:
+        row = table.add_row().cells
+        row[0].text = fields.get("Test", label)
+        status_run = row[1].paragraphs[0].add_run(status)
+        status_run.bold = True
+        status_run.font.color.rgb = _GREEN if status == "PASS" else _RED
+        row[2].text = "; ".join(diffs) if diffs else ""
+
+    doc.add_paragraph()
+
+
+def generate_doc(
+    lu_rows: list[tuple],
+    inc_rows: list[tuple],
+    ext_rows: list[tuple],
+    aln_rows: list[tuple],
+    passed: int,
+    total: int,
+) -> None:
+    os.makedirs(os.path.dirname(DOC_PATH), exist_ok=True)
+    doc = Document()
+
+    title = doc.add_heading("Knowledge Base — Test Report", 0)
+    title.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    doc.add_paragraph(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    doc.add_paragraph("Module: core/knowledge_base.py  |  DB: mongomock (in-memory)")
+    p = doc.add_paragraph()
+    run = p.add_run(f"Result: {passed}/{total} passed")
+    run.bold = True
+    run.font.color.rgb = _GREEN if passed == total else _RED
+    doc.add_paragraph()
+
+    _add_section(doc, "lookup",                           lu_rows)
+    _add_section(doc, "increment_occurrence",             inc_rows)
+    _add_section(doc, "extract_and_insert_from_document", ext_rows)
+    _add_section(doc, "auto_learn_from_diagnosis",        aln_rows)
+
+    doc.save(DOC_PATH)
+    print(f"Report written to {DOC_PATH}")
 
 
 # ============================================================================
@@ -205,14 +270,21 @@ def test_auto_learn() -> tuple[int, int]:
 # ============================================================================
 
 def main() -> None:
-    lu_pass,   lu_total   = test_lookup()
-    inc_pass,  inc_total  = test_increment_occurrence()
-    ext_pass,  ext_total  = test_extract_and_insert()
-    aln_pass,  aln_total  = test_auto_learn()
+    lu_rows  = test_lookup()
+    inc_rows = test_increment_occurrence()
+    ext_rows = test_extract_and_insert()
+    aln_rows = test_auto_learn()
+
+    lu_pass  = _print_rows("lookup",                           lu_rows)
+    inc_pass = _print_rows("increment_occurrence",             inc_rows)
+    ext_pass = _print_rows("extract_and_insert_from_document", ext_rows)
+    aln_pass = _print_rows("auto_learn_from_diagnosis",        aln_rows)
 
     total_pass = lu_pass + inc_pass + ext_pass + aln_pass
-    total      = lu_total + inc_total + ext_total + aln_total
+    total      = len(lu_rows) + len(inc_rows) + len(ext_rows) + len(aln_rows)
     print(f"\n{total_pass}/{total} passed")
+
+    generate_doc(lu_rows, inc_rows, ext_rows, aln_rows, total_pass, total)
 
 
 if __name__ == "__main__":
