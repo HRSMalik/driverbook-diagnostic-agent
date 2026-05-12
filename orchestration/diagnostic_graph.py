@@ -2,7 +2,6 @@
 # LangGraph DAG: parse → kb_lookup → telemetry → llm → explain → store → END
 
 import json
-import re
 from typing import Any, TypedDict
 
 from langchain_ollama import ChatOllama
@@ -20,6 +19,7 @@ from core.knowledge_base import (
 from core.telemetry_context import build_telemetry_snapshot, adjust_severity
 from db.unknown_faults import save_unknown_fault
 from llm.hf_client import get_llm
+from llm.parsers import invoke_and_parse
 from llm.prompts import SYSTEM_PROMPT, HUMAN_PROMPT, EXPLAIN_SYSTEM_PROMPT, EXPLAIN_HUMAN_PROMPT
 
 
@@ -121,14 +121,7 @@ def llm_node(state: DiagnosticState, llm: ChatOllama) -> DiagnosticState:
         )
         messages = [SystemMessage(content=SYSTEM_PROMPT), HumanMessage(content=human_text)]
 
-        try:
-            response = llm.invoke(messages)
-            raw_text = response.content if hasattr(response, "content") else str(response)
-            clean = re.sub(r"\s+", " ", raw_text).strip()
-            match = re.search(r"\{.*\}", clean)
-            result = json.loads(match.group(0)) if match else {"error": "No JSON found", "raw": clean}
-        except Exception as exc:
-            result = {"error": str(exc)}
+        result = invoke_and_parse(llm, messages)
 
         if "severity" in result and fault.get("adjusted_severity"):
             result["severity"] = fault["adjusted_severity"]
@@ -192,14 +185,7 @@ def explain_node(state: DiagnosticState, llm: ChatOllama) -> DiagnosticState:
         )
         messages = [SystemMessage(content=EXPLAIN_SYSTEM_PROMPT), HumanMessage(content=human_text)]
 
-        try:
-            response = llm.invoke(messages)
-            raw_text = response.content if hasattr(response, "content") else str(response)
-            clean = re.sub(r"\s+", " ", raw_text).strip()
-            match = re.search(r"\{.*\}", clean)
-            explanation = json.loads(match.group(0)) if match else {"error": "No JSON found", "raw": clean}
-        except Exception as exc:
-            explanation = {"error": str(exc)}
+        explanation = invoke_and_parse(llm, messages)
 
         explained.append({**diag, **explanation})
 
