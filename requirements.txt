@@ -9,3 +9,4 @@ langchain-ollama
 langchain_community
 streamlit
 requests
+mongomock
