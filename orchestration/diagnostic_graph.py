@@ -17,6 +17,7 @@ from core.knowledge_base import (
     lookup,
 )
 from core.telemetry_context import build_telemetry_snapshot, adjust_severity
+from db.diagnostics_output import save_diagnostics
 from db.unknown_faults import save_unknown_fault
 from llm.hf_client import get_llm
 from llm.parsers import invoke_and_parse
@@ -217,13 +218,7 @@ def store_node(state: DiagnosticState, db: Database) -> DiagnosticState:
         else:
             increment_occurrence(db, fault["code"])
 
-    if state["diagnostics"]:
-        source_id = state["raw_input"].get("source_id")
-        if source_id:
-            db["diagnostics_output"].delete_many({"source_id": source_id})
-        db["diagnostics_output"].insert_many(
-            [{**d, "source_id": source_id} for d in state["diagnostics"]]
-        )
+    save_diagnostics(db, state["diagnostics"], state["raw_input"].get("source_id"))
 
     return state
 
