@@ -17,5 +17,5 @@ def get_llm():
         model=OLLAMA_MODEL,
         base_url=OLLAMA_BASE_URL,
         temperature=0.0,
-        num_predict=512,
+        num_predict=4096,
     )

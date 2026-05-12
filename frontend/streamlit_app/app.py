@@ -1,106 +1,103 @@
-import streamlit as st
+import os
+
 import requests
-import json
-import time
-import re
+import streamlit as st
 
-st.set_page_config(page_title="DriverBook Diagnostics Chatbot", layout="centered")
+API_URL = os.getenv("API_URL", "http://localhost:8000")
 
-st.title("🚗 DriverBook Diagnostics Chatbot")
-st.markdown("Chat with AI to diagnose your vehicle faults")
+st.set_page_config(page_title="DriverBook Diagnostics", layout="wide")
+st.title("DriverBook Diagnostics")
+st.caption(f"API: {API_URL}")
 
-# API configuration
-API_URL = "http://localhost:8000"
+with st.sidebar:
+    st.header("Settings")
+    show_reanalyze = st.toggle(
+        "Show reanalyze controls",
+        value=False,
+        help="Admin / dev only. Forces the LLM graph to re-run for one vehicle. Use after editing seed_kb.json or when cached diagnostics look wrong.",
+    )
 
-# Initialize session state
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-    st.session_state.current_payload = {
-        "vehicleId": "TRUCK-001",
-        "dtcJson": {"dtcs": {}, "mil": False},
-        "telemetry": {
-            "engineCoolantTemperature": 90,
-            "engineOilPressure": 40,
-            "speed": 0,
-            "fuelLevel": 70,
-            "defLevel": 50,
-            "engineSpeed": 0
-        }
-    }
 
-# Display chat messages
-for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
-        st.write(message["content"])
+def _render_diagnostics(diagnostics: list[dict]) -> None:
+    if not diagnostics:
+        st.info("No diagnostics yet for this vehicle.")
+        return
+    for diag in diagnostics:
+        title = f"{diag.get('code', 'N/A')} — {diag.get('severity', 'N/A')}"
+        with st.expander(title):
+            st.write(f"**ECU:** {diag.get('ecu', 'N/A')}")
+            st.write(f"**Severity:** {diag.get('severity', 'N/A')} | **Urgency:** {diag.get('urgency', 'N/A')}")
+            st.write(f"**Confidence:** {diag.get('confidence', 'N/A')} | **From KB:** {diag.get('from_kb', False)}")
+            if diag.get("issue"):
+                st.write(f"**Issue:** {diag['issue']}")
+            if diag.get("explanation"):
+                st.write(f"**Explanation:** {diag['explanation']}")
+            steps = diag.get("resolution_steps") or []
+            if steps:
+                st.write("**Resolution steps:**")
+                for step in steps:
+                    st.write(f"- {step}")
+            if diag.get("parts_likely_needed"):
+                st.write(f"**Parts:** {', '.join(diag['parts_likely_needed'])}")
+            if diag.get("estimated_downtime"):
+                st.write(f"**Estimated downtime:** {diag['estimated_downtime']}")
 
-# Chat input
-user_input = st.chat_input("Describe your vehicle fault...")
 
-if user_input:
-    # Add user message
-    st.session_state.messages.append({"role": "user", "content": user_input})
-    
-    with st.chat_message("user"):
-        st.write(user_input)
-    
-    # Simple payload for testing
-    payload = {
-        "vehicleId": "TRUCK-001",
-        "dtcJson": {
-            "dtcs": {
-                "SPN 521133": {
-                    "ecu": "Engine",
-                    "desc": user_input
-                }
-            },
-            "mil": True
-        },
-        "telemetry": {
-            "engineCoolantTemperature": 95,
-            "engineOilPressure": 40,
-            "speed": 0,
-            "fuelLevel": 70,
-            "defLevel": 50
-        }
-    }
-    
-    # Send to API
-    with st.chat_message("assistant"):
-        with st.spinner("Analyzing..."):
-            try:
-                start_time = time.time()
-                response = requests.post(
-                    f"{API_URL}/analyze-fault",
-                    json=payload,
-                    timeout=60
-                )
-                elapsed_time = time.time() - start_time
-                
-                if response.status_code == 200:
-                    result = response.json()
-                    
-                    response_text = f"**Diagnosis (completed in {elapsed_time:.2f}s)**\n\n"
-                    
-                    if "diagnostics" in result and result["diagnostics"]:
-                        for diag in result["diagnostics"]:
-                            response_text += f"**Code:** {diag.get('code', 'Unknown')}\n"
-                            response_text += f"**Severity:** {diag.get('severity', 'N/A')} | "
-                            response_text += f"**Urgency:** {diag.get('urgency', 'N/A')}\n\n"
-                            response_text += f"{diag.get('issue', 'N/A')}\n\n"
-                            response_text += f"**Explanation:** {diag.get('explanation', 'N/A')}\n\n"
-                            response_text += "**Steps to fix:**\n"
-                            for step in diag.get('resolution_steps', []):
-                                response_text += f"• {step}\n"
-                    
-                    st.write(response_text)
-                    st.session_state.messages.append({"role": "assistant", "content": response_text})
-                else:
-                    error_msg = f"Error: {response.status_code}"
-                    st.error(error_msg)
-                    st.session_state.messages.append({"role": "assistant", "content": error_msg})
-            
-            except Exception as e:
-                error_msg = f"Error: {str(e)}"
-                st.error(error_msg)
-                st.session_state.messages.append({"role": "assistant", "content": error_msg})
+# ── State ────────────────────────────────────────────────────────────────────
+st.session_state.setdefault("vehicles", None)
+st.session_state.setdefault("tenant_id", "")
 
+
+# ── Step 1 — Tenant lookup ───────────────────────────────────────────────────
+st.subheader("Look up vehicles by tenant")
+with st.form("tenant"):
+    tenant_id = st.text_input(
+        "Tenant ID",
+        value=st.session_state["tenant_id"],
+        placeholder="e.g. 68a90f46e73919af2fccdd77",
+    )
+    fetched = st.form_submit_button("Fetch vehicles + diagnostics")
+
+if fetched:
+    if not tenant_id.strip():
+        st.error("Please enter a tenantId.")
+        st.stop()
+    with st.spinner("Loading (running graph for any unanalyzed vehicles)..."):
+        response = requests.get(
+            f"{API_URL}/tenants/{tenant_id.strip()}/vehicles",
+            timeout=600,
+        )
+    if response.status_code != 200:
+        st.error(f"{response.status_code}: {response.text}")
+        st.stop()
+    body = response.json()
+    st.session_state["tenant_id"] = tenant_id.strip()
+    st.session_state["vehicles"] = body["vehicles"]
+
+
+# ── Step 2 — Render vehicles + their diagnostics inline ──────────────────────
+vehicles = st.session_state.get("vehicles")
+if vehicles is not None:
+    st.subheader(f"Vehicles for tenant `{st.session_state['tenant_id']}` ({len(vehicles)} found)")
+    if not vehicles:
+        st.info("No staged vehicles for this tenant. Run the batch scan first: `python -m core.datascanpipeline`.")
+    else:
+        for v in vehicles:
+            header = f"🚚 {v['vehicleId']}  —  {v['fault_count']} fault(s)"
+            with st.expander(header, expanded=False):
+                st.caption(f"source_id: `{v['source_id']}` · staged: {v.get('staged_at')}")
+
+                if show_reanalyze:
+                    if st.button("🔄 Reanalyze", key=f"reanalyze-{v['vehicleId']}"):
+                        with st.spinner("Re-running graph..."):
+                            r = requests.post(
+                                f"{API_URL}/vehicles/{v['vehicleId']}/reanalyze",
+                                timeout=600,
+                            )
+                        if r.status_code != 200:
+                            st.error(f"{r.status_code}: {r.text}")
+                        else:
+                            v["diagnostics"] = r.json()["diagnostics"]
+                            st.success("Reanalyzed.")
+
+                _render_diagnostics(v.get("diagnostics", []))
