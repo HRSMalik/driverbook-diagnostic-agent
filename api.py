@@ -3,6 +3,7 @@
 
 import os
 
+import requests as http_client
 from bson import ObjectId
 from fastapi import FastAPI, HTTPException
 
@@ -63,6 +64,50 @@ def _run_graph(staged: dict) -> list[dict]:
     )
     mark_analyzed(db, staged["source_id"])
     return result.get("diagnostics", [])
+
+
+# ── Health & Readiness ────────────────────────────────────────────────────────
+
+@app.get("/health")
+def health():
+    """Liveness check — confirms the process is up and the API is reachable."""
+    return {"status": "ok"}
+
+
+@app.get("/ready")
+def ready():
+    """Readiness check — confirms Mongo and Ollama are reachable.
+
+    Returns 200 with a per-dependency status breakdown when all pass.
+    Returns 503 with the breakdown when any dependency is unreachable.
+    """
+    ollama_base = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+    ollama_model = os.getenv("OLLAMA_MODEL", "llama3.1")
+
+    result = {"mongo": "ok", "ollama": "ok"}
+    failed = False
+
+    # Mongo check — lightweight ping command
+    try:
+        db.client.admin.command("ping")
+    except Exception as exc:
+        result["mongo"] = f"unreachable: {exc}"
+        failed = True
+
+    # Ollama check — hit the local tags endpoint to confirm the model is pulled
+    try:
+        resp = http_client.get(f"{ollama_base}/api/tags", timeout=5)
+        models = [m.get("name", "") for m in resp.json().get("models", [])]
+        if not any(ollama_model in m for m in models):
+            result["ollama"] = f"model '{ollama_model}' not found — run: ollama pull {ollama_model}"
+            failed = True
+    except Exception as exc:
+        result["ollama"] = f"unreachable: {exc}"
+        failed = True
+
+    if failed:
+        raise HTTPException(status_code=503, detail=result)
+    return result
 
 
 # ── Endpoints ─────────────────────────────────────────────────────────────────
