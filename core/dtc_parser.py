@@ -1,17 +1,11 @@
 # core/dtc_parser.py
 # Extracts structured fault records from raw dtcRecords JSON.
-#
-# Source shape (from MongoDB / dtc_records.csv):
-#   metaData.dtcRecords.dtcs.<CODE>.ecu   → ECU name string
-#   metaData.dtcRecords.dtcs.<CODE>.desc  → raw description string
-#   metaData.dtcRecords.mil               → MIL lamp status bool
 
 import re
 from datetime import datetime, timezone
 
 
 def _extract_fmi(description: str) -> int | None:
-    """Parse FMI value from a raw description string such as 'Out of Calibration (FMI 13)'."""
     if not description:
         return None
     match = re.search(r"FMI\s+(\d+)", description, re.IGNORECASE)
@@ -32,16 +26,8 @@ def parse_dtc_records(
         timestamp:   ISO 8601 timestamp string. Defaults to current UTC time.
 
     Returns:
-        List of fault dicts matching the schema:
-        {
-            "code":        str,   # e.g. "SPN 521133"
-            "ecu":         str,
-            "fmi":         int | None,
-            "description": str,
-            "timestamp":   str,   # ISO 8601
-            "vehicleId":   str,
-            "mil":         bool,
-        }
+        List of fault dicts with keys: code, ecu, fmi, description, timestamp,
+        vehicleId, mil.
     """
     if not timestamp:
         timestamp = datetime.now(timezone.utc).isoformat()
@@ -53,17 +39,14 @@ def parse_dtc_records(
     for raw_code, entry in dtcs.items():
         if not isinstance(entry, dict):
             continue
-
         code = raw_code.strip().upper()
         ecu = (entry.get("ecu") or "").strip()
         description = (entry.get("desc") or "").strip()
-        fmi = _extract_fmi(description)
-
         faults.append(
             {
                 "code": code,
                 "ecu": ecu,
-                "fmi": fmi,
+                "fmi": _extract_fmi(description),
                 "description": description,
                 "timestamp": timestamp,
                 "vehicleId": vehicle_id,
@@ -72,3 +55,17 @@ def parse_dtc_records(
         )
 
     return faults
+
+
+if __name__ == "__main__":
+    sample = {
+        "mil": True,
+        "dtcs": {
+            "SPN 521133": {"ecu": "Engine #2", "desc": "Out of Calibration FMI 13"},
+            "SPN 0": {"ecu": "Communications Unit", "desc": "No description"},
+        },
+    }
+    result = parse_dtc_records(sample, vehicle_id="TEST-001")
+    for fault in result:
+        print(fault)
+    # Expected: two fault dicts; first has fmi=13, second has fmi=None

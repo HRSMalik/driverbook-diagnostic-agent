@@ -1,7 +1,13 @@
+# frontend/streamlit_app/app.py
+# Streamlit UI for the DriverBook Diagnostics service.
+
 import os
 
 import requests
 import streamlit as st
+from dotenv import load_dotenv
+
+load_dotenv()
 
 API_URL = os.getenv("API_URL", "http://localhost:8000")
 
@@ -14,9 +20,11 @@ with st.sidebar:
     show_reanalyze = st.toggle(
         "Show reanalyze controls",
         value=False,
-        help="Admin / dev only. Forces the LLM graph to re-run for one vehicle. Use after editing seed_kb.json or when cached diagnostics look wrong.",
+        help="Admin / dev only. Forces the LLM graph to re-run for one vehicle.",
     )
 
+
+# ── Helpers ───────────────────────────────────────────────────────────────────
 
 def _render_diagnostics(diagnostics: list[dict]) -> None:
     if not diagnostics:
@@ -43,12 +51,14 @@ def _render_diagnostics(diagnostics: list[dict]) -> None:
                 st.write(f"**Estimated downtime:** {diag['estimated_downtime']}")
 
 
-# ── State ────────────────────────────────────────────────────────────────────
+# ── State ─────────────────────────────────────────────────────────────────────
+
 st.session_state.setdefault("vehicles", None)
 st.session_state.setdefault("tenant_id", "")
 
 
-# ── Step 1 — Tenant lookup ───────────────────────────────────────────────────
+# ── Step 1 — Tenant lookup ────────────────────────────────────────────────────
+
 st.subheader("Look up vehicles by tenant")
 with st.form("tenant"):
     tenant_id = st.text_input(
@@ -63,10 +73,7 @@ if fetched:
         st.error("Please enter a tenantId.")
         st.stop()
     with st.spinner("Loading (running graph for any unanalyzed vehicles)..."):
-        response = requests.get(
-            f"{API_URL}/tenants/{tenant_id.strip()}/vehicles",
-            timeout=600,
-        )
+        response = requests.get(f"{API_URL}/tenants/{tenant_id.strip()}/vehicles", timeout=600)
     if response.status_code != 200:
         st.error(f"{response.status_code}: {response.text}")
         st.stop()
@@ -75,7 +82,8 @@ if fetched:
     st.session_state["vehicles"] = body["vehicles"]
 
 
-# ── Step 2 — Render vehicles + their diagnostics inline ──────────────────────
+# ── Step 2 — Render vehicles + diagnostics inline ─────────────────────────────
+
 vehicles = st.session_state.get("vehicles")
 if vehicles is not None:
     st.subheader(f"Vehicles for tenant `{st.session_state['tenant_id']}` ({len(vehicles)} found)")
@@ -83,12 +91,12 @@ if vehicles is not None:
         st.info("No staged vehicles for this tenant. Run the batch scan first: `python -m core.datascanpipeline`.")
     else:
         for v in vehicles:
-            header = f"🚚 {v['vehicleId']}  —  {v['fault_count']} fault(s)"
+            header = f"{v['vehicleId']}  —  {v['fault_count']} fault(s)"
             with st.expander(header, expanded=False):
                 st.caption(f"source_id: `{v['source_id']}` · staged: {v.get('staged_at')}")
 
                 if show_reanalyze:
-                    if st.button("🔄 Reanalyze", key=f"reanalyze-{v['vehicleId']}"):
+                    if st.button("Reanalyze", key=f"reanalyze-{v['vehicleId']}"):
                         with st.spinner("Re-running graph..."):
                             r = requests.post(
                                 f"{API_URL}/vehicles/{v['vehicleId']}/reanalyze",

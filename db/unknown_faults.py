@@ -2,9 +2,17 @@
 # Upsert logic for auto-capturing fault codes not found in the knowledge base.
 
 from datetime import datetime, timezone
+from typing import Any
+
+from pymongo.database import Database
 
 
-def save_unknown_fault(db, fault: dict, telemetry_snapshot: dict, diagnostic: dict | None = None) -> None:
+def save_unknown_fault(
+    db: Database,
+    fault: dict[str, Any],
+    telemetry_snapshot: dict[str, Any],
+    diagnostic: dict[str, Any] | None = None,
+) -> None:
     """Insert or update an unknown fault record.
 
     On first encounter: full document is inserted with status "unresolved".
@@ -42,3 +50,10 @@ def save_unknown_fault(db, fault: dict, telemetry_snapshot: dict, diagnostic: di
         },
         upsert=True,
     )
+
+
+if __name__ == "__main__":
+    from db.connection import get_db
+    _db = get_db()
+    print("unknown_faults count:", _db["unknown_faults"].count_documents({}))
+    print("unresolved:", _db["unknown_faults"].count_documents({"status": "unresolved"}))

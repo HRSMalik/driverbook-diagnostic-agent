@@ -1,12 +1,14 @@
 # orchestration/diagnostic_graph.py
-# LanGraph DAG: parse → kb_lookup → telemetry → llm → explain → store → END
+# LangGraph DAG: parse → kb_lookup → telemetry → llm → explain → store → END
 
 import json
 import re
-from typing import TypedDict
+from typing import Any, TypedDict
 
+from langchain_ollama import ChatOllama
 from langgraph.graph import StateGraph, END
 from langchain_core.messages import SystemMessage, HumanMessage
+from pymongo.database import Database
 
 from core.dtc_parser import parse_dtc_records
 from core.knowledge_base import (
@@ -22,10 +24,10 @@ from llm.prompts import SYSTEM_PROMPT, HUMAN_PROMPT, EXPLAIN_SYSTEM_PROMPT, EXPL
 
 
 class DiagnosticState(TypedDict):
-    raw_input: dict          # {vehicleId, dtcJson, telemetry}
-    parsed_faults: list      # output of dtc_parser
-    diagnostics: list        # final per-fault diagnostic results
-    unknown_codes: list      # codes not found in KB
+    raw_input: dict[str, Any]     # {vehicleId, dtcJson, telemetry}
+    parsed_faults: list[dict]     # output of dtc_parser, enriched as it flows
+    diagnostics: list[dict]       # final per-fault diagnostic results
+    unknown_codes: list[str]      # codes not found in KB
 
 
 # ── Node functions ────────────────────────────────────────────────────────────
@@ -40,13 +42,12 @@ def parse_node(state: DiagnosticState) -> DiagnosticState:
     return {**state, "parsed_faults": faults}
 
 
-def kb_lookup_node(state: DiagnosticState, db) -> DiagnosticState:
+def kb_lookup_node(state: DiagnosticState, db: Database) -> DiagnosticState:
     """Annotate each fault with its KB entry; flag unknowns."""
     enriched = []
     unknown_codes = []
     for fault in state["parsed_faults"]:
         kb_entry = lookup(db, fault["code"])
-        # Thin entries (cheap-extract path) need LLM enrichment — run the graph for them.
         needs_enrichment = bool(kb_entry) and kb_entry.get("source") == "extracted_from_doc"
         fault = {
             **fault,
@@ -75,7 +76,7 @@ def telemetry_node(state: DiagnosticState) -> DiagnosticState:
     return {**state, "parsed_faults": enriched}
 
 
-def _diagnostic_from_kb(fault: dict, kb: dict) -> dict:
+def _diagnostic_from_kb(fault: dict[str, Any], kb: dict[str, Any]) -> dict[str, Any]:
     """Build a diagnostic record directly from a KB entry — no LLM call."""
     severity = fault.get("adjusted_severity") or kb.get("severity") or "Low"
     return {
@@ -89,7 +90,7 @@ def _diagnostic_from_kb(fault: dict, kb: dict) -> dict:
     }
 
 
-def llm_node(state: DiagnosticState, llm) -> DiagnosticState:
+def llm_node(state: DiagnosticState, llm: ChatOllama) -> DiagnosticState:
     """Call LLM for each fault and parse the JSON response. KB hits short-circuit."""
     diagnostics = []
     for fault in state["parsed_faults"]:
@@ -123,14 +124,12 @@ def llm_node(state: DiagnosticState, llm) -> DiagnosticState:
         try:
             response = llm.invoke(messages)
             raw_text = response.content if hasattr(response, "content") else str(response)
-            # Normalize whitespace then extract first JSON object
             clean = re.sub(r"\s+", " ", raw_text).strip()
             match = re.search(r"\{.*\}", clean)
             result = json.loads(match.group(0)) if match else {"error": "No JSON found", "raw": clean}
         except Exception as exc:
             result = {"error": str(exc)}
 
-        # Override severity with telemetry-adjusted value when available
         if "severity" in result and fault.get("adjusted_severity"):
             result["severity"] = fault["adjusted_severity"]
 
@@ -148,13 +147,14 @@ def llm_node(state: DiagnosticState, llm) -> DiagnosticState:
     return {**state, "diagnostics": diagnostics}
 
 
-def explain_node(state: DiagnosticState, llm) -> DiagnosticState:
+def explain_node(state: DiagnosticState, llm: ChatOllama) -> DiagnosticState:
     """Explainability agent: adds root cause explanation and resolution steps to each diagnostic.
 
     KB-sourced diagnostics short-circuit and reuse stored KB fields when present.
     """
     fault_by_code = {f.get("code"): f for f in state["parsed_faults"]}
     explained = []
+
     for diag in state["diagnostics"]:
         if diag.get("from_kb"):
             kb = fault_by_code.get(diag.get("code"), {}).get("kb_entry") or {}
@@ -169,15 +169,14 @@ def explain_node(state: DiagnosticState, llm) -> DiagnosticState:
                 }
             )
             continue
-        # Build a compact diagnosis summary to feed the explainability prompt
+
         diagnosis_summary = {
             k: diag.get(k)
             for k in ("purpose", "issue", "impact", "severity", "urgency")
             if diag.get(k)
         }
-        # Recover KB entry and telemetry from parsed_faults for this code
-        kb_entry = {}
-        telemetry = {}
+        kb_entry: dict[str, Any] = {}
+        telemetry: dict[str, Any] = {}
         for fault in state["parsed_faults"]:
             if fault.get("code") == diag.get("code"):
                 kb_entry = fault.get("kb_entry") or {}
@@ -203,10 +202,11 @@ def explain_node(state: DiagnosticState, llm) -> DiagnosticState:
             explanation = {"error": str(exc)}
 
         explained.append({**diag, **explanation})
+
     return {**state, "diagnostics": explained}
 
 
-def store_node(state: DiagnosticState, db) -> DiagnosticState:
+def store_node(state: DiagnosticState, db: Database) -> DiagnosticState:
     """Persist unknown faults and diagnostics output to MongoDB.
 
     For unknown codes:
@@ -214,60 +214,44 @@ def store_node(state: DiagnosticState, db) -> DiagnosticState:
       2. Auto-learn a KB entry from the LLM diagnostic output so future
          lookups have grounding data.
     For known codes: increment KB occurrence count.
+    All diagnostics are written to diagnostics_output.
     """
-    # Build a code → diagnostic lookup for auto-learning
     diag_by_code = {d.get("code", "").strip().upper(): d for d in state["diagnostics"]}
 
     for fault in state["parsed_faults"]:
-        diagnostic = diag_by_code.get(fault["code"].strip().upper(), {})
-
         if fault.get("is_unknown"):
-            # Cheap path first: extract minimal entry from the source document so
-            # the KB grows even if the LLM call failed or produced an error.
-            extract_and_insert_from_document(db, fault)
-            save_unknown_fault(
-                db,
-                fault,
-                fault.get("telemetry_snapshot", {}),
-                diagnostic=diagnostic,
-            )
+            save_unknown_fault(db, fault, fault.get("telemetry_snapshot", {}))
+            diagnostic = diag_by_code.get(fault["code"].strip().upper(), {})
+            if diagnostic and "error" not in diagnostic:
+                auto_learn_from_diagnosis(db, fault, diagnostic)
+        elif fault.get("needs_enrichment"):
+            diagnostic = diag_by_code.get(fault["code"].strip().upper(), {})
             if diagnostic and "error" not in diagnostic:
                 auto_learn_from_diagnosis(db, fault, diagnostic)
         else:
             increment_occurrence(db, fault["code"])
-            # Upgrade path: thin extracted_from_doc entries get promoted to
-            # auto_learned with full LLM fields filled in. Safe no-op for seed
-            # and existing auto_learned rows (filter inside auto_learn handles it).
-            if fault.get("needs_enrichment") and diagnostic and "error" not in diagnostic:
-                auto_learn_from_diagnosis(db, fault, diagnostic)
-
-    # Persist diagnostics output. Idempotent: replace any prior rows for this source_id.
-    source_id = state.get("raw_input", {}).get("source_id")
-    if source_id:
-        db["diagnostics_output"].delete_many({"source_id": source_id})
 
     if state["diagnostics"]:
-        rows = []
-        for d in state["diagnostics"]:
-            row = {**d}
-            if source_id:
-                row["source_id"] = source_id
-            rows.append(row)
-        db["diagnostics_output"].insert_many(rows)
+        source_id = state["raw_input"].get("source_id")
+        if source_id:
+            db["diagnostics_output"].delete_many({"source_id": source_id})
+        db["diagnostics_output"].insert_many(
+            [{**d, "source_id": source_id} for d in state["diagnostics"]]
+        )
 
     return state
 
 
 # ── Graph builder ─────────────────────────────────────────────────────────────
 
-def build_graph(db):
-    """Construct and compile the LanGraph diagnostic workflow.
+def build_graph(db: Database) -> Any:
+    """Construct and compile the LangGraph diagnostic workflow.
 
     Args:
         db: MongoDB database handle (injected so nodes can access storage).
 
     Returns:
-        Compiled LanGraph app ready to invoke with DiagnosticState.
+        Compiled LangGraph app ready to invoke with DiagnosticState.
     """
     llm = get_llm()
 
@@ -289,3 +273,10 @@ def build_graph(db):
     graph.add_edge("store", END)
 
     return graph.compile()
+
+
+if __name__ == "__main__":
+    from db.connection import get_db as _get_db
+    _db = _get_db()
+    app = build_graph(_db)
+    print("Graph compiled successfully:", type(app))
