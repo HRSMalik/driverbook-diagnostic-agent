@@ -1,15 +1,23 @@
 # core/knowledge_base.py
-# Knowledge base service: seed, lookup, and occurrence tracking.
+# KB seed, lookup, occurrence tracking, and auto-learn from LLM output.
 
 import json
 import os
 from datetime import datetime, timezone
+from typing import Any
+
+from pymongo.database import Database
 
 _SEED_PATH = os.path.join(os.path.dirname(__file__), "..", "knowledge_base", "seed_kb.json")
 
 
-def seed_knowledge_base(db) -> int:
+# ── Seed ──────────────────────────────────────────────────────────────────────
+
+def seed_knowledge_base(db: Database) -> int:
     """Load seed_kb.json into the knowledge_base collection if it is empty.
+
+    Args:
+        db: MongoDB database handle.
 
     Returns:
         Number of documents inserted (0 if collection already had data).
@@ -33,17 +41,29 @@ def seed_knowledge_base(db) -> int:
     return len(entries)
 
 
-def lookup(db, code: str) -> dict | None:
+# ── Lookup & Occurrence ───────────────────────────────────────────────────────
+
+def lookup(db: Database, code: str) -> dict[str, Any] | None:
     """Return the KB entry for a fault code, or None if not found.
 
-    Lookup is case-insensitive and ignores leading/trailing whitespace.
+    Args:
+        db:   MongoDB database handle.
+        code: Raw fault code string (case-insensitive, whitespace-tolerant).
+
+    Returns:
+        KB document dict without _id, or None on miss.
     """
     normalized = code.strip().upper()
     return db["knowledge_base"].find_one({"code": normalized}, {"_id": 0})
 
 
-def increment_occurrence(db, code: str) -> None:
-    """Increment occurrence_count and update last_seen for a known code."""
+def increment_occurrence(db: Database, code: str) -> None:
+    """Increment occurrence_count and update last_seen for a known code.
+
+    Args:
+        db:   MongoDB database handle.
+        code: Fault code string.
+    """
     normalized = code.strip().upper()
     db["knowledge_base"].update_one(
         {"code": normalized},
@@ -54,16 +74,23 @@ def increment_occurrence(db, code: str) -> None:
     )
 
 
-def extract_and_insert_from_document(db, fault: dict) -> bool:
+# ── Auto-learn ────────────────────────────────────────────────────────────────
+
+def extract_and_insert_from_document(db: Database, fault: dict[str, Any]) -> bool:
     """Insert a minimal KB entry built from the source document only — no LLM.
 
     Used on KB miss to grow the knowledge base monotonically with the cheap
     information available in the source record (code, ecu, fmi, raw description).
-    Tagged ``source: "extracted_from_doc"`` so it can later be enriched by
+    Tagged source: "extracted_from_doc" so it can later be enriched by
     auto_learn_from_diagnosis without being overwritten (both helpers use
     $setOnInsert).
 
-    Returns True if a new KB row was inserted, False if the code already existed.
+    Args:
+        db:    MongoDB database handle.
+        fault: Structured fault dict from dtc_parser.
+
+    Returns:
+        True if a new KB row was inserted, False if the code already existed.
     """
     code = (fault.get("code") or "").strip().upper()
     if not code:
@@ -97,24 +124,21 @@ def extract_and_insert_from_document(db, fault: dict) -> bool:
     return result.upserted_id is not None
 
 
-def auto_learn_from_diagnosis(db, fault: dict, diagnostic: dict) -> None:
+def auto_learn_from_diagnosis(db: Database, fault: dict[str, Any], diagnostic: dict[str, Any]) -> None:
     """Create or upgrade a KB entry using the LLM diagnostic output.
 
     Behavior:
     - If the code does not exist yet: insert a fully-populated entry tagged
-      ``source: "auto_learned"``.
-    - If a cheap ``source: "extracted_from_doc"`` row exists: fill in the
-      missing LLM-derived fields (resolution_steps, parts, downtime, etc.)
-      and promote it to ``source: "auto_learned"``.
-    - Seed entries (no ``source`` field) and existing ``auto_learned`` entries
+      source: "auto_learned".
+    - If a cheap source: "extracted_from_doc" row exists: fill in the
+      missing LLM-derived fields and promote it to source: "auto_learned".
+    - Seed entries (no source field) and existing auto_learned entries
       are NEVER touched, preserving curated data.
 
     Args:
         db:         MongoDB database handle.
         fault:      Structured fault dict from dtc_parser.
-        diagnostic: Merged LLM output (diagnose + explain) — purpose, issue,
-                    severity, urgency, explanation, resolution_steps,
-                    who_can_fix, parts_likely_needed, estimated_downtime.
+        diagnostic: Merged LLM output (diagnose + explain fields).
     """
     code = fault.get("code", "").strip().upper()
     if not code:
@@ -124,7 +148,7 @@ def auto_learn_from_diagnosis(db, fault: dict, diagnostic: dict) -> None:
     now = datetime.now(timezone.utc).isoformat()
     ecu = fault.get("ecu", "Unknown") or "Unknown"
 
-    enrichment = {
+    enrichment: dict[str, Any] = {
         "meaning": diagnostic.get("purpose", ""),
         "causes": [diagnostic.get("issue", "")] if diagnostic.get("issue") else [],
         "severity": diagnostic.get("severity", "Low"),
@@ -136,7 +160,7 @@ def auto_learn_from_diagnosis(db, fault: dict, diagnostic: dict) -> None:
         "estimated_downtime": diagnostic.get("estimated_downtime", ""),
     }
 
-    # Path A — first-time insert (no row exists for this code yet).
+    # Path A — first-time insert (no row exists for this code yet)
     collection.update_one(
         {"code": code},
         {
@@ -154,12 +178,19 @@ def auto_learn_from_diagnosis(db, fault: dict, diagnostic: dict) -> None:
         upsert=True,
     )
 
-    # Path B — upgrade a cheap "extracted_from_doc" row in-place. Fills in only
-    # non-empty LLM fields and promotes the source tag. Seed and already-
-    # auto_learned rows are excluded by the filter so curated data is safe.
+    # Path B — upgrade a cheap extracted_from_doc row in-place
     set_fields = {k: v for k, v in enrichment.items() if v}
     if set_fields:
         collection.update_one(
             {"code": code, "source": "extracted_from_doc"},
             {"$set": {**set_fields, "source": "auto_learned", "last_seen": now}},
         )
+
+
+if __name__ == "__main__":
+    from db.connection import get_db
+    _db = get_db()
+    count = seed_knowledge_base(_db)
+    print(f"Seeded: {count} entries")
+    entry = lookup(_db, "spn 0")
+    print(f"lookup('spn 0'): {entry}")

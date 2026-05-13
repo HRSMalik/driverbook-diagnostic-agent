@@ -109,3 +109,70 @@ docker run -p 8000:8000 --env-file .env driverbook-diagnostics
 
 ## Next-Phase TODOs
 Tracked in `CLAUDE.md §12` (production hardening: startup events, /health + /ready, config/settings.py, structured logging, splitting datascanpipeline, llm/parsers.py extraction, pinned deps, hardened Dockerfile, tests/, schema versioning, etc.).
+
+## Future Functionality Improvements
+
+### F-1 — Multi-Fault Correlation Agent
+Each fault is currently diagnosed in isolation. When a vehicle throws multiple codes simultaneously, a third LLM agent should receive the full fault set and identify clusters — e.g. `SPN 523` (coolant sensor) + `SPN 110` (engine overheat) together imply overheating, not two separate issues.
+
+**Implementation:** Add a `correlate_node` after `explain_node`. Pass all faults for the vehicle in a single prompt asking for cluster groupings and a combined implication summary. Store result as `correlation_summary` on the response.
+
+---
+
+### F-2 — Vehicle History Context in Diagnosis
+
+The LLM has no awareness of whether a fault is a first occurrence or the 40th this month on the same vehicle. Recurring faults warrant higher urgency regardless of severity.
+
+**Implementation:** In `kb_lookup_node`, query `diagnostics_output` for prior occurrences of the same `code + vehicleId`. Pass `occurrence_history: {count, first_seen, last_seen}` into `HUMAN_PROMPT`. Update the system prompt to treat repeat occurrences as an urgency escalation signal.
+
+---
+
+### F-3 — Fleet-Wide Pattern Detection
+
+The same fault code hitting multiple vehicles in a fleet simultaneously signals a systemic issue (bad parts batch, firmware, route conditions) that per-vehicle analysis cannot surface.
+
+**Implementation:** Add `GET /tenants/{tenant_id}/patterns` endpoint. Aggregate `diagnostics_output` by `code` across all vehicles for the tenant within a configurable time window (default 7 days). Return codes that exceed a frequency threshold (e.g. ≥ 3 vehicles) flagged as `fleet_alert: true`.
+
+---
+
+### F-4 — Severity Trend Tracking
+
+A fault escalating from `Low` → `High` over consecutive runs is more alarming than a stable `High`. The system currently has no memory of severity over time.
+
+**Implementation:** In `store_node`, before writing to `diagnostics_output`, fetch the most recent stored severity for the same `code + vehicleId`. Compare and write `severity_trend: "escalating" | "stable" | "improving"` to the output document. Surface trend in the Streamlit vehicle card.
+
+---
+
+### F-5 — Resolution Feedback Loop
+
+When maintenance teams fix a fault, the actual cause and fix applied are more valuable than LLM inference. Currently that outcome is lost.
+
+**Implementation:** Add `PATCH /faults/{code}/resolve` endpoint accepting `{actual_cause, fix_applied, resolved_by, vehicle_id}`. Write the resolution back into the `knowledge_base` entry under a `real_world_resolutions` array. Include the most recent real-world resolution in future LLM prompts for that code.
+
+---
+
+### F-6 — Confidence-Based Human Review Queue
+
+The LLM outputs a `confidence` score (0–100) that is currently unused. A `Critical` severity diagnosis with `confidence: 32` should not silently pass to `diagnostics_output` without human review.
+
+**Implementation:** In `store_node`, if `confidence < 60` AND `severity in ["High", "Critical"]`, write to a `review_queue` collection in addition to `diagnostics_output`. Add `GET /review-queue` endpoint returning items sorted by severity + lowest confidence. Add a review queue panel to the Streamlit UI.
+
+---
+
+### F-7 — Batch LLM Calls (Performance)
+
+A vehicle with 8 fault codes currently makes 16 sequential Ollama calls (8 diagnose + 8 explain), which is the primary latency bottleneck.
+
+**Implementation:** Restructure `llm_node` and `explain_node` to pack all faults for a single vehicle into one prompt requesting a JSON array response. Reduces LLM calls from `2n` to `2` per vehicle. Requires updating `llm/prompts.py` with array-output schemas and more robust JSON array parsing in `llm/parsers.py`.
+
+---
+
+| #   | Improvement                   | Value                                                  | Effort |
+| --- | ----------------------------- | ------------------------------------------------------ | ------ |
+| F-1 | Multi-fault correlation       | High — catches what single-fault misses                | Medium |
+| F-2 | Vehicle history in diagnosis  | High — urgency changes for repeat faults               | Low    |
+| F-3 | Fleet-wide pattern detection  | High — surfaces systemic issues                        | Medium |
+| F-4 | Severity trend tracking       | Medium — better prioritisation                         | Low    |
+| F-5 | Resolution feedback loop      | High — KB improves from real outcomes                  | Medium |
+| F-6 | Confidence-based review queue | High — stops low-confidence criticals passing silently | Low    |
+| F-7 | Batch LLM calls               | Performance — 8x fewer Ollama calls per vehicle        | High   |
