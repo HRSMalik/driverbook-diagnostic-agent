@@ -20,8 +20,13 @@ from core.telemetry_context import build_telemetry_snapshot, adjust_severity
 from db.diagnostics_output import save_diagnostics
 from db.unknown_faults import save_unknown_fault
 from llm.hf_client import get_llm
+from llm.prompts import (
+    BATCH_EXPLAIN_HUMAN_PROMPT,
+    BATCH_EXPLAIN_SYSTEM_PROMPT,
+    BATCH_HUMAN_PROMPT,
+    BATCH_SYSTEM_PROMPT,
+)
 from llm.parsers import invoke_and_parse
-from llm.prompts import SYSTEM_PROMPT, HUMAN_PROMPT, EXPLAIN_SYSTEM_PROMPT, EXPLAIN_HUMAN_PROMPT
 
 
 class DiagnosticState(TypedDict):
@@ -91,63 +96,109 @@ def _diagnostic_from_kb(fault: dict[str, Any], kb: dict[str, Any]) -> dict[str, 
     }
 
 
-def llm_node(state: DiagnosticState, llm: ChatOllama) -> DiagnosticState:
-    """Call LLM for each fault and parse the JSON response. KB hits short-circuit."""
+def _parse_json_array(raw_text: str) -> list:
+    """Robustly extract a JSON array from LLM output. Returns [] on total failure."""
+    clean = re.sub(r"\s+", " ", raw_text).strip()
+    try:
+        result = json.loads(clean)
+        if isinstance(result, list):
+            return result
+    except json.JSONDecodeError:
+        pass
+    match = re.search(r"\[.*\]", clean, re.DOTALL)
+    if match:
+        try:
+            result = json.loads(match.group(0))
+            if isinstance(result, list):
+                return result
+        except json.JSONDecodeError:
+            pass
+    return []
+
+
+def _build_diag_row(fault: dict, result: dict) -> dict:
+    """Assemble a final diagnostic dict from a fault + LLM/KB result."""
+    if "severity" in result and fault.get("adjusted_severity"):
+        result = {**result, "severity": fault["adjusted_severity"]}
+    return {
+        "code": fault["code"],
+        "ecu": fault.get("ecu", ""),
+        "fmi": fault.get("fmi"),
+        "vehicleId": fault.get("vehicleId", ""),
+        "timestamp": fault.get("timestamp", ""),
+        "is_unknown": fault.get("is_unknown", False),
+        **{k: v for k, v in result.items() if k != "code"},
+    }
+
+
+def llm_node(state: DiagnosticState, llm) -> DiagnosticState:
+    """Diagnostic agent. KB hits short-circuit; remaining faults are batched into ONE LLM call.
+
+    Batching: faults that need the LLM (KB miss or thin extracted_from_doc entry)
+    are collected per vehicle and sent as a single JSON-array request. The response
+    is parsed as an array and mapped back to faults by code, with per-element
+    fallback if the array is missing or malformed.
+    """
     diagnostics = []
+    faults_needing_llm = []
+
     for fault in state["parsed_faults"]:
         kb = fault.get("kb_entry") or {}
-
         if fault.get("skip_llm") and kb:
-            result = _diagnostic_from_kb(fault, kb)
-            diagnostics.append(
-                {
-                    "code": fault["code"],
-                    "ecu": fault.get("ecu", ""),
-                    "fmi": fault.get("fmi"),
-                    "vehicleId": fault.get("vehicleId", ""),
-                    "timestamp": fault.get("timestamp", ""),
-                    "is_unknown": False,
-                    **result,
-                }
-            )
-            continue
+            diagnostics.append(_build_diag_row(fault, _diagnostic_from_kb(fault, kb)))
+        else:
+            faults_needing_llm.append(fault)
 
-        human_text = HUMAN_PROMPT.format(
-            code=fault.get("code", ""),
-            ecu=fault.get("ecu", ""),
-            fmi=fault.get("fmi", ""),
-            raw_desc=fault.get("description", ""),
-            telemetry=json.dumps(fault.get("telemetry_snapshot", {})),
-            kb_entry=json.dumps(kb) if kb else "No entry found in knowledge base.",
-        )
-        messages = [SystemMessage(content=SYSTEM_PROMPT), HumanMessage(content=human_text)]
-
-        result = invoke_and_parse(llm, messages)
-
-        if "severity" in result and fault.get("adjusted_severity"):
-            result["severity"] = fault["adjusted_severity"]
-
-        diagnostics.append(
+    if faults_needing_llm:
+        telemetry = faults_needing_llm[0].get("telemetry_snapshot", {})
+        batch_input = [
             {
-                "code": fault["code"],
-                "ecu": fault.get("ecu", ""),
-                "fmi": fault.get("fmi"),
-                "vehicleId": fault.get("vehicleId", ""),
-                "timestamp": fault.get("timestamp", ""),
-                "is_unknown": fault.get("is_unknown", False),
-                **result,
+                "code": f.get("code", ""),
+                "ecu": f.get("ecu", ""),
+                "fmi": f.get("fmi"),
+                "raw_desc": f.get("description", ""),
+                "kb_entry": f.get("kb_entry") or "No entry found in knowledge base.",
             }
+            for f in faults_needing_llm
+        ]
+        human_text = BATCH_HUMAN_PROMPT.format(
+            telemetry=json.dumps(telemetry),
+            n=len(batch_input),
+            faults_json=json.dumps(batch_input),
         )
+        messages = [SystemMessage(content=BATCH_SYSTEM_PROMPT), HumanMessage(content=human_text)]
+
+        try:
+            response = llm.invoke(messages)
+            raw_text = response.content if hasattr(response, "content") else str(response)
+            parsed = _parse_json_array(raw_text)
+        except Exception as exc:
+            parsed = []
+            batch_error = str(exc)
+        else:
+            batch_error = None
+
+        by_code = {}
+        for elem in parsed:
+            if isinstance(elem, dict) and elem.get("code"):
+                by_code[str(elem["code"]).strip().upper()] = elem
+
+        for fault in faults_needing_llm:
+            result = by_code.get(fault["code"].strip().upper())
+            if result is None:
+                result = {"error": batch_error or "Missing from batch response"}
+            diagnostics.append(_build_diag_row(fault, result))
+
     return {**state, "diagnostics": diagnostics}
 
 
-def explain_node(state: DiagnosticState, llm: ChatOllama) -> DiagnosticState:
-    """Explainability agent: adds root cause explanation and resolution steps to each diagnostic.
-
-    KB-sourced diagnostics short-circuit and reuse stored KB fields when present.
+def explain_node(state: DiagnosticState, llm) -> DiagnosticState:
+    """Explainability agent. KB-sourced diagnostics short-circuit and reuse KB fields;
+    remaining diagnostics are batched into ONE LLM call.
     """
     fault_by_code = {f.get("code"): f for f in state["parsed_faults"]}
     explained = []
+    diags_needing_llm = []
 
     for diag in state["diagnostics"]:
         if diag.get("from_kb"):
@@ -162,33 +213,56 @@ def explain_node(state: DiagnosticState, llm: ChatOllama) -> DiagnosticState:
                     "estimated_downtime": kb.get("estimated_downtime", "Unknown"),
                 }
             )
-            continue
+        else:
+            diags_needing_llm.append(diag)
 
-        diagnosis_summary = {
-            k: diag.get(k)
-            for k in ("purpose", "issue", "impact", "severity", "urgency")
-            if diag.get(k)
-        }
-        kb_entry: dict[str, Any] = {}
-        telemetry: dict[str, Any] = {}
-        for fault in state["parsed_faults"]:
-            if fault.get("code") == diag.get("code"):
-                kb_entry = fault.get("kb_entry") or {}
-                telemetry = fault.get("telemetry_snapshot") or {}
-                break
+    if diags_needing_llm:
+        first_fault = fault_by_code.get(diags_needing_llm[0].get("code"), {})
+        telemetry = first_fault.get("telemetry_snapshot") or {}
+        batch_input = []
+        for diag in diags_needing_llm:
+            fault = fault_by_code.get(diag.get("code"), {})
+            diagnosis_summary = {
+                k: diag.get(k)
+                for k in ("purpose", "issue", "impact", "severity", "urgency")
+                if diag.get(k)
+            }
+            batch_input.append(
+                {
+                    "code": diag.get("code", ""),
+                    "ecu": diag.get("ecu", ""),
+                    "diagnosis": diagnosis_summary,
+                    "kb_entry": fault.get("kb_entry") or "No entry found in knowledge base.",
+                }
+            )
 
-        human_text = EXPLAIN_HUMAN_PROMPT.format(
-            code=diag.get("code", ""),
-            ecu=diag.get("ecu", ""),
-            diagnosis=json.dumps(diagnosis_summary),
-            kb_entry=json.dumps(kb_entry) if kb_entry else "No entry found in knowledge base.",
+        human_text = BATCH_EXPLAIN_HUMAN_PROMPT.format(
             telemetry=json.dumps(telemetry),
+            n=len(batch_input),
+            faults_json=json.dumps(batch_input),
         )
-        messages = [SystemMessage(content=EXPLAIN_SYSTEM_PROMPT), HumanMessage(content=human_text)]
+        messages = [SystemMessage(content=BATCH_EXPLAIN_SYSTEM_PROMPT), HumanMessage(content=human_text)]
 
-        explanation = invoke_and_parse(llm, messages)
+        try:
+            response = llm.invoke(messages)
+            raw_text = response.content if hasattr(response, "content") else str(response)
+            parsed = _parse_json_array(raw_text)
+        except Exception as exc:
+            parsed = []
+            batch_error = str(exc)
+        else:
+            batch_error = None
 
-        explained.append({**diag, **explanation})
+        by_code = {}
+        for elem in parsed:
+            if isinstance(elem, dict) and elem.get("code"):
+                by_code[str(elem["code"]).strip().upper()] = elem
+
+        for diag in diags_needing_llm:
+            explanation = by_code.get(diag["code"].strip().upper())
+            if explanation is None:
+                explanation = {"error": batch_error or "Missing from batch response"}
+            explained.append({**diag, **{k: v for k, v in explanation.items() if k != "code"}})
 
     return {**state, "diagnostics": explained}
 
