@@ -34,3 +34,7 @@ Thumbs.db
 
 # Claude
 .claude/
+
+# Frontend
+frontend/react_app/node_modules/
+frontend/react_app/dist/
