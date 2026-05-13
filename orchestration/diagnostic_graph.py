@@ -2,6 +2,7 @@
 # LangGraph DAG: parse → kb_lookup → telemetry → llm → explain → store → END
 
 import json
+import re
 from typing import Any, TypedDict
 
 from langchain_ollama import ChatOllama
