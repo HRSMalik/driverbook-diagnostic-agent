@@ -157,7 +157,6 @@ def auto_learn_from_diagnosis(db: Database, fault: dict[str, Any], diagnostic: d
         "resolution_steps": diagnostic.get("resolution_steps", []),
         "who_can_fix": diagnostic.get("who_can_fix", ""),
         "parts_likely_needed": diagnostic.get("parts_likely_needed", []),
-        "estimated_downtime": diagnostic.get("estimated_downtime", ""),
     }
 
     # Path A — first-time insert (no row exists for this code yet)

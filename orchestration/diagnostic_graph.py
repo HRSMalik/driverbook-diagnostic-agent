@@ -21,12 +21,19 @@ from core.telemetry_context import build_telemetry_snapshot, adjust_severity
 from db.diagnostics_output import save_diagnostics
 from db.unknown_faults import save_unknown_fault
 from llm.hf_client import get_llm
+from llm.output_models import (
+    clamp_severity,
+    should_auto_learn,
+    validate_diagnostic,
+    validate_explanation,
+)
 from llm.prompts import (
     BATCH_EXPLAIN_HUMAN_PROMPT,
     BATCH_EXPLAIN_SYSTEM_PROMPT,
     BATCH_HUMAN_PROMPT,
     BATCH_SYSTEM_PROMPT,
 )
+from llm.sanitize import sanitize_fault, sanitize_kb_entry, sanitize_user_text
 from llm.parsers import invoke_and_parse
 
 
@@ -152,15 +159,17 @@ def llm_node(state: DiagnosticState, llm) -> DiagnosticState:
 
     if faults_needing_llm:
         telemetry = faults_needing_llm[0].get("telemetry_snapshot", {})
+        # Sanitize every third-party text field before it enters the prompt.
+        sanitized_faults = [sanitize_fault(f) for f in faults_needing_llm]
         batch_input = [
             {
-                "code": f.get("code", ""),
-                "ecu": f.get("ecu", ""),
-                "fmi": f.get("fmi"),
-                "raw_desc": f.get("description", ""),
-                "kb_entry": f.get("kb_entry") or "No entry found in knowledge base.",
+                "code": sf.get("code", ""),
+                "ecu": sf.get("ecu", ""),
+                "fmi": sf.get("fmi"),
+                "raw_desc": sf.get("description", ""),
+                "kb_entry": sanitize_kb_entry(orig.get("kb_entry")) or "No entry found in knowledge base.",
             }
-            for f in faults_needing_llm
+            for sf, orig in zip(sanitized_faults, faults_needing_llm)
         ]
         human_text = BATCH_HUMAN_PROMPT.format(
             telemetry=json.dumps(telemetry),
@@ -185,10 +194,16 @@ def llm_node(state: DiagnosticState, llm) -> DiagnosticState:
                 by_code[str(elem["code"]).strip().upper()] = elem
 
         for fault in faults_needing_llm:
-            result = by_code.get(fault["code"].strip().upper())
-            if result is None:
-                result = {"error": batch_error or "Missing from batch response"}
-            diagnostics.append(_build_diag_row(fault, result))
+            raw_result = by_code.get(fault["code"].strip().upper())
+            if raw_result is None:
+                validated = {"error": batch_error or "Missing from batch response"}
+            else:
+                validated, _ = validate_diagnostic(raw_result)
+                # Clamp LLM-claimed severity to at most one step above KB severity.
+                if "severity" in validated and "error" not in validated:
+                    kb_severity = (fault.get("kb_entry") or {}).get("severity")
+                    validated["severity"] = clamp_severity(kb_severity, validated["severity"])
+            diagnostics.append(_build_diag_row(fault, validated))
 
     return {**state, "diagnostics": diagnostics}
 
@@ -211,7 +226,6 @@ def explain_node(state: DiagnosticState, llm) -> DiagnosticState:
                     "resolution_steps": kb.get("resolution_steps") or kb.get("causes", []) or [],
                     "who_can_fix": kb.get("who_can_fix", "Fleet maintenance team"),
                     "parts_likely_needed": kb.get("parts_likely_needed", []),
-                    "estimated_downtime": kb.get("estimated_downtime", "Unknown"),
                 }
             )
         else:
@@ -224,16 +238,16 @@ def explain_node(state: DiagnosticState, llm) -> DiagnosticState:
         for diag in diags_needing_llm:
             fault = fault_by_code.get(diag.get("code"), {})
             diagnosis_summary = {
-                k: diag.get(k)
+                k: sanitize_user_text(diag.get(k), max_len=500)
                 for k in ("purpose", "issue", "impact", "severity", "urgency")
                 if diag.get(k)
             }
             batch_input.append(
                 {
-                    "code": diag.get("code", ""),
-                    "ecu": diag.get("ecu", ""),
+                    "code": sanitize_user_text(diag.get("code", ""), max_len=80),
+                    "ecu": sanitize_user_text(diag.get("ecu", ""), max_len=120),
                     "diagnosis": diagnosis_summary,
-                    "kb_entry": fault.get("kb_entry") or "No entry found in knowledge base.",
+                    "kb_entry": sanitize_kb_entry(fault.get("kb_entry")) or "No entry found in knowledge base.",
                 }
             )
 
@@ -260,9 +274,11 @@ def explain_node(state: DiagnosticState, llm) -> DiagnosticState:
                 by_code[str(elem["code"]).strip().upper()] = elem
 
         for diag in diags_needing_llm:
-            explanation = by_code.get(diag["code"].strip().upper())
-            if explanation is None:
+            raw_explanation = by_code.get(diag["code"].strip().upper())
+            if raw_explanation is None:
                 explanation = {"error": batch_error or "Missing from batch response"}
+            else:
+                explanation, _ = validate_explanation(raw_explanation)
             explained.append({**diag, **{k: v for k, v in explanation.items() if k != "code"}})
 
     return {**state, "diagnostics": explained}
@@ -284,11 +300,12 @@ def store_node(state: DiagnosticState, db: Database) -> DiagnosticState:
         if fault.get("is_unknown"):
             save_unknown_fault(db, fault, fault.get("telemetry_snapshot", {}))
             diagnostic = diag_by_code.get(fault["code"].strip().upper(), {})
-            if diagnostic and "error" not in diagnostic:
+            # Confidence floor — don't poison the KB with low-quality LLM output.
+            if should_auto_learn(diagnostic):
                 auto_learn_from_diagnosis(db, fault, diagnostic)
         elif fault.get("needs_enrichment"):
             diagnostic = diag_by_code.get(fault["code"].strip().upper(), {})
-            if diagnostic and "error" not in diagnostic:
+            if should_auto_learn(diagnostic):
                 auto_learn_from_diagnosis(db, fault, diagnostic)
         else:
             increment_occurrence(db, fault["code"])

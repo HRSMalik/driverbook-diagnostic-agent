@@ -47,8 +47,6 @@ def _render_diagnostics(diagnostics: list[dict]) -> None:
                     st.write(f"- {step}")
             if diag.get("parts_likely_needed"):
                 st.write(f"**Parts:** {', '.join(diag['parts_likely_needed'])}")
-            if diag.get("estimated_downtime"):
-                st.write(f"**Estimated downtime:** {diag['estimated_downtime']}")
 
 
 # ── State ─────────────────────────────────────────────────────────────────────

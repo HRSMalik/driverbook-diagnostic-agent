@@ -493,7 +493,6 @@ export default function App() {
                                     </>
                                   )}
                                   {d.who_can_fix && <div style={{ marginTop:8, fontSize:11, color:'var(--text-muted)' }}>Who can fix: <span style={{ color:'var(--text-secondary)' }}>{d.who_can_fix}</span></div>}
-                                  {d.estimated_downtime && <div style={{ fontSize:11, color:'var(--text-muted)' }}>Downtime: <span style={{ color:'var(--text-secondary)' }}>{d.estimated_downtime}</span></div>}
                                 </div>
                               )}
                               {d.error && <div style={{ fontSize:11, color:'#FF4D4D' }}>Error: {d.error}</div>}

@@ -376,7 +376,7 @@ Batch CLI for scanning the source MongoDB collection and running each found docu
 #### `llm/prompts.py` (62 lines)
 - `SYSTEM_PROMPT` — diagnostic agent instructions; mandates single-line raw JSON output with schema `{purpose, issue, impact, severity (Low|Medium|High|Critical), urgency (Ignore|Monitor|Schedule Maintenance|Immediate Action), confidence (0-100)}`.
 - `HUMAN_PROMPT` — formats `{code, ecu, fmi, raw_desc, telemetry, kb_entry}`.
-- `EXPLAIN_SYSTEM_PROMPT` — explainability agent; output schema `{explanation, resolution_steps, who_can_fix (Driver only|Fleet maintenance team|Certified technician required), parts_likely_needed, estimated_downtime}`.
+- `EXPLAIN_SYSTEM_PROMPT` — explainability agent; output schema `{explanation, resolution_steps, who_can_fix (Driver only|Fleet maintenance team|Certified technician required), parts_likely_needed}`.
 - `EXPLAIN_HUMAN_PROMPT` — formats `{code, ecu, diagnosis, kb_entry, telemetry}`.
 
 ---

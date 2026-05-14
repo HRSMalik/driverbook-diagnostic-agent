@@ -123,8 +123,7 @@ curl -X POST "http://localhost:8000/analyze-vehicle/68b89e444f65cd554d751336?rea
       "explanation": "...",
       "resolution_steps": ["..."],
       "who_can_fix": "Fleet maintenance team",
-      "parts_likely_needed": [],
-      "estimated_downtime": "Unknown"
+      "parts_likely_needed": []
     }
   ],
   "unknown_codes": []

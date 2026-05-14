@@ -37,12 +37,25 @@ logger.info("Diagnostic graph compiled.")
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
 
+_OBJECT_ID_RE = __import__("re").compile(r"^[0-9a-fA-F]{24}$")
+
+
 def _validate_object_id(value: str, label: str) -> str:
+    """Reject anything that is not a 24-char hex ObjectId. Returns the normalized lower-case form."""
+    if not isinstance(value, str):
+        raise HTTPException(status_code=400, detail=f"Invalid {label}: must be a string")
+    stripped = value.strip()
+    if not _OBJECT_ID_RE.match(stripped):
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid {label}: must be a 24-char hex ObjectId, got {value!r}",
+        )
+    # Final belt-and-suspenders: bson's own parser must accept it.
     try:
-        ObjectId(value)
+        ObjectId(stripped)
     except Exception:
-        raise HTTPException(status_code=400, detail=f"Invalid {label}: {value}")
-    return value
+        raise HTTPException(status_code=400, detail=f"Invalid {label}: {value!r}")
+    return stripped.lower()
 
 
 def _latest_staged(vehicle_id: str) -> dict | None:
