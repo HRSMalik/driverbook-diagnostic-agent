@@ -235,22 +235,48 @@ No multi-stage build, no non-root user, no `HEALTHCHECK`, no `.dockerignore`. Re
 ## Future Improvements
 
 ### F-1 — Multi-Fault Correlation
-Each fault is diagnosed in isolation. A third LLM agent should receive the full fault set for a vehicle and identify clusters — e.g. coolant sensor fault + engine overheat fault together imply overheating, not two separate issues. Add a `correlate_node` after `diagnose_node`.
+Each fault is diagnosed in isolation by Flow 1. When a vehicle has multiple simultaneous fault codes, a new Flow 3 step should run after Flow 1 completes — sending the full set of KB-resolved diagnostics for that vehicle to the LLM in one call to identify clusters and cross-fault implications (e.g. coolant sensor + engine overheat together imply overheating, not two separate issues).
 
-### F-2 — Vehicle History Context
-The LLM has no awareness of repeat occurrences. Recurring faults on the same vehicle warrant higher urgency. Pass `occurrence_history: {count, first_seen, last_seen}` per code+vehicle into the enrich prompt.
+**Implementation:** Add `correlate_faults(db, vehicle_id, diagnostics)` in `core/` that calls the LLM with all fault diagnostics for a vehicle. Run it in `run_data_scan_pipeline` after Flow 1, only for vehicles with more than one fault. Save result as `correlation_summary` on the `diagnostics_output` document. Surface in the dashboard vehicle detail view.
+
+---
+
+### F-2 — Vehicle History Context in KB Enrichment
+Flow 2 enriches unknown codes without knowing how often that code has appeared on a specific vehicle. Recurring faults warrant higher urgency regardless of raw severity.
+
+**Implementation:** In `enrich_unknown_codes()`, before calling the LLM for each code, query `diagnostics_output` for prior occurrences of that `code + vehicleId`. Pass `occurrence_history: {count, first_seen, last_seen}` into `KB_ENRICH_HUMAN_PROMPT`. Update the prompt template to use this as an urgency escalation signal.
+
+---
 
 ### F-3 — Fleet-Wide Pattern Detection
-The same code hitting multiple vehicles simultaneously signals a systemic issue. Add `GET /tenants/{tenant_id}/patterns` — aggregate diagnostics_output by code across all vehicles within a time window and flag codes exceeding a frequency threshold.
+The same fault code hitting multiple vehicles in a fleet simultaneously signals a systemic issue (bad parts batch, firmware, route conditions) that per-vehicle Flow 1 analysis cannot surface.
+
+**Implementation:** Add `GET /tenants/{tenant_id}/patterns` endpoint. Aggregate `diagnostics_output` by `code` across all vehicles for the tenant within a configurable time window (default 7 days). Return codes that appear on 3 or more vehicles flagged as `fleet_alert: true`. No pipeline changes needed — pure read aggregation on existing data.
+
+---
 
 ### F-4 — Severity Trend Tracking
-A fault escalating from Low to High over consecutive runs is more alarming than a stable High. In store_node, compare new severity against the most recent stored severity for the same code+vehicle and write `severity_trend: escalating | stable | improving`.
+A fault escalating from Low to High over consecutive Flow 1 runs is more alarming than a stable High. Flow 1 currently overwrites the previous diagnostic with no memory of prior severity.
+
+**Implementation:** In `store_node`, before writing to `diagnostics_output`, query the most recent stored severity for the same `code + vehicleId`. Compare and write `severity_trend: "escalating" | "stable" | "improving"` on the new document. Surface trend indicators in the dashboard fault cards.
+
+---
 
 ### F-5 — Resolution Feedback Loop
-When a fault is fixed, the actual cause and fix applied are more valuable than LLM inference. Add `PATCH /faults/{code}/resolve` accepting actual_cause, fix_applied, resolved_by. Write back into the KB entry under `real_world_resolutions` and include in future enrichment prompts.
+When maintenance teams fix a fault, the actual cause and fix applied are more valuable than LLM inference from Flow 2. Currently that outcome is lost.
 
-### F-6 — Confidence-Based Review Queue
-The `confidence` score (0-100) is currently unused. A Critical severity diagnosis with confidence 32 should not silently pass. In store_node, write to a `review_queue` collection when `confidence < 60` and `severity in [High, Critical]`. Add `GET /review-queue` endpoint.
+**Implementation:** Add `PATCH /faults/{code}/resolve` endpoint accepting `{actual_cause, fix_applied, resolved_by, vehicle_id}`. Write the resolution back into the `knowledge_base` entry under a `real_world_resolutions` array. On the next Flow 2 enrichment for that code, include the most recent real-world resolution in `KB_ENRICH_HUMAN_PROMPT` so the LLM grounds its output in confirmed fix history.
+
+---
+
+### F-6 — Enrichment Quality Score + Review Queue
+Flow 2 enriches unknown codes via LLM but has no quality signal on the output. A poorly formed KB entry (vague meaning, empty resolution steps) passes through silently.
+
+**Implementation:** Add a `confidence` field to the `KB_ENRICH_SYSTEM_PROMPT` output schema (0–100). In `auto_learn_from_diagnosis()`, if `confidence < 60` and `severity in [High, Critical]`, write the entry to a `review_queue` collection alongside `knowledge_base`. Add `GET /review-queue` endpoint returning items sorted by severity + lowest confidence. Surface in the dashboard as a separate admin tab.
+
+---
 
 ### F-7 — Scheduled Full Scan
-The pipeline is currently query-driven — data is only refreshed when a tenant is actively viewed. A cron-based scheduled scan across all tenants would ensure data stays current without requiring dashboard activity.
+The pipeline is query-driven — source DB is only scanned when a tenant is actively queried from the dashboard. New fault documents accumulate unprocessed until someone opens that tenant.
+
+**Implementation:** Add a `scripts/scheduled_scan.py` that calls `run_data_scan_pipeline()` with no tenant filter, covering all tenants in one pass. Register it as a cron job (e.g. every 15 minutes). Alternatively expose `POST /scan` (already implemented) and call it from an external scheduler.
