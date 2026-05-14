@@ -186,6 +186,52 @@ docker run -p 8000:8000 --env-file .env driverbook-diagnostics
 
 ---
 
+## Backlog — System Improvements (from audit 2026-05-14)
+
+### High Priority
+
+**B-1 — Silent LLM failures in Flow 2**
+`enrich_unknown_codes()` swallows all LLM exceptions with bare `except: pass`. Failed enrichments are invisible — no log, no retry, no record. Add per-code logging, track failed codes, and optionally retry once.
+
+**B-2 — LLM call timeout**
+`llm.invoke()` has no timeout. A stuck Ollama process blocks the entire Flow 2 enrichment indefinitely. Add a timeout via `ChatOllama(timeout=60)` or wrap with `signal`/`concurrent.futures`.
+
+**B-3 — Background scan errors are invisible**
+The background thread in `list_tenant_vehicles` logs warnings but the caller never learns if the scan failed. Add a scan status record in MongoDB so the dashboard can reflect scan state.
+
+**B-4 — Import-time side effects in `api.py`**
+KB seed, graph build, and collection setup run at import time. Any failure on startup crashes the whole process with no graceful degradation. Move into a FastAPI `lifespan` handler with proper error handling.
+
+### Medium Priority
+
+**B-5 — Dashboard hides vehicles with only unknown codes**
+Vehicles where all faults are `is_unknown` are filtered out entirely — fleet managers never see them. Should show them with an "analysis pending" badge instead of hiding them.
+
+**B-6 — Fake API health indicator in sidebar**
+"API Connected" is hardcoded — it never actually checks the API. Should ping `/health` on load and reflect real status.
+
+**B-7 — No pagination on tenant endpoint**
+All diagnostics for all vehicles are loaded into memory per request. Fine at 154 docs today, will degrade at scale. Add `skip`/`limit` params and paginate the vehicle list.
+
+**B-8 — No client-side Tenant ID validation**
+User can type any string — validation only fails after the API call returns an error. Should check for valid 24-char hex ObjectId format before making the request.
+
+### Lower Priority
+
+**B-9 — Centralise config in `config/settings.py`**
+`os.getenv` calls are scattered across `api.py`, `datascanpipeline.py`, and `hf_client.py`. A single `Settings` class validates required vars on startup and makes config auditable.
+
+**B-10 — Request tracing**
+No `request_id` propagated through API calls or background scans. Hard to correlate logs when something fails. Add UUID4 `request_id` at the API boundary, pass through LangGraph state.
+
+**B-11 — Centralise LLM JSON parsing**
+The regex extraction pattern is duplicated across multiple nodes. Should live only in `llm/parsers.py` with a single tested implementation.
+
+**B-12 — Harden Dockerfile**
+No multi-stage build, no non-root user, no `HEALTHCHECK`, no `.dockerignore`. Required before any non-local deployment.
+
+---
+
 ## Future Improvements
 
 ### F-1 — Multi-Fault Correlation
