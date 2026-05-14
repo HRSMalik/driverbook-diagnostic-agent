@@ -57,6 +57,7 @@ export default function App() {
   const [kbSearch, setKbSearch]               = useState('');
   const [kbPage, setKbPage]                   = useState(1);
   const [tenants, setTenants]                 = useState([]);
+  const [activeTenantId, setActiveTenantId]   = useState('');
   const [scanStatus, setScanStatus]           = useState('');
   const [scanning, setScanning]               = useState(false);
   const PAGE_SIZE = 10;
@@ -64,6 +65,8 @@ export default function App() {
   useEffect(() => {
     fetchTenants().then(d => setTenants(d.tenants || [])).catch(() => {});
   }, []);
+
+  const tenantName = (tid) => (tenants.find(t => t.tenantId === tid) || {}).name || tid;
 
   const handleFetch = async () => {
     if (!tenantId.trim()) { setError('Tenant ID is required.'); return; }
@@ -80,6 +83,7 @@ export default function App() {
       setVehicles(filtered);
       setKbEntries(kb.entries || []);
       setTenants(tenantsData.tenants || []);
+      setActiveTenantId(tenantId.trim());
       setKbPage(1);
     } catch (err) {
       setError('Failed to fetch data. Check Tenant ID and ensure the API is running.');
@@ -354,18 +358,18 @@ export default function App() {
                 <div style={{ display:'flex', flexWrap:'wrap', gap:8 }}>
                   {tenants.map(t => (
                     <span
-                      key={t}
-                      onClick={() => { setTenantId(t); }}
+                      key={t.tenantId}
+                      onClick={() => { setTenantId(t.tenantId); }}
                       style={{
-                        fontFamily:"'Space Mono',monospace", fontSize:11,
+                        fontSize:11,
                         padding:'5px 12px', borderRadius:20, cursor:'pointer',
-                        background: tenantId === t ? 'var(--cyan-dim)' : 'var(--bg-deep)',
-                        border: tenantId === t ? '1px solid var(--cyan)' : '1px solid var(--border)',
-                        color: tenantId === t ? 'var(--cyan)' : 'var(--text-muted)',
+                        background: tenantId === t.tenantId ? 'var(--cyan-dim)' : 'var(--bg-deep)',
+                        border: tenantId === t.tenantId ? '1px solid var(--cyan)' : '1px solid var(--border)',
+                        color: tenantId === t.tenantId ? 'var(--cyan)' : 'var(--text-muted)',
                         transition:'all 0.15s',
                       }}
                     >
-                      {t.slice(-12)}
+                      {t.name}
                     </span>
                   ))}
                 </div>
@@ -373,12 +377,13 @@ export default function App() {
             )}
           </div>
 
-          {/* Tab bar */}
-          {vehicles.length > 0 && (
-            <div className="tab-bar">
-              <button className={`tab-btn ${activeTab === 'diagnostics' ? 'active' : ''}`} onClick={() => setActiveTab('diagnostics')}>🛠 Diagnostics</button>
-              <button className={`tab-btn ${activeTab === 'fleet' ? 'active' : ''}`} onClick={() => setActiveTab('fleet')}>🚛 Fleet</button>
-              <button className={`tab-btn ${activeTab === 'kb' ? 'active' : ''}`} onClick={() => setActiveTab('kb')}>📚 KB ({kbEntries.length})</button>
+          {/* Tenant title */}
+          {vehicles.length > 0 && activeTenantId && (
+            <div style={{ padding:'10px 4px 0' }}>
+              <div className="page-title" style={{ fontSize:20 }}>
+                {tenantName(activeTenantId)}
+              </div>
+              <div style={{ fontSize:11, color:'var(--text-muted)', marginTop:3, fontFamily:"'Space Mono',monospace" }}>{activeTenantId}</div>
             </div>
           )}
 
@@ -389,7 +394,7 @@ export default function App() {
                 <div className="stat-card">
                   <div className="stat-label">Vehicles with Faults</div>
                   <div className="stat-value" style={{ color:'var(--cyan)' }}>{vehicles.length}</div>
-                  <div className="stat-sub">in tenant</div>
+                  <div className="stat-sub">{tenantName(activeTenantId)}</div>
                 </div>
                 <div className="stat-card">
                   <div className="stat-label">Critical Faults</div>
@@ -454,7 +459,7 @@ export default function App() {
                   <div className="card" style={{ padding:'16px 24px' }}>
                     <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:12 }}>
                       <div>
-                        <div style={{ fontSize:11, color:'var(--text-muted)', marginBottom:4 }}>VEHICLE</div>
+                        <div style={{ fontSize:11, color:'var(--text-muted)', marginBottom:2 }}>{tenantName(activeTenantId)}</div>
                         <div className="mono" style={{ fontSize:14, color:'var(--text-primary)', wordBreak:'break-all' }}>{selectedVehicle.vehicleId}</div>
                       </div>
                       <div style={{ display:'flex', gap:10 }}>
@@ -467,6 +472,51 @@ export default function App() {
                       </div>
                     </div>
                   </div>
+
+                  {/* Telemetry panel */}
+                  {selectedVehicle.telemetry && Object.keys(selectedVehicle.telemetry).length > 0 && (() => {
+                    const t = selectedVehicle.telemetry;
+                    const num = (v) => { const n = parseFloat(v); return isNaN(n) ? null : n; };
+                    const toCelsius = (v) => v !== null && v > 150 ? v - 273.15 : v;
+                    const coolant = toCelsius(num(t.engineCoolantTemperature));
+                    const oil     = num(t.engineOilPressure);
+                    const def     = num(t.defLevel);
+                    const speed   = num(t.speed);
+                    const fuel    = num(t.fuelLevel);
+                    const rpm     = num(t.engineSpeed);
+                    const signals = [
+                      { label: 'Coolant Temp', value: coolant, unit: '°C',   warn: coolant !== null && coolant > 105, critical: false,                          warnLabel: '▲ overheating' },
+                      { label: 'Oil Pressure', value: oil,     unit: ' PSI', warn: oil !== null && oil < 20,          critical: oil !== null && oil < 20,        warnLabel: '▼ critically low' },
+                      { label: 'DEF Level',    value: def,     unit: '%',    warn: def !== null && def < 5,            critical: false,                          warnLabel: '▼ refill required' },
+                      { label: 'Speed',        value: speed,   unit: ' km/h', warn: false,                            critical: false,                          warnLabel: '' },
+                      { label: 'Fuel Level',   value: fuel,    unit: '%',    warn: fuel !== null && fuel < 10,         critical: fuel !== null && fuel < 5,      warnLabel: fuel !== null && fuel < 5 ? '▼ critical — refuel now' : '▼ low fuel' },
+                      { label: 'Engine RPM',   value: rpm,     unit: ' RPM', warn: false,                             critical: false,                          warnLabel: '' },
+                    ].filter(s => s.value !== null);
+                    if (!signals.length) return null;
+                    const anyAlert = signals.some(s => s.warn);
+                    return (
+                      <div className="card">
+                        <div className="card-title" style={{ marginBottom: 14 }}>
+                          Live Telemetry Snapshot
+                          {anyAlert && <span style={{ marginLeft:8, fontSize:10, color:'#FF7832', background:'#FF783220', border:'1px solid #FF783240', borderRadius:20, padding:'2px 8px', fontWeight:700 }}>⚠ threshold exceeded</span>}
+                        </div>
+                        <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(160px, 1fr))', gap:10 }}>
+                          {signals.map(s => {
+                            const color = s.critical ? '#FF4D4D' : s.warn ? '#FF7832' : '#00DFD8';
+                            return (
+                              <div key={s.label} style={{ background:'var(--bg-deep)', border:`1px solid ${s.warn ? color + '44' : 'var(--border)'}`, borderRadius:10, padding:'12px 14px' }}>
+                                <div style={{ fontSize:10, color:'var(--text-muted)', letterSpacing:'0.8px', textTransform:'uppercase', marginBottom:6 }}>{s.label}</div>
+                                <div style={{ fontSize:20, fontWeight:700, fontFamily:'Space Mono,monospace', color, lineHeight:1 }}>
+                                  {s.value.toFixed(1)}<span style={{ fontSize:11, fontWeight:400, color:'var(--text-muted)', marginLeft:2 }}>{s.unit}</span>
+                                </div>
+                                {s.warn && <div style={{ fontSize:10, color, marginTop:6 }}>{s.warnLabel}</div>}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })()}
 
                   {diags.length > 0 && (
                     <div className="two-col">
@@ -499,6 +549,11 @@ export default function App() {
                               </div>
                               <div className="fault-meta-row">
                                 {severityPill(d.severity)}
+                                {d.severity_escalated && (
+                                  <span style={{ display:'inline-flex', alignItems:'center', gap:4, padding:'2px 8px', borderRadius:20, fontSize:10, fontWeight:700, background:'#FF783220', color:'#FF7832', border:'1px solid #FF783244' }}>
+                                    ↑ escalated from {d.base_severity}
+                                  </span>
+                                )}
                                 {urgencyPill(d.urgency)}
                                 {d.confidence != null && (
                                   <span style={{ fontSize:10, color:'var(--text-muted)', display:'flex', alignItems:'center', gap:6 }}>
@@ -507,6 +562,12 @@ export default function App() {
                                   </span>
                                 )}
                               </div>
+                              {d.severity_escalated && (
+                                <div style={{ fontSize:11, color:'#FF7832', background:'#FF783210', border:'1px solid #FF783230', borderRadius:8, padding:'6px 10px', display:'flex', alignItems:'center', gap:6 }}>
+                                  <span>⚠</span>
+                                  <span>Live vehicle conditions exceeded safe thresholds — severity escalated from <strong>{d.base_severity}</strong></span>
+                                </div>
+                              )}
                               {d.issue && <div className="fault-issue">{d.issue}</div>}
                               {d.impact && <div style={{ fontSize:12, color:'var(--text-muted)' }}>Impact: {d.impact}</div>}
                               {(d.explanation || d.resolution_steps?.length > 0) && (

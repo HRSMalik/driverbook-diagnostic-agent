@@ -38,6 +38,7 @@ Thumbs.db
 # Frontend
 frontend/react_app/node_modules/
 frontend/react_app/dist/
+frontend/react_app/.env
 
 # Generated scripts
 write_prd.py

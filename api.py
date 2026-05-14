@@ -26,9 +26,12 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI(title="DriverBook Diagnostics API", version="1.1.0")
 
+_raw_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173,http://localhost:3000")
+_allowed_origins = [o.strip() for o in _raw_origins.split(",") if o.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000"],
+    allow_origins=_allowed_origins,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -161,6 +164,7 @@ def list_tenant_vehicles(tenant_id: str) -> dict:
                 "fault_count": {"$first": "$fault_count"},
                 "analyzed": {"$first": "$analyzed"},
                 "doc_count": {"$sum": 1},
+                "telemetry": {"$first": "$raw_input.telemetry"},
             }
         },
         {"$sort": {"fault_count": -1}},
@@ -189,6 +193,7 @@ def list_tenant_vehicles(tenant_id: str) -> dict:
                 "staged_at": row["latest_staged_at"],
                 "timestamp": row["latest_timestamp"],
                 "analyzed": bool(diagnostics),
+                "telemetry": row.get("telemetry") or {},
                 "diagnostics": diagnostics,
             }
         )
@@ -247,14 +252,22 @@ def get_unknown_faults() -> dict:
 
 @app.get("/tenants")
 def list_tenants() -> dict:
-    """Return all unique tenant IDs found in staged fault_vehicles documents.
+    """Return all staged tenants with names from the tenant_names collection.
 
     Returns:
-        dict: count and list of tenantId strings.
+        dict: count and list of {tenantId, name} objects sorted by name.
     """
     tenant_ids = db["fault_vehicles"].distinct("tenantId")
     tenant_ids = [t for t in tenant_ids if t]
-    return {"count": len(tenant_ids), "tenants": sorted(tenant_ids)}
+    name_docs = {
+        d["tenantId"]: d.get("name", d["tenantId"])
+        for d in db["tenant_names"].find({"tenantId": {"$in": tenant_ids}}, {"_id": 0})
+    }
+    tenants = sorted(
+        [{"tenantId": tid, "name": name_docs.get(tid, tid)} for tid in tenant_ids],
+        key=lambda x: x["name"].lower(),
+    )
+    return {"count": len(tenants), "tenants": tenants}
 
 
 class ScanRequest(BaseModel):

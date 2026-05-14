@@ -13,6 +13,7 @@ from pymongo.database import Database
 
 from core.dtc_parser import parse_dtc_records
 from core.knowledge_base import auto_learn_from_diagnosis, increment_occurrence, lookup
+from core.telemetry_context import adjust_severity, build_telemetry_snapshot
 from db.diagnostics_output import save_diagnostics
 from db.unknown_faults import save_unknown_fault
 from llm.hf_client import get_llm
@@ -40,9 +41,11 @@ def _parse_json_obj(raw_text: str) -> dict:
     return {}
 
 
-def _diag_from_kb(fault: dict[str, Any], kb: dict[str, Any]) -> dict[str, Any]:
-    """Build a full diagnostic record from a KB entry."""
-    return {
+def _diag_from_kb(fault: dict[str, Any], kb: dict[str, Any], telemetry: dict[str, Any]) -> dict[str, Any]:
+    """Build a full diagnostic record from a KB entry, escalating severity with live telemetry."""
+    base_severity = kb.get("severity", "Low")
+    adjusted = adjust_severity(base_severity, fault, telemetry)
+    diag = {
         "code": fault["code"],
         "ecu": fault.get("ecu", ""),
         "fmi": fault.get("fmi"),
@@ -52,7 +55,7 @@ def _diag_from_kb(fault: dict[str, Any], kb: dict[str, Any]) -> dict[str, Any]:
         "purpose": kb.get("meaning", ""),
         "issue": kb.get("meaning", ""),
         "impact": ", ".join(kb.get("causes") or []),
-        "severity": kb.get("severity", "Low"),
+        "severity": adjusted,
         "urgency": kb.get("urgency", "Monitor"),
         "confidence": 100,
         "explanation": kb.get("explanation", ""),
@@ -62,6 +65,10 @@ def _diag_from_kb(fault: dict[str, Any], kb: dict[str, Any]) -> dict[str, Any]:
         "estimated_downtime": kb.get("estimated_downtime", "Unknown"),
         "from_kb": True,
     }
+    if adjusted != base_severity:
+        diag["severity_escalated"] = True
+        diag["base_severity"] = base_severity
+    return diag
 
 
 def _diag_placeholder(fault: dict[str, Any]) -> dict[str, Any]:
@@ -112,11 +119,16 @@ def kb_lookup_node(state: DiagnosticState, db: Database) -> DiagnosticState:
 
 
 def diagnose_node(state: DiagnosticState) -> DiagnosticState:
-    """Build diagnostics from KB for known codes; placeholders for unknowns."""
+    """Build diagnostics from KB for known codes; placeholders for unknowns.
+
+    Live telemetry signals from raw_input are used to escalate severity for known codes
+    when vehicle conditions exceed safe thresholds (coolant temp, oil pressure, DEF level).
+    """
+    telemetry = build_telemetry_snapshot(state["raw_input"].get("telemetry") or {})
     diagnostics = []
     for fault in state["parsed_faults"]:
         kb = fault.get("kb_entry")
-        diagnostics.append(_diag_from_kb(fault, kb) if kb else _diag_placeholder(fault))
+        diagnostics.append(_diag_from_kb(fault, kb, telemetry) if kb else _diag_placeholder(fault))
     return {**state, "diagnostics": diagnostics}
 
 

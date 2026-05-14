@@ -26,9 +26,9 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
 logger = logging.getLogger(__name__)
 
 DEFAULT_DTC_RECORDS_PATH = "metaData.dtcRecords"
-DEFAULT_SOURCE_DB = "driverbookv2_ai"
-DEFAULT_SOURCE_COLLECTION = "driverbookv2.driverdiagnostics"
-DEFAULT_APP_DB = "diagnostics"
+DEFAULT_SOURCE_DB = os.getenv("SOURCE_MONGO_DB", "driverbookv2_stage")
+DEFAULT_SOURCE_COLLECTION = os.getenv("SOURCE_COLLECTION", "driverdiagnostics")
+DEFAULT_APP_DB = os.getenv("MONGO_DB", "diagnostics")
 DEFAULT_TELEMETRY_FIELDS = (
     "engineCoolantTemperature",
     "engineOilPressure",
@@ -90,12 +90,22 @@ def _mil_to_bool(value: Any) -> bool:
     return False
 
 
+def _to_celsius(value: Any) -> Any:
+    """Convert Kelvin to Celsius if the value looks like Kelvin (> 150)."""
+    try:
+        f = float(value)
+        return round(f - 273.15, 2) if f > 150 else round(f, 2)
+    except (TypeError, ValueError):
+        return value
+
+
 def _normalize_telemetry(raw: Any) -> dict[str, Any]:
     if not isinstance(raw, dict):
         return {}
     normalized: dict[str, Any] = {}
     for key, value in raw.items():
-        normalized[key] = value["value"] if isinstance(value, dict) and "value" in value else value
+        v = value["value"] if isinstance(value, dict) and "value" in value else value
+        normalized[key] = _to_celsius(v) if key == "engineCoolantTemperature" else v
     return normalized
 
 
@@ -188,6 +198,41 @@ def extract_dtc_records(
         "faults": faults,
         "raw_input": raw_input,
     }
+
+
+# ── Tenant name sync ─────────────────────────────────────────────────────────
+
+def sync_tenant_names(app_db: Any, source_uri: str | None = None) -> int:
+    """Pull company names from source DB companies collection into local tenant_names.
+
+    Uses $setOnInsert so existing names are never overwritten by a re-sync.
+    Returns count of new entries inserted.
+    """
+    uri = source_uri or os.getenv("SOURCE_MONGO_URI")
+    source_db_name = os.getenv("SOURCE_MONGO_DB", DEFAULT_SOURCE_DB)
+    source_db = get_db(source_db_name, uri=uri)
+    companies = source_db["companies"]
+
+    tenant_ids = app_db["fault_vehicles"].distinct("tenantId")
+    inserted = 0
+    for tid in tenant_ids:
+        if not tid:
+            continue
+        try:
+            from bson import ObjectId
+            company = companies.find_one({"_id": ObjectId(tid)}, {"name": 1})
+        except Exception:
+            company = None
+        name = (company or {}).get("name", "").strip() if company else ""
+        result = app_db["tenant_names"].update_one(
+            {"tenantId": tid},
+            {"$setOnInsert": {"tenantId": tid, "name": name or tid}},
+            upsert=True,
+        )
+        if result.upserted_id:
+            inserted += 1
+    app_db["tenant_names"].create_index("tenantId", unique=True)
+    return inserted
 
 
 # ── Scan ──────────────────────────────────────────────────────────────────────
@@ -383,6 +428,8 @@ def run_data_scan_pipeline(
                     logger.info("Flow2 re-diagnosed source_id=%s", result.get("_id"))
                     # Replace in phase1_results for the summary
                     result.update(updated)
+
+    sync_tenant_names(app_db, source_uri=uri)
 
     return {
         "source_database": source_database,
