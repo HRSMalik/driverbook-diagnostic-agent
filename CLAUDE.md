@@ -452,4 +452,13 @@ These are the deltas between the current code and the structure / requirements a
 
 ---
 
+## 14. Git Commit Style
+
+- Write concise, lowercase commit messages in imperative mood: `add x`, `fix y`, `update z`
+- Never include `Co-Authored-By` or any AI attribution lines in commit messages
+- Stage specific files by name — never `git add -A` or `git add .`
+- Use HEREDOC syntax for multi-line commit messages to avoid shell quoting issues
+
+---
+
 End of CLAUDE.md. Keep this file updated when the file map, conventions, or production rules change.

@@ -38,3 +38,9 @@ Thumbs.db
 # Frontend
 frontend/react_app/node_modules/
 frontend/react_app/dist/
+
+# Generated scripts
+write_prd.py
+
+# Tests
+tests/reports/
