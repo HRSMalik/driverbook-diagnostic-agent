@@ -59,25 +59,45 @@ export default function App() {
   const [tenants, setTenants]                 = useState([]);
   const [scanStatus, setScanStatus]           = useState('');
   const [scanning, setScanning]               = useState(false);
+  const [vehiclePage, setVehiclePage]         = useState(0);   // 0-indexed page number for tenant pagination
+  const [vehicleTotal, setVehicleTotal]       = useState(0);
+  const [vehicleHasMore, setVehicleHasMore]   = useState(false);
   const PAGE_SIZE = 10;
+  const VEHICLE_PAGE_SIZE = 20;
+
+  // B-8: Client-side Tenant ID validation — MongoDB ObjectId is 24 hex chars.
+  const OBJECT_ID_RE = /^[0-9a-fA-F]{24}$/;
+  const isValidObjectId = (s) => OBJECT_ID_RE.test((s || '').trim());
+  const tenantIdTrimmed = tenantId.trim();
+  const tenantIdValid = isValidObjectId(tenantIdTrimmed);
+  const tenantIdHasError = tenantIdTrimmed.length > 0 && !tenantIdValid;
 
   useEffect(() => {
     fetchTenants().then(d => setTenants(d.tenants || [])).catch(() => {});
   }, []);
 
-  const handleFetch = async () => {
-    if (!tenantId.trim()) { setError('Tenant ID is required.'); return; }
+  const handleFetch = async (pageOverride = 0) => {
+    if (!tenantIdTrimmed) { setError('Tenant ID is required.'); return; }
+    if (!tenantIdValid) {
+      setError('Invalid Tenant ID format — must be 24 hex characters (0-9, a-f).');
+      return;
+    }
     setError(''); setLoading(true); setSelectedVehicle(null);
     try {
       const [fleet, kb, tenantsData] = await Promise.all([
-        fetchTenantVehicles(tenantId.trim()),
+        fetchTenantVehicles(tenantIdTrimmed, {
+          skip: pageOverride * VEHICLE_PAGE_SIZE,
+          limit: VEHICLE_PAGE_SIZE,
+        }),
         fetchKnowledgeBase(),
         fetchTenants(),
       ]);
-      const filtered = (fleet.vehicles || []).filter(v =>
-        (v.diagnostics || []).some(d => !d.is_unknown)
-      );
-      setVehicles(filtered);
+      // Server-side filter (B-7 fix): the API already returns only vehicles
+      // with at least one known (non-unknown) diagnostic, so no client filter.
+      setVehicles(fleet.vehicles || []);
+      setVehicleTotal(fleet.total || 0);
+      setVehicleHasMore(Boolean(fleet.has_more));
+      setVehiclePage(pageOverride);
       setKbEntries(kb.entries || []);
       setTenants(tenantsData.tenants || []);
       setKbPage(1);
@@ -336,9 +356,26 @@ export default function App() {
                   placeholder="Enter Tenant ID (MongoDB ObjectId)"
                   value={tenantId}
                   onChange={e => setTenantId(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && handleFetch()}
+                  onKeyDown={e => e.key === 'Enter' && tenantIdValid && handleFetch(0)}
+                  style={tenantIdHasError ? { borderColor:'#FF4D4D', outline:'none' } : undefined}
                 />
-                <button className="btn" onClick={handleFetch} disabled={loading} style={{ marginTop:12 }}>
+                <div style={{
+                  marginTop:6, fontSize:11,
+                  color: tenantIdHasError ? '#FF4D4D'
+                         : (tenantIdValid ? '#3ADB76' : 'var(--text-muted)')
+                }}>
+                  {tenantIdHasError
+                    ? 'Invalid format — must be 24 hex characters (0-9, a-f).'
+                    : (tenantIdValid
+                        ? '✓ Valid ObjectId format.'
+                        : 'Paste a tenant ObjectId (24 hex chars).')}
+                </div>
+                <button
+                  className="btn"
+                  onClick={() => handleFetch(0)}
+                  disabled={loading || !tenantIdValid}
+                  style={{ marginTop:12 }}
+                >
                   {loading ? 'Fetching…' : '↗ Fetch Fleet Data'}
                 </button>
                 {error && <div className="error">{error}</div>}
@@ -379,6 +416,33 @@ export default function App() {
               <button className={`tab-btn ${activeTab === 'diagnostics' ? 'active' : ''}`} onClick={() => setActiveTab('diagnostics')}>🛠 Diagnostics</button>
               <button className={`tab-btn ${activeTab === 'fleet' ? 'active' : ''}`} onClick={() => setActiveTab('fleet')}>🚛 Fleet</button>
               <button className={`tab-btn ${activeTab === 'kb' ? 'active' : ''}`} onClick={() => setActiveTab('kb')}>📚 KB ({kbEntries.length})</button>
+            </div>
+          )}
+
+          {/* B-7: Vehicle pagination controls — visible when a tenant page has loaded */}
+          {(vehicleTotal > 0 || vehiclePage > 0) && (activeTab === 'diagnostics' || activeTab === 'fleet') && (
+            <div className="card" style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'12px 16px', marginTop:12 }}>
+              <div style={{ fontSize:12, color:'var(--text-muted)' }}>
+                Showing <strong style={{ color:'var(--text-secondary)' }}>
+                  {vehicleTotal === 0 ? 0 : vehiclePage * VEHICLE_PAGE_SIZE + 1}
+                  –
+                  {Math.min((vehiclePage + 1) * VEHICLE_PAGE_SIZE, vehicleTotal)}
+                </strong> of <strong style={{ color:'var(--text-secondary)' }}>{vehicleTotal}</strong> vehicles
+              </div>
+              <div style={{ display:'flex', gap:8 }}>
+                <button
+                  className="btn"
+                  onClick={() => handleFetch(vehiclePage - 1)}
+                  disabled={loading || vehiclePage === 0}
+                  style={{ padding:'6px 14px', fontSize:12 }}
+                >‹ Prev</button>
+                <button
+                  className="btn"
+                  onClick={() => handleFetch(vehiclePage + 1)}
+                  disabled={loading || !vehicleHasMore}
+                  style={{ padding:'6px 14px', fontSize:12 }}
+                >Next ›</button>
+              </div>
             </div>
           )}
 

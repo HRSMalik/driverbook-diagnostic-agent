@@ -9,7 +9,7 @@ from typing import Any
 import requests as http_client
 from bson import ObjectId
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
@@ -130,14 +130,20 @@ def ready() -> dict:
 # ── Endpoints ─────────────────────────────────────────────────────────────────
 
 @app.get("/tenants/{tenant_id}/vehicles")
-def list_tenant_vehicles(tenant_id: str) -> dict:
-    """List every staged vehicle under a tenant with its diagnostics inline.
+def list_tenant_vehicles(
+    tenant_id: str,
+    skip: int = Query(0, ge=0, description="Number of vehicles to skip (for pagination)."),
+    limit: int = Query(20, ge=1, le=100, description="Max vehicles per page (1-100)."),
+) -> dict:
+    """List staged vehicles under a tenant with their diagnostics inline (paginated).
 
     Args:
         tenant_id: MongoDB ObjectId string for the tenant.
+        skip:      Pagination offset (default 0).
+        limit:     Pagination size (default 20, max 100).
 
     Returns:
-        dict: tenantId, count, and list of vehicles with diagnostics.
+        dict: tenantId, total, count (this page), skip, limit, has_more, vehicles.
     """
     _validate_object_id(tenant_id, "tenantId")
 
@@ -149,7 +155,9 @@ def list_tenant_vehicles(tenant_id: str) -> dict:
 
     threading.Thread(target=_scan, daemon=True).start()
 
-    pipeline = [
+    # Single round-trip: aggregate, join diagnostics, filter to vehicles
+    # that have at least one KNOWN (non-unknown) diagnostic, paginate, count.
+    facet_pipeline = [
         {"$match": {"tenantId": tenant_id}},
         {"$sort": {"staged_at": -1}},
         {
@@ -163,37 +171,57 @@ def list_tenant_vehicles(tenant_id: str) -> dict:
                 "doc_count": {"$sum": 1},
             }
         },
+        # Join the latest source_id's diagnostics so we can filter AND return them.
+        {
+            "$lookup": {
+                "from": "diagnostics_output",
+                "localField": "latest_source_id",
+                "foreignField": "source_id",
+                "as": "diagnostics",
+            }
+        },
+        # Keep only vehicles where at least one diagnostic is not unknown.
+        # MongoDB array-field match: matches docs where any element has the field=value.
+        {"$match": {"diagnostics.is_unknown": False}},
         {"$sort": {"fault_count": -1}},
+        {
+            "$facet": {
+                "page": [{"$skip": skip}, {"$limit": limit}],
+                "totals": [{"$count": "n"}],
+            }
+        },
     ]
-    grouped = list(db["fault_vehicles"].aggregate(pipeline))
-
-    # Fetch all diagnostics for the tenant in one query, group by source_id in memory
-    source_ids = [row["latest_source_id"] for row in grouped]
-    all_diags_cursor = db["diagnostics_output"].find(
-        {"source_id": {"$in": source_ids}}, {"_id": 0}
-    )
-    diags_by_source: dict[str, list] = {}
-    for d in all_diags_cursor:
-        diags_by_source.setdefault(d["source_id"], []).append(d)
+    facet_result = list(db["fault_vehicles"].aggregate(facet_pipeline))
+    grouped = facet_result[0]["page"] if facet_result else []
+    totals = facet_result[0]["totals"] if facet_result else []
+    total = totals[0]["n"] if totals else 0
 
     vehicles = []
     for row in grouped:
-        source_id = row["latest_source_id"]
-        diagnostics = diags_by_source.get(source_id, [])
+        # Strip Mongo _id from each embedded diagnostic before returning.
+        diagnostics = [{k: v for k, v in d.items() if k != "_id"} for d in row.get("diagnostics", [])]
         vehicles.append(
             {
                 "vehicleId": row["_id"],
-                "source_id": source_id,
+                "source_id": row["latest_source_id"],
                 "fault_count": row["fault_count"],
                 "doc_count": row["doc_count"],
                 "staged_at": row["latest_staged_at"],
                 "timestamp": row["latest_timestamp"],
-                "analyzed": bool(diagnostics),
+                "analyzed": True,
                 "diagnostics": diagnostics,
             }
         )
 
-    return {"tenantId": tenant_id, "count": len(vehicles), "vehicles": vehicles}
+    return {
+        "tenantId": tenant_id,
+        "total": total,
+        "count": len(vehicles),
+        "skip": skip,
+        "limit": limit,
+        "has_more": skip + len(vehicles) < total,
+        "vehicles": vehicles,
+    }
 
 
 @app.post("/vehicles/{vehicle_id}/reanalyze")

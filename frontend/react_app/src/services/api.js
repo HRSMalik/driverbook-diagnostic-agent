@@ -2,8 +2,9 @@ import axios from 'axios';
 
 const API_BASE = import.meta.env.VITE_API_URL || '';
 
-export const fetchTenantVehicles = (tenantId) =>
-  axios.get(`${API_BASE}/tenants/${tenantId}/vehicles`).then(r => r.data);
+export const fetchTenantVehicles = (tenantId, { skip = 0, limit = 20 } = {}) =>
+  axios.get(`${API_BASE}/tenants/${tenantId}/vehicles`, { params: { skip, limit } })
+       .then(r => r.data);
 
 export const reanalyzeVehicle = (vehicleId) =>
   axios.post(`${API_BASE}/vehicles/${vehicleId}/reanalyze`).then(r => r.data);
