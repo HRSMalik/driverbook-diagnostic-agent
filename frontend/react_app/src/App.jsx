@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import {
   Chart as ChartJS, CategoryScale, LinearScale, BarElement,
   ArcElement, Tooltip, Legend,
 } from 'chart.js';
 import { Bar, Doughnut } from 'react-chartjs-2';
-import { fetchTenantVehicles, reanalyzeVehicle, fetchUnknownFaults, fetchKnowledgeBase } from './services/api.js';
+import { fetchTenantVehicles, reanalyzeVehicle, fetchKnowledgeBase, fetchTenants, triggerFullScan } from './services/api.js';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend);
 
@@ -46,37 +46,56 @@ const CHART_OPTS = {
 // ── App ───────────────────────────────────────────────────────────────────────
 
 export default function App() {
-  const [tenantId, setTenantId]           = useState('');
-  const [activeTab, setActiveTab]         = useState('diagnostics');
-  const [vehicles, setVehicles]           = useState([]);
+  const [tenantId, setTenantId]               = useState('');
+  const [activeTab, setActiveTab]             = useState('diagnostics');
+  const [vehicles, setVehicles]               = useState([]);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
-  const [unknownFaults, setUnknownFaults] = useState([]);
-  const [kbEntries, setKbEntries]         = useState([]);
-  const [loading, setLoading]             = useState(false);
-  const [reanalyzing, setReanalyzing]     = useState(false);
-  const [error, setError]                 = useState('');
-  const [kbSearch, setKbSearch]           = useState('');
-  const [ufPage, setUfPage]               = useState(1);
-  const [kbPage, setKbPage]               = useState(1);
+  const [kbEntries, setKbEntries]             = useState([]);
+  const [loading, setLoading]                 = useState(false);
+  const [reanalyzing, setReanalyzing]         = useState(false);
+  const [error, setError]                     = useState('');
+  const [kbSearch, setKbSearch]               = useState('');
+  const [kbPage, setKbPage]                   = useState(1);
+  const [tenants, setTenants]                 = useState([]);
+  const [scanStatus, setScanStatus]           = useState('');
+  const [scanning, setScanning]               = useState(false);
   const PAGE_SIZE = 10;
+
+  useEffect(() => {
+    fetchTenants().then(d => setTenants(d.tenants || [])).catch(() => {});
+  }, []);
 
   const handleFetch = async () => {
     if (!tenantId.trim()) { setError('Tenant ID is required.'); return; }
     setError(''); setLoading(true); setSelectedVehicle(null);
     try {
-      const [fleet, uf, kb] = await Promise.all([
+      const [fleet, kb, tenantsData] = await Promise.all([
         fetchTenantVehicles(tenantId.trim()),
-        fetchUnknownFaults(),
         fetchKnowledgeBase(),
+        fetchTenants(),
       ]);
-      setVehicles(fleet.vehicles || []);
-      setUnknownFaults(uf.faults || []);
+      const filtered = (fleet.vehicles || []).filter(v =>
+        (v.diagnostics || []).some(d => !d.is_unknown)
+      );
+      setVehicles(filtered);
       setKbEntries(kb.entries || []);
-      setUfPage(1); setKbPage(1);
+      setTenants(tenantsData.tenants || []);
+      setKbPage(1);
     } catch (err) {
       setError('Failed to fetch data. Check Tenant ID and ensure the API is running.');
     }
     setLoading(false);
+  };
+
+  const handleScanAll = async () => {
+    setScanning(true); setScanStatus('');
+    try {
+      const res = await triggerFullScan({});
+      setScanStatus(res.message || 'Scan started in background.');
+    } catch (err) {
+      setScanStatus('Failed to start scan. Is the API running?');
+    }
+    setScanning(false);
   };
 
   const handleVehicleClick = (v) => {
@@ -98,9 +117,8 @@ export default function App() {
     setReanalyzing(false);
   };
 
-  // ── Severity breakdown chart ──────────────────────────────────────────────
-
-  const diags = selectedVehicle?.diagnostics || [];
+  // Only show known (non-unknown) diagnostics in the detail view
+  const diags = (selectedVehicle?.diagnostics || []).filter(d => !d.is_unknown);
 
   const severityBreakdown = (() => {
     const counts = { Low: 0, Medium: 0, High: 0, Critical: 0 };
@@ -131,16 +149,12 @@ export default function App() {
     };
   })();
 
-  // ── Fleet summary stats ───────────────────────────────────────────────────
-
   const criticalCount = vehicles.reduce((n, v) =>
-    n + (v.diagnostics || []).filter(d => d.severity === 'Critical').length, 0);
+    n + (v.diagnostics || []).filter(d => !d.is_unknown && d.severity === 'Critical').length, 0);
   const highCount = vehicles.reduce((n, v) =>
-    n + (v.diagnostics || []).filter(d => d.severity === 'High').length, 0);
+    n + (v.diagnostics || []).filter(d => !d.is_unknown && d.severity === 'High').length, 0);
   const unknownCount = vehicles.reduce((n, v) =>
     n + (v.diagnostics || []).filter(d => d.is_unknown).length, 0);
-
-  // ── KB filter ─────────────────────────────────────────────────────────────
 
   const filteredKb = kbEntries.filter(e =>
     !kbSearch || e.code?.toLowerCase().includes(kbSearch.toLowerCase()) ||
@@ -149,9 +163,6 @@ export default function App() {
   const kbTotal = Math.ceil(filteredKb.length / PAGE_SIZE);
   const kbPage_ = Math.min(kbPage, kbTotal || 1);
   const kbRows  = filteredKb.slice((kbPage_ - 1) * PAGE_SIZE, kbPage_ * PAGE_SIZE);
-
-  const ufTotal = Math.ceil(unknownFaults.length / PAGE_SIZE);
-  const ufRows  = unknownFaults.slice((ufPage - 1) * PAGE_SIZE, ufPage * PAGE_SIZE);
 
   return (
     <>
@@ -238,7 +249,6 @@ export default function App() {
         .fault-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(340px, 1fr)); gap:16px; }
         .confidence-bar-track { height:4px; background:rgba(255,255,255,0.05); border-radius:2px; overflow:hidden; margin-top:4px; width:100px; display:inline-block; }
         .confidence-bar-fill { height:100%; border-radius:2px; background:var(--gradient); }
-        .kb-source { display:inline-block; padding:2px 8px; border-radius:20px; font-size:9px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; }
       `}</style>
 
       <div className="shell">
@@ -260,7 +270,6 @@ export default function App() {
             {[
               { key:'diagnostics', icon:'🛠', title:'Fault Diagnostics', sub:'Per-vehicle analysis' },
               { key:'fleet',       icon:'🚛', title:'Fleet Overview',    sub:'All vehicles' },
-              { key:'unknown',     icon:'❓', title:'Unknown Faults',    sub:'Review queue' },
               { key:'kb',          icon:'📚', title:'Knowledge Base',    sub:'Code definitions' },
             ].map(t => (
               <div
@@ -287,21 +296,13 @@ export default function App() {
                   {selectedVehicle.vehicleId?.slice(-12)}
                 </div>
                 <div style={{ fontSize:11, color:'var(--text-muted)' }}>
-                  Faults: <span style={{ color:'var(--text-secondary)' }}>{selectedVehicle.diagnostics?.length ?? 0}</span>
+                  Faults: <span style={{ color:'var(--text-secondary)' }}>{diags.length}</span>
                 </div>
                 <div style={{ fontSize:11, color:'var(--text-muted)' }}>
                   Staged: <span style={{ color:'var(--text-secondary)' }}>{fmt(selectedVehicle.staged_at)}</span>
                 </div>
               </div>
             </>
-          )}
-
-          {unknownFaults.length > 0 && (
-            <div style={{ background:'rgba(255,77,77,0.08)', border:'1px solid rgba(255,77,77,0.2)', borderRadius:12, padding:'12px 14px' }}>
-              <div style={{ fontSize:10, fontWeight:700, letterSpacing:'1px', textTransform:'uppercase', color:'#FF4D4D', marginBottom:6 }}>⚠ Unknown Codes</div>
-              <div style={{ fontFamily:"'Space Mono',monospace", fontSize:22, fontWeight:700, color:'#FF4D4D', lineHeight:1 }}>{unknownFaults.length}</div>
-              <div style={{ fontSize:11, color:'var(--text-muted)', marginTop:4 }}>awaiting review</div>
-            </div>
           )}
 
           <div className="status-bar">
@@ -320,35 +321,63 @@ export default function App() {
           <div className="card" style={{ padding:'18px 24px' }}>
             <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
               <div className="page-title">Diagnostics Dashboard</div>
-              {vehicles.length > 0 && <span className="badge">{vehicles.length} vehicles loaded</span>}
+              {vehicles.length > 0 && <span className="badge">{vehicles.length} vehicles with faults</span>}
             </div>
           </div>
 
           {/* Query Input */}
           <div className="card">
-            <div className="card-title">Query</div>
-            <div style={{ maxWidth:480 }}>
-              <label className="input-label">Tenant ID</label>
-              <input
-                className="input"
-                placeholder="Enter Tenant ID (MongoDB ObjectId)"
-                value={tenantId}
-                onChange={e => setTenantId(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && handleFetch()}
-              />
+            <div style={{ display:'flex', gap:20, flexWrap:'wrap', alignItems:'flex-end' }}>
+              <div style={{ flex:'1 1 340px' }}>
+                <div className="card-title" style={{ marginBottom:12 }}>Query by Tenant</div>
+                <label className="input-label">Tenant ID</label>
+                <input
+                  className="input"
+                  placeholder="Enter Tenant ID (MongoDB ObjectId)"
+                  value={tenantId}
+                  onChange={e => setTenantId(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleFetch()}
+                />
+                <button className="btn" onClick={handleFetch} disabled={loading} style={{ marginTop:12 }}>
+                  {loading ? 'Fetching…' : '↗ Fetch Fleet Data'}
+                </button>
+                {error && <div className="error">{error}</div>}
+              </div>
+
             </div>
-            <button className="btn" onClick={handleFetch} disabled={loading} style={{ marginTop:14 }}>
-              {loading ? 'Fetching…' : '↗ Fetch Fleet Data'}
-            </button>
-            {error && <div className="error">{error}</div>}
+
+            {tenants.length > 0 && (
+              <div style={{ marginTop:18, borderTop:'1px solid var(--border)', paddingTop:16 }}>
+                <div style={{ fontSize:10, fontWeight:700, letterSpacing:'1px', textTransform:'uppercase', color:'var(--text-muted)', marginBottom:10 }}>
+                  Known Tenants ({tenants.length})
+                </div>
+                <div style={{ display:'flex', flexWrap:'wrap', gap:8 }}>
+                  {tenants.map(t => (
+                    <span
+                      key={t}
+                      onClick={() => { setTenantId(t); }}
+                      style={{
+                        fontFamily:"'Space Mono',monospace", fontSize:11,
+                        padding:'5px 12px', borderRadius:20, cursor:'pointer',
+                        background: tenantId === t ? 'var(--cyan-dim)' : 'var(--bg-deep)',
+                        border: tenantId === t ? '1px solid var(--cyan)' : '1px solid var(--border)',
+                        color: tenantId === t ? 'var(--cyan)' : 'var(--text-muted)',
+                        transition:'all 0.15s',
+                      }}
+                    >
+                      {t.slice(-12)}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Tab bar — only after data loads */}
+          {/* Tab bar */}
           {vehicles.length > 0 && (
             <div className="tab-bar">
               <button className={`tab-btn ${activeTab === 'diagnostics' ? 'active' : ''}`} onClick={() => setActiveTab('diagnostics')}>🛠 Diagnostics</button>
               <button className={`tab-btn ${activeTab === 'fleet' ? 'active' : ''}`} onClick={() => setActiveTab('fleet')}>🚛 Fleet</button>
-              <button className={`tab-btn ${activeTab === 'unknown' ? 'active' : ''}`} onClick={() => setActiveTab('unknown')}>❓ Unknown ({unknownFaults.length})</button>
               <button className={`tab-btn ${activeTab === 'kb' ? 'active' : ''}`} onClick={() => setActiveTab('kb')}>📚 KB ({kbEntries.length})</button>
             </div>
           )}
@@ -356,10 +385,9 @@ export default function App() {
           {/* ── DIAGNOSTICS TAB ────────────────────────────────────────────── */}
           {activeTab === 'diagnostics' && vehicles.length > 0 && (
             <>
-              {/* Fleet summary stats */}
               <div className="stat-row">
                 <div className="stat-card">
-                  <div className="stat-label">Total Vehicles</div>
+                  <div className="stat-label">Vehicles with Faults</div>
                   <div className="stat-value" style={{ color:'var(--cyan)' }}>{vehicles.length}</div>
                   <div className="stat-sub">in tenant</div>
                 </div>
@@ -376,7 +404,7 @@ export default function App() {
                 <div className="stat-card">
                   <div className="stat-label">Unknown Codes</div>
                   <div className="stat-value" style={{ color:'var(--amber)' }}>{unknownCount}</div>
-                  <div className="stat-sub">not in KB</div>
+                  <div className="stat-sub">pending review</div>
                 </div>
               </div>
 
@@ -391,21 +419,25 @@ export default function App() {
                         <th>Fault Count</th>
                         <th>Critical</th>
                         <th>High</th>
+                        <th>Medium</th>
                         <th>Unknown</th>
                         <th>Staged At</th>
                       </tr>
                     </thead>
                     <tbody>
                       {vehicles.map(v => {
-                        const crit = (v.diagnostics || []).filter(d => d.severity === 'Critical').length;
-                        const high = (v.diagnostics || []).filter(d => d.severity === 'High').length;
+                        const ds = (v.diagnostics || []).filter(d => !d.is_unknown);
+                        const crit = ds.filter(d => d.severity === 'Critical').length;
+                        const high = ds.filter(d => d.severity === 'High').length;
+                        const med  = ds.filter(d => d.severity === 'Medium').length;
                         const unk  = (v.diagnostics || []).filter(d => d.is_unknown).length;
                         return (
                           <tr key={v.vehicleId} onClick={() => handleVehicleClick(v)} style={{ cursor:'pointer' }}>
                             <td><span className="vehicle-link mono">{v.vehicleId?.slice(-14)}</span></td>
-                            <td><span className="mono">{v.fault_count ?? (v.diagnostics?.length ?? '-')}</span></td>
+                            <td><span className="mono">{ds.length}</span></td>
                             <td>{crit > 0 ? <span style={{ color:'#FF4D4D', fontWeight:700 }}>▲ {crit}</span> : <span style={{ color:'var(--text-muted)' }}>—</span>}</td>
                             <td>{high > 0 ? <span style={{ color:'#FF7832', fontWeight:700 }}>▲ {high}</span> : <span style={{ color:'var(--text-muted)' }}>—</span>}</td>
+                            <td>{med  > 0 ? <span style={{ color:'#FFB432' }}>{med}</span> : <span style={{ color:'var(--text-muted)' }}>—</span>}</td>
                             <td>{unk  > 0 ? <span style={{ color:'var(--amber)', fontWeight:700 }}>{unk}</span> : <span style={{ color:'var(--text-muted)' }}>—</span>}</td>
                             <td style={{ color:'var(--text-muted)', fontSize:11 }}>{fmt(v.staged_at)}</td>
                           </tr>
@@ -419,7 +451,6 @@ export default function App() {
               {/* Vehicle detail */}
               {selectedVehicle && (
                 <>
-                  {/* Vehicle header */}
                   <div className="card" style={{ padding:'16px 24px' }}>
                     <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:12 }}>
                       <div>
@@ -437,7 +468,6 @@ export default function App() {
                     </div>
                   </div>
 
-                  {/* Charts */}
                   {diags.length > 0 && (
                     <div className="two-col">
                       <div className="card">
@@ -455,9 +485,8 @@ export default function App() {
                     </div>
                   )}
 
-                  {/* Fault cards */}
                   {diags.length === 0
-                    ? <div className="card"><div className="empty">No diagnostics available for this vehicle.</div></div>
+                    ? <div className="card"><div className="empty">No diagnosed faults available for this vehicle.</div></div>
                     : (
                       <div className="card">
                         <div className="card-title">{diags.length} Fault{diags.length !== 1 ? 's' : ''} Diagnosed</div>
@@ -471,7 +500,6 @@ export default function App() {
                               <div className="fault-meta-row">
                                 {severityPill(d.severity)}
                                 {urgencyPill(d.urgency)}
-                                {d.is_unknown && <span style={{ display:'inline-block', padding:'2px 10px', borderRadius:20, fontSize:10, fontWeight:700, background:'rgba(255,180,50,0.12)', color:'#FFB432', border:'1px solid rgba(255,180,50,0.25)' }}>UNKNOWN</span>}
                                 {d.confidence != null && (
                                   <span style={{ fontSize:10, color:'var(--text-muted)', display:'flex', alignItems:'center', gap:6 }}>
                                     {d.confidence}%
@@ -493,10 +521,8 @@ export default function App() {
                                     </>
                                   )}
                                   {d.who_can_fix && <div style={{ marginTop:8, fontSize:11, color:'var(--text-muted)' }}>Who can fix: <span style={{ color:'var(--text-secondary)' }}>{d.who_can_fix}</span></div>}
-                                  {d.estimated_downtime && <div style={{ fontSize:11, color:'var(--text-muted)' }}>Downtime: <span style={{ color:'var(--text-secondary)' }}>{d.estimated_downtime}</span></div>}
                                 </div>
                               )}
-                              {d.error && <div style={{ fontSize:11, color:'#FF4D4D' }}>Error: {d.error}</div>}
                             </div>
                           ))}
                         </div>
@@ -511,7 +537,7 @@ export default function App() {
           {/* ── FLEET TAB ─────────────────────────────────────────────────── */}
           {activeTab === 'fleet' && vehicles.length > 0 && (
             <div className="card">
-              <div className="card-title">All Vehicles — {vehicles.length} total</div>
+              <div className="card-title">All Vehicles — {vehicles.length} with fault codes</div>
               <div style={{ overflowX:'auto' }}>
                 <table className="tbl">
                   <thead>
@@ -523,15 +549,14 @@ export default function App() {
                       <th>Medium</th>
                       <th>Low</th>
                       <th>Unknown</th>
-                      <th>Docs</th>
                       <th>Staged At</th>
                     </tr>
                   </thead>
                   <tbody>
                     {vehicles.map(v => {
-                      const ds = v.diagnostics || [];
+                      const ds = (v.diagnostics || []).filter(d => !d.is_unknown);
                       const bySev = (s) => ds.filter(d => d.severity === s).length;
-                      const unk = ds.filter(d => d.is_unknown).length;
+                      const unk = (v.diagnostics || []).filter(d => d.is_unknown).length;
                       return (
                         <tr key={v.vehicleId} onClick={() => { handleVehicleClick(v); setActiveTab('diagnostics'); }} style={{ cursor:'pointer' }}>
                           <td><span className="vehicle-link mono">{v.vehicleId?.slice(-14)}</span></td>
@@ -541,7 +566,6 @@ export default function App() {
                           <td>{bySev('Medium') > 0 ? <span style={{ color:'#FFB432' }}>{bySev('Medium')}</span> : '—'}</td>
                           <td>{bySev('Low') > 0 ? <span style={{ color:'#00DFD8' }}>{bySev('Low')}</span> : '—'}</td>
                           <td>{unk > 0 ? <span style={{ color:'var(--amber)', fontWeight:700 }}>{unk}</span> : '—'}</td>
-                          <td className="mono" style={{ color:'var(--text-muted)' }}>{v.doc_count ?? 1}</td>
                           <td style={{ color:'var(--text-muted)', fontSize:11 }}>{fmt(v.staged_at)}</td>
                         </tr>
                       );
@@ -549,57 +573,6 @@ export default function App() {
                   </tbody>
                 </table>
               </div>
-            </div>
-          )}
-
-          {/* ── UNKNOWN FAULTS TAB ─────────────────────────────────────────── */}
-          {activeTab === 'unknown' && (
-            <div className="card">
-              <div className="card-title">Unknown Fault Codes — Review Queue ({unknownFaults.length})</div>
-              {unknownFaults.length === 0
-                ? <div className="empty">No unknown faults captured yet.</div>
-                : (
-                  <>
-                    <div style={{ overflowX:'auto' }}>
-                      <table className="tbl">
-                        <thead>
-                          <tr>
-                            <th>Code</th>
-                            <th>ECU</th>
-                            <th>FMI</th>
-                            <th>Occurrences</th>
-                            <th>First Seen</th>
-                            <th>Last Seen</th>
-                            <th>Status</th>
-                            <th>Raw Description</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {ufRows.map((f, i) => (
-                            <tr key={i}>
-                              <td><span className="mono" style={{ color:'var(--cyan)', fontWeight:700 }}>{f.code}</span></td>
-                              <td style={{ color:'var(--text-secondary)', fontSize:11 }}>{f.ecu || '—'}</td>
-                              <td className="mono" style={{ color:'var(--text-muted)' }}>{f.fmi ?? '—'}</td>
-                              <td><span style={{ color:'#FF4D4D', fontWeight:700, fontFamily:"'Space Mono',monospace" }}>▲ {f.occurrence_count}</span></td>
-                              <td style={{ color:'var(--text-muted)', fontSize:11 }}>{fmt(f.first_seen)}</td>
-                              <td style={{ color:'var(--text-muted)', fontSize:11 }}>{fmt(f.last_seen)}</td>
-                              <td><span style={{ display:'inline-block', padding:'2px 8px', borderRadius:20, fontSize:9, fontWeight:700, background:'rgba(255,180,50,0.12)', color:'#FFB432', border:'1px solid rgba(255,180,50,0.25)', textTransform:'uppercase' }}>{f.status}</span></td>
-                              <td style={{ color:'var(--text-muted)', maxWidth:200, fontSize:11 }}>{f.raw_description || '—'}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                    {ufTotal > 1 && (
-                      <div className="pagination-row">
-                        <button className="page-btn" disabled={ufPage === 1} onClick={() => setUfPage(p => p - 1)}>← Prev</button>
-                        <span className="page-info">Page {ufPage} of {ufTotal}</span>
-                        <button className="page-btn" disabled={ufPage === ufTotal} onClick={() => setUfPage(p => p + 1)}>Next →</button>
-                      </div>
-                    )}
-                  </>
-                )
-              }
             </div>
           )}
 
@@ -624,24 +597,19 @@ export default function App() {
                             <th>Severity</th>
                             <th>Urgency</th>
                             <th>Occurrences</th>
-                            <th>Source</th>
                           </tr>
                         </thead>
                         <tbody>
-                          {kbRows.map((e, i) => {
-                            const srcColor = e.source === 'seed' ? '#007CF0' : e.source === 'auto_learned' ? '#00DFD8' : '#FFB432';
-                            return (
-                              <tr key={i}>
-                                <td><span className="mono" style={{ color:'var(--cyan)', fontWeight:700 }}>{e.code}</span></td>
-                                <td style={{ color:'var(--text-muted)', fontSize:11 }}>{e.system || '—'}</td>
-                                <td style={{ color:'var(--text-secondary)', maxWidth:260 }}>{e.meaning || '—'}</td>
-                                <td>{severityPill(e.severity)}</td>
-                                <td>{urgencyPill(e.urgency)}</td>
-                                <td className="mono" style={{ color:'var(--text-muted)' }}>{e.occurrence_count ?? 0}</td>
-                                <td><span className="kb-source" style={{ background:`${srcColor}18`, color:srcColor, border:`1px solid ${srcColor}40` }}>{e.source}</span></td>
-                              </tr>
-                            );
-                          })}
+                          {kbRows.map((e, i) => (
+                            <tr key={i}>
+                              <td><span className="mono" style={{ color:'var(--cyan)', fontWeight:700 }}>{e.code}</span></td>
+                              <td style={{ color:'var(--text-muted)', fontSize:11 }}>{e.system || '—'}</td>
+                              <td style={{ color:'var(--text-secondary)', maxWidth:260 }}>{e.meaning || '—'}</td>
+                              <td>{severityPill(e.severity)}</td>
+                              <td>{urgencyPill(e.urgency)}</td>
+                              <td className="mono" style={{ color:'var(--text-muted)' }}>{e.occurrence_count ?? 0}</td>
+                            </tr>
+                          ))}
                         </tbody>
                       </table>
                     </div>

@@ -3,12 +3,17 @@
 
 import logging
 import os
+import threading
+from typing import Any
 
 import requests as http_client
 from bson import ObjectId
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
+from core.datascanpipeline import run_data_scan_pipeline
 from core.knowledge_base import seed_knowledge_base
 from db.connection import get_db
 from db.fault_vehicles import ensure_fault_vehicles_collection, mark_analyzed
@@ -20,6 +25,13 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="DriverBook Diagnostics API", version="1.1.0")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://localhost:3000"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # ── Startup ───────────────────────────────────────────────────────────────────
 
@@ -129,6 +141,14 @@ def list_tenant_vehicles(tenant_id: str) -> dict:
     """
     _validate_object_id(tenant_id, "tenantId")
 
+    def _scan():
+        try:
+            run_data_scan_pipeline(query={"tenantId": tenant_id})
+        except Exception as exc:
+            logger.warning("Background scan error for tenant %s: %s", tenant_id, exc)
+
+    threading.Thread(target=_scan, daemon=True).start()
+
     pipeline = [
         {"$match": {"tenantId": tenant_id}},
         {"$sort": {"staged_at": -1}},
@@ -147,26 +167,28 @@ def list_tenant_vehicles(tenant_id: str) -> dict:
     ]
     grouped = list(db["fault_vehicles"].aggregate(pipeline))
 
+    # Fetch all diagnostics for the tenant in one query, group by source_id in memory
+    source_ids = [row["latest_source_id"] for row in grouped]
+    all_diags_cursor = db["diagnostics_output"].find(
+        {"source_id": {"$in": source_ids}}, {"_id": 0}
+    )
+    diags_by_source: dict[str, list] = {}
+    for d in all_diags_cursor:
+        diags_by_source.setdefault(d["source_id"], []).append(d)
+
     vehicles = []
     for row in grouped:
-        vehicle_id = row["_id"]
         source_id = row["latest_source_id"]
-        diagnostics = _diagnostics_for_source(source_id)
-
-        if not diagnostics or not row.get("analyzed"):
-            staged = _latest_staged(vehicle_id)
-            if staged:
-                diagnostics = _run_graph(staged)
-
+        diagnostics = diags_by_source.get(source_id, [])
         vehicles.append(
             {
-                "vehicleId": vehicle_id,
+                "vehicleId": row["_id"],
                 "source_id": source_id,
                 "fault_count": row["fault_count"],
                 "doc_count": row["doc_count"],
                 "staged_at": row["latest_staged_at"],
                 "timestamp": row["latest_timestamp"],
-                "analyzed": True if diagnostics else False,
+                "analyzed": bool(diagnostics),
                 "diagnostics": diagnostics,
             }
         )
@@ -221,3 +243,67 @@ def get_unknown_faults() -> dict:
         db["unknown_faults"].find({"status": "unresolved"}, {"_id": 0}).sort("occurrence_count", -1)
     )
     return {"count": len(faults), "faults": faults}
+
+
+@app.get("/tenants")
+def list_tenants() -> dict:
+    """Return all unique tenant IDs found in staged fault_vehicles documents.
+
+    Returns:
+        dict: count and list of tenantId strings.
+    """
+    tenant_ids = db["fault_vehicles"].distinct("tenantId")
+    tenant_ids = [t for t in tenant_ids if t]
+    return {"count": len(tenant_ids), "tenants": sorted(tenant_ids)}
+
+
+class ScanRequest(BaseModel):
+    limit: int | None = None
+    skip: int = 0
+    batch_size: int = 100
+    reanalyze: bool = False
+    query: dict[str, Any] | None = None
+
+
+@app.post("/scan")
+def trigger_full_scan(body: ScanRequest = ScanRequest()) -> dict:
+    """Kick off a full source-collection scan in a background thread.
+
+    Scans every document in the configured source collection that contains DTC records,
+    stages new documents, runs Flow 1 (KB lookup), then Flow 2 (LLM enrichment for
+    unknown codes). Returns immediately — progress is visible on next tenant/vehicle fetch.
+
+    Args:
+        body: Optional scan parameters (limit, skip, batch_size, reanalyze, query).
+
+    Returns:
+        dict: Confirmation that the scan was started.
+    """
+    def _scan() -> None:
+        try:
+            result = run_data_scan_pipeline(
+                query=body.query,
+                skip=body.skip,
+                limit=body.limit,
+                batch_size=body.batch_size,
+                reanalyze=body.reanalyze,
+            )
+            logger.info(
+                "Full scan complete — scanned=%d staged=%d flow1=%d flow2_enriched=%d",
+                result["scanned"], result["staged_new"],
+                result["flow1_analyzed"], result["flow2_enriched"],
+            )
+        except Exception as exc:
+            logger.error("Full scan failed: %s", exc)
+
+    threading.Thread(target=_scan, daemon=True).start()
+    return {
+        "status": "scan_started",
+        "message": "Background scan triggered. KB will be enriched as unknown codes are found.",
+        "params": {
+            "limit": body.limit,
+            "skip": body.skip,
+            "batch_size": body.batch_size,
+            "reanalyze": body.reanalyze,
+        },
+    }

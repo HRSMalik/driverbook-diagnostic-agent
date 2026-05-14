@@ -9,6 +9,7 @@ import re
 from datetime import datetime, timezone
 from typing import Any
 
+from bson import ObjectId
 from dotenv import load_dotenv
 
 from db.connection import get_db
@@ -17,7 +18,7 @@ from db.fault_vehicles import (
     mark_analyzed,
     stage_fault_document,
 )
-from orchestration.diagnostic_graph import build_graph
+from orchestration.diagnostic_graph import build_graph, enrich_unknown_codes
 
 load_dotenv()
 
@@ -51,10 +52,19 @@ def get_nested(doc: dict[str, Any], path: str | None, default: Any = None) -> An
     return node
 
 
+def _try_objectid(value: Any) -> Any:
+    if isinstance(value, str) and len(value) == 24:
+        try:
+            return ObjectId(value)
+        except Exception:
+            pass
+    return value
+
+
 def clean_query(query: dict[str, Any] | None) -> dict[str, Any]:
     if not query or query == {"additionalProp1": {}}:
         return {}
-    return dict(query)
+    return {k: _try_objectid(v) for k, v in query.items()}
 
 
 def build_dtc_scan_query(query: dict[str, Any] | None, dtc_records_path: str) -> dict[str, Any]:
@@ -275,7 +285,12 @@ def analyze_scanned_record(graph: Any, scanned_record: dict[str, Any]) -> dict[s
     except Exception as exc:
         return {**scanned_record, "analysis_error": str(exc), "diagnostics": [], "unknown_codes": []}
 
-    return {**scanned_record, "diagnostics": state.get("diagnostics", []), "unknown_codes": state.get("unknown_codes", [])}
+    return {
+        **scanned_record,
+        "diagnostics": state.get("diagnostics", []),
+        "unknown_codes": state.get("unknown_codes", []),
+        "parsed_faults": state.get("parsed_faults", []),
+    }
 
 
 def run_data_scan_pipeline(
@@ -319,22 +334,55 @@ def run_data_scan_pipeline(
     )
     graph = build_graph(app_db)
 
-    analyzed_results = []
+    # ── Phase 1: diagnose all new/unanalyzed docs from KB (fast) ─────────────
+    phase1_results = []
     staged_new = 0
     skipped_already_staged = 0
+    all_unknown_faults: list[dict] = []
 
     for source_doc, scanned_record in scan["pairs"]:
         newly_staged = stage_fault_document(app_db, source_doc, scanned_record)
         if newly_staged:
             staged_new += 1
-        elif not reanalyze:
-            skipped_already_staged += 1
-            continue
+        elif reanalyze:
+            pass
+        else:
+            staged_doc = app_db["fault_vehicles"].find_one(
+                {"source_id": str(source_doc.get("_id"))}, {"analyzed": 1}
+            )
+            if staged_doc and staged_doc.get("analyzed"):
+                skipped_already_staged += 1
+                continue
 
-        analyzed = analyze_scanned_record(graph, scanned_record)
-        analyzed_results.append(analyzed)
+        result = analyze_scanned_record(graph, scanned_record)
+        phase1_results.append(result)
         mark_analyzed(app_db, str(source_doc.get("_id")))
-        logger.info("Analyzed source_id=%s vehicle=%s", source_doc.get("_id"), scanned_record.get("vehicleId"))
+        logger.info("Flow1 source_id=%s vehicle=%s unknowns=%s",
+                    source_doc.get("_id"), scanned_record.get("vehicleId"),
+                    result.get("unknown_codes", []))
+
+        for fault in result.get("parsed_faults", []):
+            if fault.get("is_unknown"):
+                all_unknown_faults.append(fault)
+
+    # ── Phase 2: enrich unknown codes via LLM → save to KB ───────────────────
+    enriched_codes: list[str] = []
+    if all_unknown_faults:
+        logger.info("Flow2 enriching %d unique unknown codes via LLM...",
+                    len({f["code"] for f in all_unknown_faults}))
+        enriched_codes = enrich_unknown_codes(app_db, all_unknown_faults)
+        logger.info("Flow2 enriched: %s", enriched_codes)
+
+        # Re-diagnose docs that had unknown codes so they get full KB entries
+        if enriched_codes:
+            enriched_set = set(enriched_codes)
+            for result in phase1_results:
+                doc_unknowns = {f["code"] for f in result.get("parsed_faults", []) if f.get("is_unknown")}
+                if doc_unknowns & enriched_set:
+                    updated = analyze_scanned_record(graph, result)
+                    logger.info("Flow2 re-diagnosed source_id=%s", result.get("_id"))
+                    # Replace in phase1_results for the summary
+                    result.update(updated)
 
     return {
         "source_database": source_database,
@@ -349,9 +397,9 @@ def run_data_scan_pipeline(
         "next_skip": scan["next_skip"],
         "staged_new": staged_new,
         "skipped_already_staged": skipped_already_staged,
-        "analyzed": len(analyzed_results),
+        "flow1_analyzed": len(phase1_results),
+        "flow2_enriched": len(enriched_codes),
         "reanalyze": reanalyze,
-        "results": analyzed_results,
     }
 
 

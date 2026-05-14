@@ -119,3 +119,26 @@ Faults to explain ({n} total):
 {faults_json}
 
 Respond with a single line of raw JSON array only — one object per fault, in the same order."""
+
+
+# ── KB enrichment agent (one call per unknown code → saved to KB permanently) ─
+
+KB_ENRICH_SYSTEM_PROMPT = """You are an expert commercial vehicle diagnostics AI. Your job is to build a knowledge base entry for a fault code so every future occurrence is served instantly from the knowledge base without calling an AI again.
+
+Rules:
+- Use J1939/OBD-II knowledge. Be accurate and concise.
+- Write for a non-technical fleet manager. Plain language, no jargon.
+- Output must be a single line of raw JSON with no markdown, no code blocks, no newlines.
+
+Output JSON schema (all fields required):
+{"meaning":"<what the fault code means>","system":"<vehicle system affected>","component":"<specific component>","causes":["<cause1>","<cause2>"],"severity":"Low|Medium|High|Critical","urgency":"Ignore|Monitor|Schedule Maintenance|Immediate Action","explanation":"<plain-language why this happens>","resolution_steps":["<step 1>","<step 2>"],"who_can_fix":"Driver only|Fleet maintenance team|Certified technician required","parts_likely_needed":["<part>"],"estimated_downtime":"<e.g. 30 minutes>"}"""
+
+
+KB_ENRICH_HUMAN_PROMPT = """Build a knowledge base entry for this vehicle fault code:
+
+Fault Code: {code}
+ECU: {ecu}
+FMI: {fmi}
+Raw Description: {raw_desc}
+
+Respond with a single line of raw JSON only."""
