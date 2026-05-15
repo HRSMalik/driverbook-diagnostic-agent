@@ -4,6 +4,12 @@ Daily status log. One bullet per task, newest first.
 
 ---
 
+- **2026-05-15** — Removed React dashboard (frontend/react_app/) as module shifts to pure API integration
+- **2026-05-15** — Added GET /vehicles/{vehicle_id}/faults endpoint: returns fault code list with severity per vehicle, cache-first from diagnostics_output, falls back to staged faults if not yet analyzed
+- **2026-05-15** — Added GET /vehicles/faults/diagnose endpoint: on-click KB-first diagnostic for a specific fault code; runs Flow 2 LLM enrichment on KB miss, saves permanently, returns full diagnostic
+- **2026-05-15** — Fixed KB enrichment schema bug: auto_learn_from_diagnosis was reading wrong keys (purpose/issue) from LLM output instead of meaning/causes, causing new KB entries to drop rich fields
+- **2026-05-15** — Created DriverBook AI Modules Overview PDF: two-module architecture doc covering source collections, queries, intervals, infrastructure, deploy repos, and data storage for fault code and fuel monitoring modules
+
 - **2026-05-14** — Added tenant name display: company names pulled from source DB companies collection, stored locally, shown in tenant picker chips, stat cards, and vehicle detail header instead of raw ObjectIds
 - **2026-05-14** — Full pipeline scan completed: 4 new tenants discovered (24 total), 13 new documents staged, 14 fault codes KB-enriched via LLM (156 KB entries total, 578 diagnostics stored)
 - **2026-05-14** — Removed all hardcoded sensitive values from source code: source DB name, collection name, and CORS origins now read from .env; added VITE_API_URL to frontend .env; updated .env.example to match real values
