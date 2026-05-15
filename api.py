@@ -3,21 +3,28 @@
 
 import logging
 import os
+import re
 import threading
+from datetime import datetime, timezone
 from typing import Any
 
 import requests as http_client
 from bson import ObjectId
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from core.datascanpipeline import run_data_scan_pipeline
-from core.knowledge_base import seed_knowledge_base
+from core.knowledge_base import lookup, seed_knowledge_base
 from db.connection import get_db
 from db.fault_vehicles import ensure_fault_vehicles_collection, mark_analyzed
-from orchestration.diagnostic_graph import build_graph
+from orchestration.diagnostic_graph import (
+    _diag_from_kb,
+    _diag_placeholder,
+    build_graph,
+    enrich_unknown_codes,
+)
 
 load_dotenv()
 
@@ -199,6 +206,104 @@ def list_tenant_vehicles(tenant_id: str) -> dict:
         )
 
     return {"tenantId": tenant_id, "count": len(vehicles), "vehicles": vehicles}
+
+
+@app.get("/vehicles/{vehicle_id}/faults")
+def list_vehicle_faults(vehicle_id: str) -> dict:
+    """List fault codes with severity for a vehicle (no LLM call).
+
+    Returns cached diagnostics when available; falls back to the raw staged
+    fault list (severity=Pending) when the vehicle has not been analyzed yet.
+
+    Args:
+        vehicle_id: MongoDB ObjectId string for the vehicle.
+
+    Returns:
+        dict: vehicleId, source_id, analyzed flag, count, and a list of
+              {code, severity, ecu, is_unknown} entries.
+
+    Raises:
+        HTTPException: 404 if no staged document exists for this vehicle.
+    """
+    _validate_object_id(vehicle_id, "vehicleId")
+    staged = _latest_staged(vehicle_id)
+    if staged is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"No staged document for vehicleId {vehicle_id} — run the batch scan first.",
+        )
+
+    diagnostics = _diagnostics_for_source(staged["source_id"])
+    if diagnostics:
+        faults = [
+            {
+                "code": d.get("code", ""),
+                "severity": d.get("severity", "Unknown"),
+                "ecu": d.get("ecu", ""),
+                "is_unknown": d.get("is_unknown", False),
+            }
+            for d in diagnostics
+        ]
+        analyzed = True
+    else:
+        faults = [
+            {
+                "code": f.get("code", ""),
+                "severity": "Pending",
+                "ecu": f.get("ecu", ""),
+                "is_unknown": None,
+            }
+            for f in (staged.get("faults") or [])
+        ]
+        analyzed = False
+
+    return {
+        "vehicleId": vehicle_id,
+        "source_id": staged["source_id"],
+        "analyzed": analyzed,
+        "count": len(faults),
+        "faults": faults,
+    }
+
+
+@app.get("/vehicles/faults/diagnose")
+def diagnose_fault(
+    vehicle_id: str = Query(..., description="MongoDB ObjectId string for the vehicle."),
+    code: str = Query(..., min_length=1, description="Fault code, e.g. 'SPN 521031'."),
+    ecu: str = Query("", description="ECU name reporting the fault."),
+    desc: str = Query("", description="Raw fault description (used to extract FMI)."),
+) -> dict:
+    """Diagnose a single fault from caller-supplied query parameters.
+
+    No staged-document lookup. KB-first: returns instantly if the code is in the KB,
+    otherwise calls Flow 2 LLM enrichment once, saves to KB, then returns the diagnostic.
+    Telemetry-based severity escalation is skipped (no staged telemetry source).
+    """
+    _validate_object_id(vehicle_id, "vehicle_id")
+    code_norm = code.strip().upper()
+    if not code_norm:
+        raise HTTPException(status_code=400, detail="code is required.")
+
+    fmi_match = re.search(r"FMI\s+(\d+)", desc or "", re.IGNORECASE)
+    fault = {
+        "code": code_norm,
+        "ecu": (ecu or "").strip(),
+        "fmi": int(fmi_match.group(1)) if fmi_match else None,
+        "description": (desc or "").strip(),
+        "vehicleId": vehicle_id,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "mil": False,
+    }
+
+    kb_entry = lookup(db, code_norm)
+    if kb_entry is None:
+        enrich_unknown_codes(db, [fault])
+        kb_entry = lookup(db, code_norm)
+
+    if kb_entry is None:
+        return _diag_placeholder(fault)
+
+    return _diag_from_kb(fault, kb_entry, {})
 
 
 @app.post("/vehicles/{vehicle_id}/reanalyze")
