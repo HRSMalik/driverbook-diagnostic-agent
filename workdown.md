@@ -4,6 +4,17 @@ Daily status log. One bullet per task, newest first.
 
 ---
 
+- **2026-05-22** — Migrated LLM from Ollama (Llama 3.1) to OpenAI (gpt-4o-mini); replaced langchain-ollama with langchain-openai; updated llm_client.py, .env, .env.example, and /ready endpoint to check OpenAI instead of Ollama
+- **2026-05-22** — Renamed hf_client.py to llm_client.py; updated all imports in orchestration/diagnostic_graph.py and llm/parsers.py
+- **2026-05-22** — Removed redundant code: duplicate _extract_fmi() from datascanpipeline.py (now imported from core.dtc_parser), unused scan_dtc_documents() function, EXPLAIN_* and BATCH_* unused prompt templates, legacy purpose/issue/impact fields from diagnostic output, confidence field from all diagnostic responses
+- **2026-05-22** — Cleaned up dead files: frontend/streamlit_app/, tests/reports/, write_prd.py, PRD.docx, CODEBASE_EXPLANATION.md, frontend/react_app/ stub
+- **2026-05-22** — Cleaned requirements.txt: removed pandas, streamlit, mongomock, python-docx; added langchain-core and langchain-openai
+- **2026-05-22** — Removed estimated_downtime field from all diagnostic responses and KB enrichment prompt schema
+- **2026-05-22** — Updated README.md to reflect API-only direction, OpenAI, python venv setup, current endpoint contract with real response examples
+- **2026-05-22** — Set up deployment repo tekhqs-driver-book/driverbookv2-ai-diagnostic under MalikHarris-tekh GitHub account; cloned to diagnostic_agent_org/, synced production files, pushed initial commit
+- **2026-05-22** — Created /driverbookpush skill: pushes main dev repo under HRSMalik then syncs and pushes deployment org repo under MalikHarris-tekh, mirrors /gitpushall pattern
+- **2026-05-22** — Full UAT completed post-cleanup: all endpoints passing, OpenAI enrichment flow confirmed working end-to-end, no legacy fields in responses
+
 - **2026-05-15** — Removed React dashboard (frontend/react_app/) as module shifts to pure API integration
 - **2026-05-15** — Added GET /vehicles/{vehicle_id}/faults endpoint: returns fault code list with severity per vehicle, cache-first from diagnostics_output, falls back to staged faults if not yet analyzed
 - **2026-05-15** — Added GET /vehicles/faults/diagnose endpoint: on-click KB-first diagnostic for a specific fault code; runs Flow 2 LLM enrichment on KB miss, saves permanently, returns full diagnostic

@@ -148,13 +148,8 @@ def auto_learn_from_diagnosis(db: Database, fault: dict[str, Any], diagnostic: d
     now = datetime.now(timezone.utc).isoformat()
     ecu = fault.get("ecu", "Unknown") or "Unknown"
 
-    # Accept both KB_ENRICH schema (meaning/causes) and diagnostic-agent schema (purpose/issue).
-    # Flow 2 enrichment emits the KB schema; legacy tests pass the diagnostic schema.
-    meaning = diagnostic.get("meaning") or diagnostic.get("purpose") or ""
-    causes = diagnostic.get("causes")
-    if not causes:
-        issue = diagnostic.get("issue")
-        causes = [issue] if issue else []
+    meaning = diagnostic.get("meaning") or ""
+    causes = diagnostic.get("causes") or []
 
     enrichment: dict[str, Any] = {
         "meaning": meaning,
@@ -165,7 +160,6 @@ def auto_learn_from_diagnosis(db: Database, fault: dict[str, Any], diagnostic: d
         "resolution_steps": diagnostic.get("resolution_steps", []),
         "who_can_fix": diagnostic.get("who_can_fix", ""),
         "parts_likely_needed": diagnostic.get("parts_likely_needed", []),
-        "estimated_downtime": diagnostic.get("estimated_downtime", ""),
         "system": diagnostic.get("system") or ecu,
         "component": diagnostic.get("component") or ecu,
     }

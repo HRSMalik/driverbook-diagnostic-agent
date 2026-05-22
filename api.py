@@ -105,15 +105,12 @@ def health() -> dict:
 
 @app.get("/ready")
 def ready() -> dict:
-    """Readiness check — confirms Mongo and Ollama are reachable.
+    """Readiness check — confirms Mongo and OpenAI are reachable.
 
     Returns 200 with a per-dependency status breakdown when all pass.
     Returns 503 with the breakdown when any dependency is unreachable.
     """
-    ollama_base = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
-    ollama_model = os.getenv("OLLAMA_MODEL", "llama3.1")
-
-    result: dict = {"mongo": "ok", "ollama": "ok"}
+    result: dict = {"mongo": "ok", "openai": "ok"}
     failed = False
 
     try:
@@ -123,13 +120,15 @@ def ready() -> dict:
         failed = True
 
     try:
-        resp = http_client.get(f"{ollama_base}/api/tags", timeout=5)
-        models = [m.get("name", "") for m in resp.json().get("models", [])]
-        if not any(ollama_model in m for m in models):
-            result["ollama"] = f"model '{ollama_model}' not found — run: ollama pull {ollama_model}"
+        resp = http_client.get("https://api.openai.com/v1/models", timeout=5, headers={"Authorization": f"Bearer {os.getenv('OPENAI_API_KEY', '')}"})
+        if resp.status_code == 401:
+            result["openai"] = "invalid API key"
+            failed = True
+        elif resp.status_code != 200:
+            result["openai"] = f"unexpected status {resp.status_code}"
             failed = True
     except Exception as exc:
-        result["ollama"] = f"unreachable: {exc}"
+        result["openai"] = f"unreachable: {exc}"
         failed = True
 
     if failed:

@@ -30,7 +30,7 @@ def invoke_and_parse(llm: ChatOllama, messages: list[BaseMessage]) -> dict[str, 
 
 if __name__ == "__main__":
     from langchain_core.messages import SystemMessage, HumanMessage
-    from llm.hf_client import get_llm
+    from llm.llm_client import get_llm
 
     _llm = get_llm()
     _msgs = [

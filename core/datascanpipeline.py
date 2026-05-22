@@ -5,13 +5,13 @@ import argparse
 import json
 import logging
 import os
-import re
 from datetime import datetime, timezone
 from typing import Any
 
 from bson import ObjectId
 from dotenv import load_dotenv
 
+from core.dtc_parser import _extract_fmi
 from db.connection import get_db
 from db.fault_vehicles import (
     ensure_fault_vehicles_collection,
@@ -71,13 +71,6 @@ def build_dtc_scan_query(query: dict[str, Any] | None, dtc_records_path: str) ->
     base_query = clean_query(query)
     dtc_exists_query = {f"{dtc_records_path}.dtcs": {"$exists": True, "$ne": {}}}
     return {"$and": [base_query, dtc_exists_query]} if base_query else dtc_exists_query
-
-
-def _extract_fmi(description: str) -> int | None:
-    if not description:
-        return None
-    match = re.search(r"FMI\s+(\d+)", description, re.IGNORECASE)
-    return int(match.group(1)) if match else None
 
 
 def _mil_to_bool(value: Any) -> bool:
@@ -236,33 +229,6 @@ def sync_tenant_names(app_db: Any, source_uri: str | None = None) -> int:
 
 
 # ── Scan ──────────────────────────────────────────────────────────────────────
-
-def scan_dtc_documents(
-    collection: Any,
-    query: dict[str, Any] | None = None,
-    skip: int = 0,
-    limit: int | None = None,
-    batch_size: int = 100,
-    dtc_records_path: str = DEFAULT_DTC_RECORDS_PATH,
-    vehicle_id_field: str = "vehicleId",
-) -> dict[str, Any]:
-    scan_query = build_dtc_scan_query(query, dtc_records_path)
-    cursor = collection.find(scan_query).skip(skip).batch_size(batch_size)
-    if limit is not None and limit > 0:
-        cursor = cursor.limit(limit)
-
-    results = []
-    for doc in cursor:
-        extracted = extract_dtc_records(doc, dtc_records_path=dtc_records_path, vehicle_id_field=vehicle_id_field)
-        if extracted is not None:
-            results.append(extracted)
-
-    return {
-        "query": scan_query, "skip": skip, "limit": limit,
-        "batch_size": batch_size, "scanned": len(results),
-        "next_skip": skip + len(results), "results": results,
-    }
-
 
 def scan_dtc_documents_with_source(
     collection: Any,

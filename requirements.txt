@@ -1,13 +1,10 @@
 python-dotenv
 pymongo
-pandas
 fastapi
 uvicorn
 langchain
+langchain-core
+langchain-openai
 langgraph
-langchain-ollama
 langchain_community
-streamlit
 requests
-mongomock
-python-docx

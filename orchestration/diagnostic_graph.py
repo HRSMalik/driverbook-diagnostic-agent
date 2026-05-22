@@ -16,7 +16,7 @@ from core.knowledge_base import auto_learn_from_diagnosis, increment_occurrence,
 from core.telemetry_context import adjust_severity, build_telemetry_snapshot
 from db.diagnostics_output import save_diagnostics
 from db.unknown_faults import save_unknown_fault
-from llm.hf_client import get_llm
+from llm.llm_client import get_llm
 from llm.prompts import KB_ENRICH_HUMAN_PROMPT, KB_ENRICH_SYSTEM_PROMPT
 from llm.parsers import invoke_and_parse
 
@@ -52,17 +52,12 @@ def _diag_from_kb(fault: dict[str, Any], kb: dict[str, Any], telemetry: dict[str
         "vehicleId": fault.get("vehicleId", ""),
         "timestamp": fault.get("timestamp", ""),
         "is_unknown": False,
-        "purpose": kb.get("meaning", ""),
-        "issue": kb.get("meaning", ""),
-        "impact": ", ".join(kb.get("causes") or []),
         "severity": adjusted,
         "urgency": kb.get("urgency", "Monitor"),
-        "confidence": 100,
         "explanation": kb.get("explanation", ""),
         "resolution_steps": kb.get("resolution_steps") or [],
         "who_can_fix": kb.get("who_can_fix", "Fleet maintenance team"),
         "parts_likely_needed": kb.get("parts_likely_needed") or [],
-        "estimated_downtime": kb.get("estimated_downtime", "Unknown"),
         "from_kb": True,
     }
     if adjusted != base_severity:
@@ -80,17 +75,12 @@ def _diag_placeholder(fault: dict[str, Any]) -> dict[str, Any]:
         "vehicleId": fault.get("vehicleId", ""),
         "timestamp": fault.get("timestamp", ""),
         "is_unknown": True,
-        "purpose": fault.get("description", ""),
-        "issue": "Unknown fault code — explanation pending.",
-        "impact": "Unknown",
         "severity": "Low",
         "urgency": "Monitor",
-        "confidence": 0,
         "explanation": "",
         "resolution_steps": [],
         "who_can_fix": "Certified technician required",
         "parts_likely_needed": [],
-        "estimated_downtime": "Unknown",
         "from_kb": False,
     }
 
