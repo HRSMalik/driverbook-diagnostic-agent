@@ -3,7 +3,10 @@
 
 import logging
 import re
+import time
+from collections import defaultdict, deque
 from datetime import datetime, timezone
+from typing import DefaultDict
 
 import requests as http_client
 from bson import ObjectId
@@ -55,6 +58,41 @@ class APIKeyMiddleware(BaseHTTPMiddleware):
 
 
 app.add_middleware(APIKeyMiddleware)
+
+_rate_buckets: DefaultDict[str, deque] = defaultdict(deque)
+
+
+class RateLimitMiddleware(BaseHTTPMiddleware):
+    """Sliding-window rate limiter keyed by X-API-Key.
+
+    Counts requests in a rolling 60-second window per caller.
+    Exempt paths (/health, /ready) are not counted or blocked.
+    """
+    async def dispatch(self, request: Request, call_next):
+        if request.url.path in _OPEN_PATHS:
+            return await call_next(request)
+
+        key = request.headers.get("X-API-Key", "anonymous")
+        now = time.monotonic()
+        window_start = now - 60.0
+        bucket = _rate_buckets[key]
+
+        while bucket and bucket[0] < window_start:
+            bucket.popleft()
+
+        if len(bucket) >= settings.RATE_LIMIT_PER_MINUTE:
+            retry_after = int(60 - (now - bucket[0]))
+            return JSONResponse(
+                status_code=429,
+                content={"detail": f"Rate limit exceeded. Try again in {retry_after}s."},
+                headers={"Retry-After": str(retry_after)},
+            )
+
+        bucket.append(now)
+        return await call_next(request)
+
+
+app.add_middleware(RateLimitMiddleware)
 
 # ── Startup ───────────────────────────────────────────────────────────────────
 

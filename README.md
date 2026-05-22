@@ -231,3 +231,4 @@ diagnostic_agent/
 | `OPENAI_MODEL` | `gpt-4o-mini` | Model used for KB enrichment |
 | `ALLOWED_ORIGINS` | `http://localhost:5173,http://localhost:3000` | CORS allowed origins |
 | `API_KEY` | — | Shared secret; main backend sends this as `X-API-Key` header |
+| `RATE_LIMIT_PER_MINUTE` | `60` | Max requests per 60-second window per API key |
