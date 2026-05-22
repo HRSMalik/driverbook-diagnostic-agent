@@ -1,14 +1,9 @@
 # llm/llm_client.py
 # OpenAI LLM client.
 
-import os
-from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 
-load_dotenv()
-
-OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+from config.settings import settings
 
 
 def get_llm() -> ChatOpenAI:
@@ -18,8 +13,8 @@ def get_llm() -> ChatOpenAI:
         ChatOpenAI: Configured LLM client with temperature=0.0.
     """
     return ChatOpenAI(
-        model=OPENAI_MODEL,
-        api_key=OPENAI_API_KEY,
+        model=settings.OPENAI_MODEL,
+        api_key=settings.OPENAI_API_KEY,
         temperature=0.0,
         max_tokens=1024,
     )
@@ -27,4 +22,4 @@ def get_llm() -> ChatOpenAI:
 
 if __name__ == "__main__":
     llm = get_llm()
-    print(f"LLM ready: model={OPENAI_MODEL}")
+    print(f"LLM ready: model={settings.OPENAI_MODEL}")

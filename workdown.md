@@ -4,6 +4,9 @@ Daily status log. One bullet per task, newest first.
 
 ---
 
+- **2026-05-22** — Added API key middleware: X-API-Key header required on all endpoints except /health and /ready; added API_KEY to config/settings.py and .env.example; rewrote README with auth flow, current project structure, and correct env vars table
+- **2026-05-22** — Removed batch scan pipeline: deleted datascanpipeline.py, dtc_parser.py, fault_vehicles.py, diagnostics_output.py, unknown_faults.py; stripped all batch endpoints from api.py; removed langgraph, langchain, langchain_community from requirements.txt; system is now purely on-click KB-first
+- **2026-05-22** — Style compliance: created config/settings.py Settings singleton; removed all scattered os.getenv calls from api.py, llm/llm_client.py, and core/datascanpipeline.py
 - **2026-05-22** — Migrated LLM from Ollama (Llama 3.1) to OpenAI (gpt-4o-mini); replaced langchain-ollama with langchain-openai; updated llm_client.py, .env, .env.example, and /ready endpoint to check OpenAI instead of Ollama
 - **2026-05-22** — Renamed hf_client.py to llm_client.py; updated all imports in orchestration/diagnostic_graph.py and llm/parsers.py
 - **2026-05-22** — Removed redundant code: duplicate _extract_fmi() from datascanpipeline.py (now imported from core.dtc_parser), unused scan_dtc_documents() function, EXPLAIN_* and BATCH_* unused prompt templates, legacy purpose/issue/impact fields from diagnostic output, confidence field from all diagnostic responses

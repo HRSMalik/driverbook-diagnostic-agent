@@ -1,31 +1,20 @@
 # orchestration/diagnostic_graph.py
-# Two-flow diagnostic pipeline:
-#   Flow 1 (diagnose_graph): parse → kb_lookup → diagnose → store  — fast, KB-only
-#   Flow 2 (enrich_unknown_codes): LLM once per unknown code → save to KB
+# On-click diagnostic helpers:
+#   _diag_from_kb / _diag_placeholder — build response dicts
+#   enrich_unknown_codes (Flow 2)    — LLM once per unknown code → save to KB
 
 import json
 import re
-from typing import Any, TypedDict
+from typing import Any
 
 from langchain_core.messages import HumanMessage, SystemMessage
-from langgraph.graph import END, StateGraph
 from pymongo.database import Database
 
-from core.dtc_parser import parse_dtc_records
-from core.knowledge_base import auto_learn_from_diagnosis, increment_occurrence, lookup
-from core.telemetry_context import adjust_severity, build_telemetry_snapshot
-from db.diagnostics_output import save_diagnostics
-from db.unknown_faults import save_unknown_fault
+from config.settings import settings
+from core.knowledge_base import auto_learn_from_diagnosis, lookup
+from core.telemetry_context import adjust_severity
 from llm.llm_client import get_llm
 from llm.prompts import KB_ENRICH_HUMAN_PROMPT, KB_ENRICH_SYSTEM_PROMPT
-from llm.parsers import invoke_and_parse
-
-
-class DiagnosticState(TypedDict):
-    raw_input: dict[str, Any]    # {vehicleId, dtcJson, telemetry, source_id}
-    parsed_faults: list[dict]    # structured faults, annotated as they flow
-    diagnostics: list[dict]      # final per-fault results
-    unknown_codes: list[str]     # codes not in KB after kb_lookup
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -67,7 +56,7 @@ def _diag_from_kb(fault: dict[str, Any], kb: dict[str, Any], telemetry: dict[str
 
 
 def _diag_placeholder(fault: dict[str, Any]) -> dict[str, Any]:
-    """Placeholder diagnostic for an unknown code — shown until Flow 2 enriches it."""
+    """Placeholder diagnostic for an unknown code — shown when LLM enrichment fails."""
     return {
         "code": fault["code"],
         "ecu": fault.get("ecu", ""),
@@ -85,92 +74,17 @@ def _diag_placeholder(fault: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-# ── Flow 1 nodes ──────────────────────────────────────────────────────────────
-
-def parse_node(state: DiagnosticState) -> DiagnosticState:
-    raw = state["raw_input"]
-    faults = parse_dtc_records(
-        dtc_records=raw.get("dtcJson", {}),
-        vehicle_id=raw.get("vehicleId", ""),
-    )
-    return {**state, "parsed_faults": faults}
-
-
-def kb_lookup_node(state: DiagnosticState, db: Database) -> DiagnosticState:
-    enriched = []
-    unknown_codes = []
-    for fault in state["parsed_faults"]:
-        kb_entry = lookup(db, fault["code"])
-        fault = {**fault, "kb_entry": kb_entry, "is_unknown": kb_entry is None}
-        if kb_entry is None:
-            unknown_codes.append(fault["code"])
-        enriched.append(fault)
-    return {**state, "parsed_faults": enriched, "unknown_codes": unknown_codes}
-
-
-def diagnose_node(state: DiagnosticState) -> DiagnosticState:
-    """Build diagnostics from KB for known codes; placeholders for unknowns.
-
-    Live telemetry signals from raw_input are used to escalate severity for known codes
-    when vehicle conditions exceed safe thresholds (coolant temp, oil pressure, DEF level).
-    """
-    telemetry = build_telemetry_snapshot(state["raw_input"].get("telemetry") or {})
-    diagnostics = []
-    for fault in state["parsed_faults"]:
-        kb = fault.get("kb_entry")
-        diagnostics.append(_diag_from_kb(fault, kb, telemetry) if kb else _diag_placeholder(fault))
-    return {**state, "diagnostics": diagnostics}
-
-
-def store_node(state: DiagnosticState, db: Database) -> DiagnosticState:
-    """Persist unknown faults and diagnostics output."""
-    for fault in state["parsed_faults"]:
-        if fault.get("is_unknown"):
-            save_unknown_fault(db, fault, {})
-        else:
-            increment_occurrence(db, fault["code"])
-    save_diagnostics(db, state["diagnostics"], state["raw_input"].get("source_id"))
-    return state
-
-
-# ── Flow 1 graph builder ──────────────────────────────────────────────────────
-
-def build_graph(db: Database) -> Any:
-    """Flow 1: fast KB-based diagnosis. Unknown codes get placeholders.
-
-    Args:
-        db: MongoDB database handle.
-
-    Returns:
-        Compiled LangGraph app (parse → kb_lookup → diagnose → store).
-    """
-    graph = StateGraph(DiagnosticState)
-
-    graph.add_node("parse", parse_node)
-    graph.add_node("kb_lookup", lambda s: kb_lookup_node(s, db))
-    graph.add_node("diagnose", diagnose_node)
-    graph.add_node("store", lambda s: store_node(s, db))
-
-    graph.set_entry_point("parse")
-    graph.add_edge("parse", "kb_lookup")
-    graph.add_edge("kb_lookup", "diagnose")
-    graph.add_edge("diagnose", "store")
-    graph.add_edge("store", END)
-
-    return graph.compile()
-
-
 # ── Flow 2: enrich unknown codes ──────────────────────────────────────────────
 
 def enrich_unknown_codes(db: Database, unknown_faults: list[dict[str, Any]]) -> list[str]:
-    """Flow 2: for each unique unknown fault code call LLM once and save to KB.
+    """For each unique unknown fault code call LLM once and save to KB.
 
     Args:
         db:             MongoDB database handle.
-        unknown_faults: List of fault dicts with is_unknown=True (may contain duplicates).
+        unknown_faults: List of fault dicts (may contain duplicates by code).
 
     Returns:
-        List of codes that were successfully enriched and saved to KB.
+        List of codes successfully enriched and saved to KB.
     """
     llm = get_llm()
     seen: set[str] = set()
@@ -203,7 +117,7 @@ def enrich_unknown_codes(db: Database, unknown_faults: list[dict[str, Any]]) -> 
 
 
 if __name__ == "__main__":
-    from db.connection import get_db as _get_db
-    _db = _get_db()
-    app = build_graph(_db)
-    print("Diagnose graph compiled:", type(app))
+    from db.connection import get_db
+    _db = get_db(settings.MONGO_DB)
+    kb = lookup(_db, "SPN 520203")
+    print("KB lookup SPN 520203:", kb.get("severity") if kb else "not found")

@@ -2,9 +2,6 @@ python-dotenv
 pymongo
 fastapi
 uvicorn
-langchain
 langchain-core
 langchain-openai
-langgraph
-langchain_community
 requests
