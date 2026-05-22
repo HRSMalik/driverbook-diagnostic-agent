@@ -46,3 +46,6 @@ write_prd.py
 # Tests
 tests/reports/
 tests/perf_test.py
+
+# Postman
+*.postman_collection.json

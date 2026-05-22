@@ -74,12 +74,6 @@ def _latest_staged(vehicle_id: str) -> dict | None:
     )
 
 
-def _diagnostics_for_source(source_id: str) -> list[dict]:
-    return list(
-        db["diagnostics_output"].find({"source_id": source_id}, {"_id": 0})
-    )
-
-
 def _run_graph(staged: dict) -> list[dict]:
     raw_input = staged.get("raw_input") or {}
     raw_input = {**raw_input, "source_id": staged["source_id"]}
@@ -205,64 +199,6 @@ def list_tenant_vehicles(tenant_id: str) -> dict:
         )
 
     return {"tenantId": tenant_id, "count": len(vehicles), "vehicles": vehicles}
-
-
-@app.get("/vehicles/{vehicle_id}/faults")
-def list_vehicle_faults(vehicle_id: str) -> dict:
-    """List fault codes with severity for a vehicle (no LLM call).
-
-    Returns cached diagnostics when available; falls back to the raw staged
-    fault list (severity=Pending) when the vehicle has not been analyzed yet.
-
-    Args:
-        vehicle_id: MongoDB ObjectId string for the vehicle.
-
-    Returns:
-        dict: vehicleId, source_id, analyzed flag, count, and a list of
-              {code, severity, ecu, is_unknown} entries.
-
-    Raises:
-        HTTPException: 404 if no staged document exists for this vehicle.
-    """
-    _validate_object_id(vehicle_id, "vehicleId")
-    staged = _latest_staged(vehicle_id)
-    if staged is None:
-        raise HTTPException(
-            status_code=404,
-            detail=f"No staged document for vehicleId {vehicle_id} — run the batch scan first.",
-        )
-
-    diagnostics = _diagnostics_for_source(staged["source_id"])
-    if diagnostics:
-        faults = [
-            {
-                "code": d.get("code", ""),
-                "severity": d.get("severity", "Unknown"),
-                "ecu": d.get("ecu", ""),
-                "is_unknown": d.get("is_unknown", False),
-            }
-            for d in diagnostics
-        ]
-        analyzed = True
-    else:
-        faults = [
-            {
-                "code": f.get("code", ""),
-                "severity": "Pending",
-                "ecu": f.get("ecu", ""),
-                "is_unknown": None,
-            }
-            for f in (staged.get("faults") or [])
-        ]
-        analyzed = False
-
-    return {
-        "vehicleId": vehicle_id,
-        "source_id": staged["source_id"],
-        "analyzed": analyzed,
-        "count": len(faults),
-        "faults": faults,
-    }
 
 
 @app.get("/vehicles/faults/diagnose")
