@@ -4,7 +4,12 @@
     "system": "Communications",
     "component": "Radio / Telematics Unit",
     "meaning": "Generic communication unit fault. Catches unspecified or unmapped fault codes reported by the telematics gateway.",
-    "causes": ["CAN bus communication error", "Telematics gateway firmware issue", "Loose or damaged wiring harness", "ECU mismatch after software update"],
+    "causes": [
+      "CAN bus communication error",
+      "Telematics gateway firmware issue",
+      "Loose or damaged wiring harness",
+      "ECU mismatch after software update"
+    ],
     "severity": "Low",
     "urgency": "Monitor",
     "first_seen": null,
@@ -16,7 +21,12 @@
     "system": "Tire Pressure Monitoring",
     "component": "Tire Pressure Controller",
     "meaning": "Tire pressure controller cannot identify the physical location of a tire sensor, indicating a sensor pairing or communication failure.",
-    "causes": ["Tire sensor ID not programmed", "Sensor battery depleted", "Wheel replacement without sensor re-pairing", "Interference from nearby vehicles"],
+    "causes": [
+      "Tire sensor ID not programmed",
+      "Sensor battery depleted",
+      "Wheel replacement without sensor re-pairing",
+      "Interference from nearby vehicles"
+    ],
     "severity": "Medium",
     "urgency": "Schedule Maintenance",
     "first_seen": null,
@@ -28,7 +38,12 @@
     "system": "Tire Pressure Monitoring",
     "component": "Tire Pressure Controller",
     "meaning": "One or more tires are operating below the recommended inflation pressure threshold.",
-    "causes": ["Slow puncture or bead leak", "Valve stem damage", "Temperature-related pressure drop", "Incorrect initial inflation"],
+    "causes": [
+      "Slow puncture or bead leak",
+      "Valve stem damage",
+      "Temperature-related pressure drop",
+      "Incorrect initial inflation"
+    ],
     "severity": "Medium",
     "urgency": "Schedule Maintenance",
     "first_seen": null,
@@ -40,7 +55,11 @@
     "system": "Telematics",
     "component": "Off Vehicle Gateway",
     "meaning": "Off-vehicle gateway reported a condition with FMI 31 (condition exists but no diagnostic information available), suggesting a software or firmware condition that does not map to a standard failure mode.",
-    "causes": ["Gateway firmware not updated", "Parameter not calibrated for vehicle model", "CAN network segment mismatch"],
+    "causes": [
+      "Gateway firmware not updated",
+      "Parameter not calibrated for vehicle model",
+      "CAN network segment mismatch"
+    ],
     "severity": "Low",
     "urgency": "Monitor",
     "first_seen": null,
@@ -52,7 +71,11 @@
     "system": "Body Electrical",
     "component": "Body Controller",
     "meaning": "Body controller parameter is out of calibration, meaning an internal sensor or actuator reading does not match expected reference values.",
-    "causes": ["ECU calibration data corrupted", "Software update introduced parameter mismatch", "Sensor replacement without recalibration"],
+    "causes": [
+      "ECU calibration data corrupted",
+      "Software update introduced parameter mismatch",
+      "Sensor replacement without recalibration"
+    ],
     "severity": "Medium",
     "urgency": "Schedule Maintenance",
     "first_seen": null,
@@ -64,7 +87,11 @@
     "system": "Electrical / CAN Network",
     "component": "ECU 232",
     "meaning": "ECU 232 reported a condition with FMI 31 (condition exists, no further diagnostic detail). Typically indicates an internal state not covered by standard FMI definitions.",
-    "causes": ["ECU internal firmware condition", "CAN message not recognized", "Configuration mismatch"],
+    "causes": [
+      "ECU internal firmware condition",
+      "CAN message not recognized",
+      "Configuration mismatch"
+    ],
     "severity": "Low",
     "urgency": "Monitor",
     "first_seen": null,
@@ -76,7 +103,11 @@
     "system": "Instrument Cluster",
     "component": "Instrument Cluster #1",
     "meaning": "Instrument cluster reported a non-standard condition (FMI 31). May indicate display module issue or CAN data dropout.",
-    "causes": ["CAN bus communication dropout", "Instrument cluster firmware issue", "Intermittent power supply to cluster"],
+    "causes": [
+      "CAN bus communication dropout",
+      "Instrument cluster firmware issue",
+      "Intermittent power supply to cluster"
+    ],
     "severity": "Low",
     "urgency": "Monitor",
     "first_seen": null,
@@ -88,7 +119,12 @@
     "system": "Electrical / CAN Network",
     "component": "ECU 232",
     "meaning": "Abnormal update rate from ECU 232, meaning CAN messages are arriving too slowly or erratically compared to the expected cycle time.",
-    "causes": ["CAN bus overload or congestion", "ECU CPU overload", "Damaged CAN transceiver", "Termination resistor fault"],
+    "causes": [
+      "CAN bus overload or congestion",
+      "ECU CPU overload",
+      "Damaged CAN transceiver",
+      "Termination resistor fault"
+    ],
     "severity": "Medium",
     "urgency": "Schedule Maintenance",
     "first_seen": null,
@@ -100,7 +136,11 @@
     "system": "Braking System",
     "component": "Brakes - System Controller",
     "meaning": "Brake system controller reported a condition with no standard diagnostic mapping (FMI 31). May indicate an internal brake module state outside normal operation.",
-    "causes": ["Brake controller internal fault", "ABS module firmware condition", "CAN communication drop between brake and chassis ECUs"],
+    "causes": [
+      "Brake controller internal fault",
+      "ABS module firmware condition",
+      "CAN communication drop between brake and chassis ECUs"
+    ],
     "severity": "High",
     "urgency": "Immediate Action",
     "first_seen": null,
@@ -112,7 +152,12 @@
     "system": "Body Electrical",
     "component": "Body Controller",
     "meaning": "Voltage above normal detected on a body controller circuit, indicating over-voltage on an electrical load or actuator.",
-    "causes": ["Alternator over-charging", "Short circuit to positive supply", "Faulty relay or solenoid", "Wiring insulation breakdown"],
+    "causes": [
+      "Alternator over-charging",
+      "Short circuit to positive supply",
+      "Faulty relay or solenoid",
+      "Wiring insulation breakdown"
+    ],
     "severity": "Medium",
     "urgency": "Schedule Maintenance",
     "first_seen": null,
@@ -124,7 +169,11 @@
     "system": "Telematics",
     "component": "Off Vehicle Gateway",
     "meaning": "Off-vehicle gateway condition with no standard FMI mapping. Typically a software-level state within the telematics module.",
-    "causes": ["Firmware state machine issue", "Cellular or GPS module communication loss", "Configuration parameter out of range"],
+    "causes": [
+      "Firmware state machine issue",
+      "Cellular or GPS module communication loss",
+      "Configuration parameter out of range"
+    ],
     "severity": "Low",
     "urgency": "Monitor",
     "first_seen": null,
@@ -135,8 +184,12 @@
     "code": "SPN 524017",
     "system": "Telematics",
     "component": "Off Vehicle Gateway",
-    "meaning": "Off-vehicle gateway internal condition (FMI 31). Similar to SPN 524074 — typically non-critical software state.",
-    "causes": ["Firmware state condition", "Module reboot required", "CAN segment unreachable"],
+    "meaning": "Off-vehicle gateway internal condition (FMI 31). Similar to SPN 524074 \u2014 typically non-critical software state.",
+    "causes": [
+      "Firmware state condition",
+      "Module reboot required",
+      "CAN segment unreachable"
+    ],
     "severity": "Low",
     "urgency": "Monitor",
     "first_seen": null,
@@ -148,7 +201,12 @@
     "system": "Engine Cooling",
     "component": "Engine #2",
     "meaning": "Engine cooling fan speed is erratic, intermittent, or incorrect. The fan is not operating within its expected RPM range for current engine temperature.",
-    "causes": ["Viscous fan clutch failure", "Fan drive solenoid fault", "CAN signal dropout from engine ECU", "Cooling fan wiring damage"],
+    "causes": [
+      "Viscous fan clutch failure",
+      "Fan drive solenoid fault",
+      "CAN signal dropout from engine ECU",
+      "Cooling fan wiring damage"
+    ],
     "severity": "High",
     "urgency": "Schedule Maintenance",
     "first_seen": null,
@@ -160,7 +218,11 @@
     "system": "Advanced Driver Assistance",
     "component": "Headway Controller",
     "meaning": "Headway controller (collision mitigation / adaptive cruise) reported a non-standard condition (FMI 31).",
-    "causes": ["Radar sensor blocked or misaligned", "Software state outside normal range", "CAN communication drop"],
+    "causes": [
+      "Radar sensor blocked or misaligned",
+      "Software state outside normal range",
+      "CAN communication drop"
+    ],
     "severity": "Low",
     "urgency": "Monitor",
     "first_seen": null,
@@ -172,7 +234,12 @@
     "system": "Emissions",
     "component": "Exhaust Emission Controller",
     "meaning": "Current below normal on an aftertreatment actuator circuit, indicating an open circuit or failed component in the emissions control system.",
-    "causes": ["DEF injector circuit open", "Wiring harness damage", "Emissions controller relay failure", "Faulty actuator"],
+    "causes": [
+      "DEF injector circuit open",
+      "Wiring harness damage",
+      "Emissions controller relay failure",
+      "Faulty actuator"
+    ],
     "severity": "High",
     "urgency": "Schedule Maintenance",
     "first_seen": null,
@@ -184,7 +251,12 @@
     "system": "Emissions",
     "component": "Exhaust Emission Controller",
     "meaning": "Special instruction fault from the exhaust emission controller. Indicates the ECU is requesting a specific service action or recalibration.",
-    "causes": ["DPF regeneration required", "DEF quality issue", "Aftertreatment service interval exceeded", "SCR catalyst degradation"],
+    "causes": [
+      "DPF regeneration required",
+      "DEF quality issue",
+      "Aftertreatment service interval exceeded",
+      "SCR catalyst degradation"
+    ],
     "severity": "Medium",
     "urgency": "Schedule Maintenance",
     "first_seen": null,
@@ -196,7 +268,12 @@
     "system": "Emissions",
     "component": "Exhaust Emission Controller",
     "meaning": "The heater element of the intake NOx or O2 sensor before the aftertreatment system is not responding properly. The sensor requires heating to reach operating temperature.",
-    "causes": ["Sensor heater element open circuit", "Wiring short to ground", "ECU heater driver failure", "Sensor contamination"],
+    "causes": [
+      "Sensor heater element open circuit",
+      "Wiring short to ground",
+      "ECU heater driver failure",
+      "Sensor contamination"
+    ],
     "severity": "Medium",
     "urgency": "Schedule Maintenance",
     "first_seen": null,
@@ -208,7 +285,12 @@
     "system": "Engine",
     "component": "Engine #1",
     "meaning": "Engine #1 component failure. A monitored engine parameter has reached a failed state.",
-    "causes": ["Sensor failure", "Internal engine component fault", "Wiring harness damage", "ECU internal fault"],
+    "causes": [
+      "Sensor failure",
+      "Internal engine component fault",
+      "Wiring harness damage",
+      "ECU internal fault"
+    ],
     "severity": "High",
     "urgency": "Immediate Action",
     "first_seen": null,
@@ -220,7 +302,12 @@
     "system": "Tire Pressure Monitoring",
     "component": "Tire Pressure Controller",
     "meaning": "A tire temperature reading is erratic, intermittent, or incorrect. Sensor data cannot be trusted for monitoring.",
-    "causes": ["Temperature sensor fault within TPMS sensor", "Sensor battery low", "Interference or signal loss", "Sensor not seated correctly after tire service"],
+    "causes": [
+      "Temperature sensor fault within TPMS sensor",
+      "Sensor battery low",
+      "Interference or signal loss",
+      "Sensor not seated correctly after tire service"
+    ],
     "severity": "Low",
     "urgency": "Monitor",
     "first_seen": null,
@@ -232,7 +319,11 @@
     "system": "Engine Cooling",
     "component": "Engine Thermostat",
     "meaning": "Coolant temperature is below the expected threshold for the current operating time, indicating the thermostat is stuck open and the engine is running too cold.",
-    "causes": ["Thermostat stuck in open position", "Coolant temperature sensor failure", "Low coolant level causing incorrect readings"],
+    "causes": [
+      "Thermostat stuck in open position",
+      "Coolant temperature sensor failure",
+      "Low coolant level causing incorrect readings"
+    ],
     "severity": "Medium",
     "urgency": "Schedule Maintenance",
     "first_seen": null,
@@ -244,7 +335,12 @@
     "system": "Tire Inflation",
     "component": "Tire Pressure Controller",
     "meaning": "Central Tire Inflation (CTI) system has detected an electrical fault at a wheel end, suggesting a wiring or sensor issue in the air inflation circuit.",
-    "causes": ["Wheel end valve wiring damaged", "CTI rotary union seal leak", "Wheel end sensor failure", "Corroded connector at wheel hub"],
+    "causes": [
+      "Wheel end valve wiring damaged",
+      "CTI rotary union seal leak",
+      "Wheel end sensor failure",
+      "Corroded connector at wheel hub"
+    ],
     "severity": "Medium",
     "urgency": "Schedule Maintenance",
     "first_seen": null,
@@ -256,7 +352,13 @@
     "system": "Engine - Forced Induction",
     "component": "Turbocharger / Supercharger",
     "meaning": "Turbocharger or supercharger is producing less boost than commanded, resulting in under-boost condition that reduces engine power output.",
-    "causes": ["Turbocharger wear or damage", "Boost pressure leak in intake piping", "Wastegate stuck open", "Intercooler leak", "EGR valve stuck open"],
+    "causes": [
+      "Turbocharger wear or damage",
+      "Boost pressure leak in intake piping",
+      "Wastegate stuck open",
+      "Intercooler leak",
+      "EGR valve stuck open"
+    ],
     "severity": "High",
     "urgency": "Schedule Maintenance",
     "first_seen": null,
@@ -268,7 +370,11 @@
     "system": "Engine Control",
     "component": "Engine #2",
     "meaning": "Engine #2 parameter is out of calibration, indicating a mismatch between expected and measured values for an engine sensor or actuator.",
-    "causes": ["ECU calibration file mismatch after software update", "Sensor replaced without recalibration", "Injector trim data reset"],
+    "causes": [
+      "ECU calibration file mismatch after software update",
+      "Sensor replaced without recalibration",
+      "Injector trim data reset"
+    ],
     "severity": "Medium",
     "urgency": "Schedule Maintenance",
     "first_seen": null,
@@ -280,7 +386,12 @@
     "system": "Cruise Control",
     "component": "Cruise Control",
     "meaning": "Cruise control parameter is above normal range with moderate severity, indicating an over-speed or signal anomaly in the cruise system.",
-    "causes": ["Vehicle speed sensor fault", "Cruise control actuator issue", "CAN signal interference", "Driver input conflict"],
+    "causes": [
+      "Vehicle speed sensor fault",
+      "Cruise control actuator issue",
+      "CAN signal interference",
+      "Driver input conflict"
+    ],
     "severity": "Medium",
     "urgency": "Monitor",
     "first_seen": null,
@@ -292,7 +403,12 @@
     "system": "CAN Network",
     "component": "ECU 232",
     "meaning": "J1939 secondary network is experiencing abnormal update rate, meaning expected periodic CAN messages are delayed or missing.",
-    "causes": ["CAN bus termination issue", "ECU connected to J1939 network #2 offline", "Bus load too high", "Damaged CAN wiring"],
+    "causes": [
+      "CAN bus termination issue",
+      "ECU connected to J1939 network #2 offline",
+      "Bus load too high",
+      "Damaged CAN wiring"
+    ],
     "severity": "Medium",
     "urgency": "Schedule Maintenance",
     "first_seen": null,
@@ -304,7 +420,12 @@
     "system": "Braking System",
     "component": "Brakes - System Controller",
     "meaning": "Voltage below normal on brake system relay diagonal 1. The relay may not be energizing correctly, affecting ABS or EBS operation.",
-    "causes": ["Relay coil failure", "Voltage supply fault to brake module", "Corroded relay socket", "Wiring short to ground"],
+    "causes": [
+      "Relay coil failure",
+      "Voltage supply fault to brake module",
+      "Corroded relay socket",
+      "Wiring short to ground"
+    ],
     "severity": "High",
     "urgency": "Immediate Action",
     "first_seen": null,
@@ -316,7 +437,12 @@
     "system": "Braking System - ABS",
     "component": "Brakes - System Controller",
     "meaning": "ABS wheel speed sensor on axle 3 right is reporting abnormal update rate, meaning the signal is intermittent or the sensor pulse count is unexpected.",
-    "causes": ["Damaged wheel speed sensor", "Tone ring teeth chipped or dirty", "Sensor gap too large", "Wiring harness chafed near axle"],
+    "causes": [
+      "Damaged wheel speed sensor",
+      "Tone ring teeth chipped or dirty",
+      "Sensor gap too large",
+      "Wiring harness chafed near axle"
+    ],
     "severity": "High",
     "urgency": "Immediate Action",
     "first_seen": null,
@@ -328,7 +454,12 @@
     "system": "Braking System - ABS",
     "component": "Brakes - System Controller",
     "meaning": "ABS wheel speed sensor on axle 3 left is reading a value below the expected minimum, possibly due to a slow wheel or sensor failure.",
-    "causes": ["Wheel bearing failure causing drag", "Sensor air gap too large", "Tone ring damage", "Wiring connector corrosion"],
+    "causes": [
+      "Wheel bearing failure causing drag",
+      "Sensor air gap too large",
+      "Tone ring damage",
+      "Wiring connector corrosion"
+    ],
     "severity": "High",
     "urgency": "Immediate Action",
     "first_seen": null,
@@ -340,7 +471,12 @@
     "system": "Engine Cooling",
     "component": "Engine #1",
     "meaning": "Engine coolant level is below the minimum threshold. Insufficient coolant risks overheating and engine damage.",
-    "causes": ["Coolant leak from hose, gasket, or radiator", "Coolant level sensor failure", "Coolant reservoir crack", "Head gasket seeping internally"],
+    "causes": [
+      "Coolant leak from hose, gasket, or radiator",
+      "Coolant level sensor failure",
+      "Coolant reservoir crack",
+      "Head gasket seeping internally"
+    ],
     "severity": "High",
     "urgency": "Immediate Action",
     "first_seen": null,
@@ -352,7 +488,12 @@
     "system": "Engine Cooling",
     "component": "Engine #2",
     "meaning": "The engine coolant thermostat is not responding as expected. Engine may be running outside optimal temperature range.",
-    "causes": ["Thermostat stuck open or closed", "Thermostat housing gasket failed", "Coolant flow obstruction", "Incorrect thermostat installed after service"],
+    "causes": [
+      "Thermostat stuck open or closed",
+      "Thermostat housing gasket failed",
+      "Coolant flow obstruction",
+      "Incorrect thermostat installed after service"
+    ],
     "severity": "High",
     "urgency": "Schedule Maintenance",
     "first_seen": null,
@@ -364,7 +505,12 @@
     "system": "Emissions",
     "component": "Exhaust Emission Controller",
     "meaning": "Intake NOx sensor is reading a value that has drifted high beyond the calibrated range, suggesting sensor degradation or actual high NOx levels.",
-    "causes": ["NOx sensor aging or contamination", "EGR system malfunction increasing NOx", "SCR catalyst degradation", "DEF dosing system fault"],
+    "causes": [
+      "NOx sensor aging or contamination",
+      "EGR system malfunction increasing NOx",
+      "SCR catalyst degradation",
+      "DEF dosing system fault"
+    ],
     "severity": "High",
     "urgency": "Schedule Maintenance",
     "first_seen": null,
@@ -376,7 +522,12 @@
     "system": "Emissions - DEF",
     "component": "Exhaust Emission Controller",
     "meaning": "DEF (AdBlue) tank level sensor is reading below normal voltage. DEF level may be critically low or the sensor has failed.",
-    "causes": ["DEF tank nearly empty", "DEF level sensor circuit fault", "Wiring short to ground", "Sensor connector corrosion"],
+    "causes": [
+      "DEF tank nearly empty",
+      "DEF level sensor circuit fault",
+      "Wiring short to ground",
+      "Sensor connector corrosion"
+    ],
     "severity": "High",
     "urgency": "Immediate Action",
     "first_seen": null,
@@ -388,7 +539,12 @@
     "system": "Drivetrain",
     "component": "Transmission #1",
     "meaning": "Transmission parameter reading is below the expected minimum, indicating a potential internal transmission fault or fluid pressure issue.",
-    "causes": ["Low transmission fluid level", "Transmission pressure sensor failure", "Clutch pack wear", "Solenoid valve fault"],
+    "causes": [
+      "Low transmission fluid level",
+      "Transmission pressure sensor failure",
+      "Clutch pack wear",
+      "Solenoid valve fault"
+    ],
     "severity": "High",
     "urgency": "Schedule Maintenance",
     "first_seen": null,
@@ -400,7 +556,11 @@
     "system": "Braking System - ABS",
     "component": "Headway Controller",
     "meaning": "Headway controller reports the ABS system status as erratic or incorrect, meaning ABS availability cannot be confirmed by the collision avoidance system.",
-    "causes": ["ABS module fault", "CAN communication loss between ABS and headway controller", "ABS wheel sensor failure affecting system status"],
+    "causes": [
+      "ABS module fault",
+      "CAN communication loss between ABS and headway controller",
+      "ABS wheel sensor failure affecting system status"
+    ],
     "severity": "High",
     "urgency": "Immediate Action",
     "first_seen": null,
@@ -412,7 +572,12 @@
     "system": "Advanced Driver Assistance",
     "component": "Engine #1",
     "meaning": "Adaptive cruise control system has detected a failure, disabling or limiting ACC functionality.",
-    "causes": ["Radar sensor failure or obstruction", "ACC module fault", "Vehicle speed sensor signal issue", "CAN bus message timeout"],
+    "causes": [
+      "Radar sensor failure or obstruction",
+      "ACC module fault",
+      "Vehicle speed sensor signal issue",
+      "CAN bus message timeout"
+    ],
     "severity": "Medium",
     "urgency": "Schedule Maintenance",
     "first_seen": null,
@@ -424,7 +589,12 @@
     "system": "Emissions - DEF",
     "component": "Exhaust Emission Controller",
     "meaning": "DEF pump drive circuit is reading current below normal, indicating the pump is not drawing expected current and may not be dosing DEF correctly.",
-    "causes": ["DEF pump motor failure", "DEF pump wiring open circuit", "DEF pump filter clogged", "DEF frozen in cold conditions"],
+    "causes": [
+      "DEF pump motor failure",
+      "DEF pump wiring open circuit",
+      "DEF pump filter clogged",
+      "DEF frozen in cold conditions"
+    ],
     "severity": "High",
     "urgency": "Schedule Maintenance",
     "first_seen": null,
@@ -436,7 +606,12 @@
     "system": "Emissions - DEF",
     "component": "Exhaust Emission Controller",
     "meaning": "DEF pump motor speed is above the maximum expected value, suggesting runaway pump, incorrect pump, or sensor fault.",
-    "causes": ["DEF pump motor fault", "Speed sensor failure on pump", "ECU control loop issue", "Air ingestion in DEF lines"],
+    "causes": [
+      "DEF pump motor fault",
+      "Speed sensor failure on pump",
+      "ECU control loop issue",
+      "Air ingestion in DEF lines"
+    ],
     "severity": "High",
     "urgency": "Schedule Maintenance",
     "first_seen": null,
@@ -448,7 +623,12 @@
     "system": "Emissions - DEF",
     "component": "Exhaust Emission Controller",
     "meaning": "DEF pump is not responding as commanded, indicating a pump failure or communication issue in the DEF dosing system.",
-    "causes": ["DEF pump mechanical failure", "DEF pump relay fault", "ECU command not reaching pump", "DEF crystallization blocking pump"],
+    "causes": [
+      "DEF pump mechanical failure",
+      "DEF pump relay fault",
+      "ECU command not reaching pump",
+      "DEF crystallization blocking pump"
+    ],
     "severity": "High",
     "urgency": "Schedule Maintenance",
     "first_seen": null,
@@ -460,7 +640,11 @@
     "system": "Telematics",
     "component": "Off Vehicle Gateway",
     "meaning": "Off-vehicle gateway internal condition (FMI 31). Non-standard state in the telematics module.",
-    "causes": ["Gateway firmware state", "Configuration parameter out of range", "Remote server communication loss"],
+    "causes": [
+      "Gateway firmware state",
+      "Configuration parameter out of range",
+      "Remote server communication loss"
+    ],
     "severity": "Low",
     "urgency": "Monitor",
     "first_seen": null,
@@ -472,7 +656,11 @@
     "system": "Braking System",
     "component": "Brakes - System Controller",
     "meaning": "Brake system controller reported a fault with FMI 23, indicating a special condition or fault not covered by standard failure modes.",
-    "causes": ["Brake pressure sensor fault", "EBS valve issue", "Internal brake ECU condition"],
+    "causes": [
+      "Brake pressure sensor fault",
+      "EBS valve issue",
+      "Internal brake ECU condition"
+    ],
     "severity": "High",
     "urgency": "Schedule Maintenance",
     "first_seen": null,
@@ -484,7 +672,11 @@
     "system": "Chassis / Stability",
     "component": "Brakes - System Controller",
     "meaning": "Brake or stability controller is requesting special service action related to the steering wheel angle sensor, typically requiring sensor calibration.",
-    "causes": ["Steering angle sensor not calibrated after alignment", "Sensor replacement without calibration", "Sensor mounting shifted"],
+    "causes": [
+      "Steering angle sensor not calibrated after alignment",
+      "Sensor replacement without calibration",
+      "Sensor mounting shifted"
+    ],
     "severity": "Medium",
     "urgency": "Schedule Maintenance",
     "first_seen": null,
@@ -496,7 +688,11 @@
     "system": "Engine",
     "component": "Engine #1",
     "meaning": "Engine #1 ECU is issuing a special instruction, requesting a specific service action or parameter reset.",
-    "causes": ["Service interval reached", "Software update required", "Injector calibration needed"],
+    "causes": [
+      "Service interval reached",
+      "Software update required",
+      "Injector calibration needed"
+    ],
     "severity": "Medium",
     "urgency": "Schedule Maintenance",
     "first_seen": null,
@@ -508,7 +704,12 @@
     "system": "Cruise Control",
     "component": "Engine #1",
     "meaning": "Cruise control enable switch signal is out of calibration, meaning the switch position does not match the expected voltage or state.",
-    "causes": ["Switch contact wear", "Wiring short or open to switch", "Cruise control stalk damage", "ECU calibration drift"],
+    "causes": [
+      "Switch contact wear",
+      "Wiring short or open to switch",
+      "Cruise control stalk damage",
+      "ECU calibration drift"
+    ],
     "severity": "Low",
     "urgency": "Monitor",
     "first_seen": null,
@@ -520,7 +721,11 @@
     "system": "Cruise Control",
     "component": "Engine #1",
     "meaning": "Cruise control accelerate (Resume/Accel) switch signal is out of calibration.",
-    "causes": ["Switch wear", "Steering column wiring harness damage", "Clock spring fault"],
+    "causes": [
+      "Switch wear",
+      "Steering column wiring harness damage",
+      "Clock spring fault"
+    ],
     "severity": "Low",
     "urgency": "Monitor",
     "first_seen": null,
@@ -532,7 +737,11 @@
     "system": "Cruise Control",
     "component": "Engine #1",
     "meaning": "Cruise control coast/decelerate switch signal is out of calibration.",
-    "causes": ["Switch wear", "Steering column wiring fault", "Clock spring internal failure"],
+    "causes": [
+      "Switch wear",
+      "Steering column wiring fault",
+      "Clock spring internal failure"
+    ],
     "severity": "Low",
     "urgency": "Monitor",
     "first_seen": null,
@@ -544,7 +753,11 @@
     "system": "Braking System",
     "component": "Brakes - System Controller",
     "meaning": "Low-severity power supply condition on the brake module. Voltage is slightly below the normal operating minimum.",
-    "causes": ["Battery voltage low", "Charging system issue", "High resistance in brake module power supply circuit"],
+    "causes": [
+      "Battery voltage low",
+      "Charging system issue",
+      "High resistance in brake module power supply circuit"
+    ],
     "severity": "Low",
     "urgency": "Monitor",
     "first_seen": null,
@@ -556,7 +769,12 @@
     "system": "Stability Control",
     "component": "Headway Controller",
     "meaning": "Vehicle Dynamic Control (stability) system status is erratic or incorrect as seen by the headway controller.",
-    "causes": ["VDC sensor fault", "CAN communication loss", "Yaw rate sensor issue", "Stability system in degraded mode"],
+    "causes": [
+      "VDC sensor fault",
+      "CAN communication loss",
+      "Yaw rate sensor issue",
+      "Stability system in degraded mode"
+    ],
     "severity": "High",
     "urgency": "Immediate Action",
     "first_seen": null,
@@ -568,7 +786,12 @@
     "system": "CAN Network",
     "component": "Brakes - System Controller",
     "meaning": "Primary J1939 CAN bus is experiencing erratic or incorrect message timing as seen by the brake controller.",
-    "causes": ["CAN bus termination resistor fault", "High bus load from multiple ECU resets", "Damaged CAN wiring", "Ground offset between ECUs"],
+    "causes": [
+      "CAN bus termination resistor fault",
+      "High bus load from multiple ECU resets",
+      "Damaged CAN wiring",
+      "Ground offset between ECUs"
+    ],
     "severity": "High",
     "urgency": "Immediate Action",
     "first_seen": null,
@@ -580,7 +803,12 @@
     "system": "Emissions",
     "component": "Exhaust Emission Controller",
     "meaning": "Exhaust gas oxygen/NOx sensor on bank 2 of the aftertreatment system is providing erratic readings.",
-    "causes": ["Sensor contamination or aging", "Exhaust leak upstream of sensor", "Sensor heater fault", "Wiring intermittent"],
+    "causes": [
+      "Sensor contamination or aging",
+      "Exhaust leak upstream of sensor",
+      "Sensor heater fault",
+      "Wiring intermittent"
+    ],
     "severity": "Medium",
     "urgency": "Schedule Maintenance",
     "first_seen": null,
@@ -592,11 +820,66 @@
     "system": "Braking System - AEBS",
     "component": "Headway Controller",
     "meaning": "External Brake Request (XBR / Emergency Braking) system state has data errors, indicating the headway controller cannot reliably issue emergency brake requests.",
-    "causes": ["Headway sensor (radar/camera) failure", "CAN bus data integrity issue", "AEBS module firmware fault", "Sensor calibration lost"],
+    "causes": [
+      "Headway sensor (radar/camera) failure",
+      "CAN bus data integrity issue",
+      "AEBS module firmware fault",
+      "Sensor calibration lost"
+    ],
     "severity": "High",
     "urgency": "Immediate Action",
     "first_seen": null,
     "last_seen": null,
     "occurrence_count": 0
+  },
+  {
+    "code": "SPN 520203",
+    "system": "Engine",
+    "component": "Oil Pressure Sensor",
+    "meaning": "Engine Oil Pressure Sensor Fault",
+    "causes": [
+      "Faulty oil pressure sensor",
+      "Wiring issues",
+      "Low oil level"
+    ],
+    "severity": "Medium",
+    "urgency": "Schedule Maintenance",
+    "explanation": "This fault indicates a problem with the engine oil pressure sensor, which can affect engine performance and lubrication.",
+    "resolution_steps": [
+      "Check oil level and top up if low",
+      "Inspect wiring and connections to the sensor",
+      "Replace the oil pressure sensor if faulty"
+    ],
+    "who_can_fix": "Certified technician required",
+    "parts_likely_needed": [
+      "Oil pressure sensor"
+    ],
+    "source": "auto_learned",
+    "first_seen": "2026-05-22T12:03:02.244637+00:00",
+    "last_seen": "2026-05-22T12:03:02.244637+00:00"
+  },
+  {
+    "code": "SPN 111222",
+    "system": "N/A",
+    "component": "N/A",
+    "meaning": "Unknown fault code",
+    "causes": [
+      "Fault code not recognized",
+      "Potential software issue"
+    ],
+    "severity": "Low",
+    "urgency": "Monitor",
+    "explanation": "This fault code is not defined in the standard database, which may indicate a software glitch or an unrecognized issue.",
+    "resolution_steps": [
+      "Check for software updates",
+      "Consult manufacturer documentation"
+    ],
+    "who_can_fix": "Certified technician required",
+    "parts_likely_needed": [
+      "N/A"
+    ],
+    "source": "auto_learned",
+    "first_seen": "2026-05-22T12:03:06.089636+00:00",
+    "last_seen": "2026-05-22T12:03:06.089636+00:00"
   }
 ]

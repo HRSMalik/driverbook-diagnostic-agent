@@ -1,5 +1,4 @@
 python-dotenv
-pymongo
 fastapi
 uvicorn
 langchain-core

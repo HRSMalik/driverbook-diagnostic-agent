@@ -9,7 +9,6 @@ from datetime import datetime, timezone
 from typing import DefaultDict
 
 import requests as http_client
-from bson import ObjectId
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -17,7 +16,6 @@ from starlette.middleware.base import BaseHTTPMiddleware
 
 from config.settings import settings
 from core.knowledge_base import lookup, seed_knowledge_base
-from db.connection import get_db
 from orchestration.diagnostic_graph import (
     _diag_from_kb,
     _diag_placeholder,
@@ -27,7 +25,7 @@ from orchestration.diagnostic_graph import (
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="DriverBook Diagnostics API", version="1.1.0")
+app = FastAPI(title="DriverBook Diagnostics API", version="1.2.0")
 
 _allowed_origins = [o.strip() for o in settings.ALLOWED_ORIGINS.split(",") if o.strip()]
 
@@ -50,7 +48,6 @@ class APIKeyMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         if request.url.path not in _OPEN_PATHS:
             if not settings.API_KEY:
-                # Key not configured — block all protected traffic until set
                 return JSONResponse(status_code=503, content={"detail": "API key not configured on server."})
             if request.headers.get("X-API-Key") != settings.API_KEY:
                 return JSONResponse(status_code=401, content={"detail": "Invalid or missing API key."})
@@ -96,20 +93,16 @@ app.add_middleware(RateLimitMiddleware)
 
 # ── Startup ───────────────────────────────────────────────────────────────────
 
-db = get_db(settings.MONGO_DB)
-seeded = seed_knowledge_base(db)
-if seeded:
-    logger.info("Knowledge base seeded with %d entries.", seeded)
-else:
-    logger.info("Knowledge base already populated — skipping seed.")
+kb_count = seed_knowledge_base()
+logger.info("Knowledge base loaded: %d entries.", kb_count)
 
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
 
+_OBJECT_ID_RE = re.compile(r"^[a-f0-9]{24}$", re.IGNORECASE)
+
 def _validate_object_id(value: str, label: str) -> str:
-    try:
-        ObjectId(value)
-    except Exception:
+    if not _OBJECT_ID_RE.match(value):
         raise HTTPException(status_code=400, detail=f"Invalid {label}: {value}")
     return value
 
@@ -124,19 +117,12 @@ def health() -> dict:
 
 @app.get("/ready")
 def ready() -> dict:
-    """Readiness check — confirms Mongo and OpenAI are reachable.
+    """Readiness check — confirms OpenAI is reachable.
 
-    Returns 200 with a per-dependency status breakdown when all pass.
-    Returns 503 with the breakdown when any dependency is unreachable.
+    Returns 200 when OpenAI is reachable.
+    Returns 503 with detail when it is not.
     """
-    result: dict = {"mongo": "ok", "openai": "ok"}
-    failed = False
-
-    try:
-        db.client.admin.command("ping")
-    except Exception as exc:
-        result["mongo"] = f"unreachable: {exc}"
-        failed = True
+    result: dict = {"openai": "ok"}
 
     try:
         resp = http_client.get(
@@ -146,16 +132,16 @@ def ready() -> dict:
         )
         if resp.status_code == 401:
             result["openai"] = "invalid API key"
-            failed = True
+            raise HTTPException(status_code=503, detail=result)
         elif resp.status_code != 200:
             result["openai"] = f"unexpected status {resp.status_code}"
-            failed = True
+            raise HTTPException(status_code=503, detail=result)
+    except HTTPException:
+        raise
     except Exception as exc:
         result["openai"] = f"unreachable: {exc}"
-        failed = True
-
-    if failed:
         raise HTTPException(status_code=503, detail=result)
+
     return result
 
 
@@ -190,10 +176,10 @@ def diagnose_fault(
         "mil": False,
     }
 
-    kb_entry = lookup(db, code_norm)
+    kb_entry = lookup(code_norm)
     if kb_entry is None:
-        enrich_unknown_codes(db, [fault])
-        kb_entry = lookup(db, code_norm)
+        enrich_unknown_codes([fault])
+        kb_entry = lookup(code_norm)
 
     if kb_entry is None:
         return _diag_placeholder(fault)
@@ -208,5 +194,6 @@ def get_knowledge_base() -> dict:
     Returns:
         dict: count and list of all KB entries.
     """
-    entries = list(db["knowledge_base"].find({}, {"_id": 0}))
+    from core.knowledge_base import _KB
+    entries = list(_KB.values())
     return {"count": len(entries), "entries": entries}

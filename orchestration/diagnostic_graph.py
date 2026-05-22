@@ -8,9 +8,7 @@ import re
 from typing import Any
 
 from langchain_core.messages import HumanMessage, SystemMessage
-from pymongo.database import Database
 
-from config.settings import settings
 from core.knowledge_base import auto_learn_from_diagnosis, lookup
 from core.telemetry_context import adjust_severity
 from llm.llm_client import get_llm
@@ -76,11 +74,10 @@ def _diag_placeholder(fault: dict[str, Any]) -> dict[str, Any]:
 
 # ── Flow 2: enrich unknown codes ──────────────────────────────────────────────
 
-def enrich_unknown_codes(db: Database, unknown_faults: list[dict[str, Any]]) -> list[str]:
+def enrich_unknown_codes(unknown_faults: list[dict[str, Any]]) -> list[str]:
     """For each unique unknown fault code call LLM once and save to KB.
 
     Args:
-        db:             MongoDB database handle.
         unknown_faults: List of fault dicts (may contain duplicates by code).
 
     Returns:
@@ -108,7 +105,7 @@ def enrich_unknown_codes(db: Database, unknown_faults: list[dict[str, Any]]) -> 
             raw_text = response.content if hasattr(response, "content") else str(response)
             result = _parse_json_obj(raw_text)
             if result:
-                auto_learn_from_diagnosis(db, fault, result)
+                auto_learn_from_diagnosis(fault, result)
                 enriched_codes.append(code)
         except Exception:
             pass
@@ -117,7 +114,5 @@ def enrich_unknown_codes(db: Database, unknown_faults: list[dict[str, Any]]) -> 
 
 
 if __name__ == "__main__":
-    from db.connection import get_db
-    _db = get_db(settings.MONGO_DB)
-    kb = lookup(_db, "SPN 520203")
-    print("KB lookup SPN 520203:", kb.get("severity") if kb else "not found")
+    entry = lookup("SPN 520203")
+    print("KB lookup SPN 520203:", entry.get("severity") if entry else "not found")
