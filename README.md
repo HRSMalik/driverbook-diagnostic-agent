@@ -227,8 +227,6 @@ diagnostic_agent/
 
 | Variable | Default | Description |
 | --- | --- | --- |
-| `MONGO_URI` | `mongodb://localhost:27017` | App database connection string |
-| `MONGO_DB` | `diagnostics` | App database name |
 | `OPENAI_API_KEY` | — | OpenAI API key |
 | `OPENAI_MODEL` | `gpt-4o-mini` | Model used for KB enrichment |
 | `ALLOWED_ORIGINS` | `http://localhost:5173,http://localhost:3000` | CORS allowed origins |
