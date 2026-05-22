@@ -40,3 +40,4 @@ Daily status log. One bullet per task, newest first.
 - **2026-05-14** — Added `GET /tenants` endpoint and tenant picker UI (clickable chips) so fleet managers can select tenants without typing IDs
 - **2026-05-14** — Full pipeline run across all 20 tenants: 154 documents analyzed, 44 unknown codes enriched via LLM and saved to KB permanently
 - **2026-05-14** — `README.md`, `PLAN.md`, `PRD.md`, and `PRD.docx` updated to reflect current two-flow KB-first architecture
+- **2026-05-22** — Seeded KB with 162 historical fault codes retrieved from MongoDB before removal; seed_kb.json now contains full auto-learned history, MongoDB no longer required

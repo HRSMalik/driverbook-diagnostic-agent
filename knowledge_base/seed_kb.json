@@ -3755,29 +3755,6 @@
     "who_can_fix": "Fleet maintenance team|Certified technician required"
   },
   {
-    "code": "SPN 999999",
-    "causes": [
-      "Faulty sensor or wiring issue"
-    ],
-    "component": "TestECU",
-    "estimated_downtime": "1-2 hours",
-    "explanation": "This code indicates that there is an unknown problem with the TestECU system, but the specific cause cannot be determined. It may be related to a faulty sensor or wiring issue.",
-    "first_seen": "2026-05-15T13:01:40.516524+00:00",
-    "last_seen": "2026-05-15T13:01:40.516524+00:00",
-    "meaning": "Unknown fault in the TestECU system",
-    "occurrence_count": 1,
-    "parts_likely_needed": [],
-    "resolution_steps": [
-      "Check for loose connections and clean any corrosion on electrical connectors",
-      "Use a scan tool to retrieve additional information about the fault"
-    ],
-    "severity": "Medium",
-    "source": "auto_learned",
-    "system": "TestECU",
-    "urgency": "Schedule Maintenance",
-    "who_can_fix": "Fleet maintenance team|Certified technician required"
-  },
-  {
     "code": "SPN_UAT_TEST_99999",
     "causes": [
       "Faulty sensor",
