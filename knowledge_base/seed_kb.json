@@ -1,885 +1,3905 @@
 [
   {
-    "code": "SPN 0",
-    "system": "Communications",
-    "component": "Radio / Telematics Unit",
-    "meaning": "Generic communication unit fault. Catches unspecified or unmapped fault codes reported by the telematics gateway.",
+    "code": "SPN 520276",
     "causes": [
-      "CAN bus communication error",
-      "Telematics gateway firmware issue",
-      "Loose or damaged wiring harness",
-      "ECU mismatch after software update"
+      "The engine's fuel system is not delivering enough fuel to the engine."
     ],
-    "severity": "Low",
-    "urgency": "Monitor",
-    "first_seen": null,
-    "last_seen": null,
-    "occurrence_count": 0
-  },
-  {
-    "code": "TIRE LOCATION (SPN 929)",
-    "system": "Tire Pressure Monitoring",
-    "component": "Tire Pressure Controller",
-    "meaning": "Tire pressure controller cannot identify the physical location of a tire sensor, indicating a sensor pairing or communication failure.",
-    "causes": [
-      "Tire sensor ID not programmed",
-      "Sensor battery depleted",
-      "Wheel replacement without sensor re-pairing",
-      "Interference from nearby vehicles"
+    "component": "ECU 237",
+    "estimated_downtime": "2-4 hours",
+    "explanation": "The engine's fuel system is not delivering enough fuel to the engine.",
+    "first_seen": "2026-05-13T09:25:38.170156+00:00",
+    "last_seen": "2026-05-14T12:22:32.648259+00:00",
+    "meaning": "The engine's fuel system is not delivering enough fuel to the engine.",
+    "occurrence_count": 16,
+    "parts_likely_needed": [
+      "Fuel System Pressure Sensor",
+      "Fuel Filter"
+    ],
+    "resolution_steps": [
+      "Check and replace the fuel filter if necessary",
+      "Inspect and clean the fuel system pressure sensor",
+      "Verify the fuel level is adequate"
     ],
     "severity": "Medium",
+    "source": "auto_learned",
+    "system": "ECU 237",
     "urgency": "Schedule Maintenance",
-    "first_seen": null,
-    "last_seen": null,
-    "occurrence_count": 0
+    "who_can_fix": "Fleet maintenance team"
   },
   {
-    "code": "TIRE PRESSURE (SPN 241)",
-    "system": "Tire Pressure Monitoring",
-    "component": "Tire Pressure Controller",
-    "meaning": "One or more tires are operating below the recommended inflation pressure threshold.",
+    "code": "SPN 520581",
     "causes": [
-      "Slow puncture or bead leak",
-      "Valve stem damage",
-      "Temperature-related pressure drop",
-      "Incorrect initial inflation"
+      "The body controller has detected an intermittent or erratic issue with a vehicle system."
     ],
-    "severity": "Medium",
-    "urgency": "Schedule Maintenance",
-    "first_seen": null,
-    "last_seen": null,
-    "occurrence_count": 0
-  },
-  {
-    "code": "SPN 524051",
-    "system": "Telematics",
-    "component": "Off Vehicle Gateway",
-    "meaning": "Off-vehicle gateway reported a condition with FMI 31 (condition exists but no diagnostic information available), suggesting a software or firmware condition that does not map to a standard failure mode.",
-    "causes": [
-      "Gateway firmware not updated",
-      "Parameter not calibrated for vehicle model",
-      "CAN network segment mismatch"
-    ],
-    "severity": "Low",
-    "urgency": "Monitor",
-    "first_seen": null,
-    "last_seen": null,
-    "occurrence_count": 0
-  },
-  {
-    "code": "SPN 520880",
-    "system": "Body Electrical",
     "component": "Body Controller",
-    "meaning": "Body controller parameter is out of calibration, meaning an internal sensor or actuator reading does not match expected reference values.",
-    "causes": [
-      "ECU calibration data corrupted",
-      "Software update introduced parameter mismatch",
-      "Sensor replacement without recalibration"
-    ],
-    "severity": "Medium",
-    "urgency": "Schedule Maintenance",
-    "first_seen": null,
-    "last_seen": null,
-    "occurrence_count": 0
-  },
-  {
-    "code": "SPN 523013",
-    "system": "Electrical / CAN Network",
-    "component": "ECU 232",
-    "meaning": "ECU 232 reported a condition with FMI 31 (condition exists, no further diagnostic detail). Typically indicates an internal state not covered by standard FMI definitions.",
-    "causes": [
-      "ECU internal firmware condition",
-      "CAN message not recognized",
-      "Configuration mismatch"
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The body controller has detected an intermittent or erratic issue with a vehicle system.",
+    "first_seen": "2026-05-13T09:25:38.172209+00:00",
+    "last_seen": "2026-05-13T13:42:31.048601+00:00",
+    "meaning": "The body controller has detected an intermittent or erratic issue with a vehicle system.",
+    "occurrence_count": 5,
+    "parts_likely_needed": [],
+    "resolution_steps": [
+      "Check and clean all electrical connections to the body controller",
+      "Verify that all sensors are securely connected and functioning properly",
+      "Inspect the body controller module for signs of damage or corrosion"
     ],
     "severity": "Low",
+    "source": "auto_learned",
+    "system": "Body Controller",
     "urgency": "Monitor",
-    "first_seen": null,
-    "last_seen": null,
-    "occurrence_count": 0
+    "who_can_fix": "Fleet maintenance team"
   },
   {
-    "code": "SPN 523021",
-    "system": "Instrument Cluster",
-    "component": "Instrument Cluster #1",
-    "meaning": "Instrument cluster reported a non-standard condition (FMI 31). May indicate display module issue or CAN data dropout.",
+    "code": "SPN 521031",
     "causes": [
-      "CAN bus communication dropout",
-      "Instrument cluster firmware issue",
-      "Intermittent power supply to cluster"
+      "Engine Oil Level Sensor Fault"
     ],
-    "severity": "Low",
-    "urgency": "Monitor",
-    "first_seen": null,
-    "last_seen": null,
-    "occurrence_count": 0
-  },
-  {
-    "code": "SPN 524042",
-    "system": "Electrical / CAN Network",
-    "component": "ECU 232",
-    "meaning": "Abnormal update rate from ECU 232, meaning CAN messages are arriving too slowly or erratically compared to the expected cycle time.",
-    "causes": [
-      "CAN bus overload or congestion",
-      "ECU CPU overload",
-      "Damaged CAN transceiver",
-      "Termination resistor fault"
-    ],
-    "severity": "Medium",
-    "urgency": "Schedule Maintenance",
-    "first_seen": null,
-    "last_seen": null,
-    "occurrence_count": 0
-  },
-  {
-    "code": "SPN 520216",
-    "system": "Braking System",
-    "component": "Brakes - System Controller",
-    "meaning": "Brake system controller reported a condition with no standard diagnostic mapping (FMI 31). May indicate an internal brake module state outside normal operation.",
-    "causes": [
-      "Brake controller internal fault",
-      "ABS module firmware condition",
-      "CAN communication drop between brake and chassis ECUs"
-    ],
-    "severity": "High",
-    "urgency": "Immediate Action",
-    "first_seen": null,
-    "last_seen": null,
-    "occurrence_count": 0
-  },
-  {
-    "code": "SPN 520761",
-    "system": "Body Electrical",
-    "component": "Body Controller",
-    "meaning": "Voltage above normal detected on a body controller circuit, indicating over-voltage on an electrical load or actuator.",
-    "causes": [
-      "Alternator over-charging",
-      "Short circuit to positive supply",
-      "Faulty relay or solenoid",
-      "Wiring insulation breakdown"
-    ],
-    "severity": "Medium",
-    "urgency": "Schedule Maintenance",
-    "first_seen": null,
-    "last_seen": null,
-    "occurrence_count": 0
-  },
-  {
-    "code": "SPN 524074",
-    "system": "Telematics",
-    "component": "Off Vehicle Gateway",
-    "meaning": "Off-vehicle gateway condition with no standard FMI mapping. Typically a software-level state within the telematics module.",
-    "causes": [
-      "Firmware state machine issue",
-      "Cellular or GPS module communication loss",
-      "Configuration parameter out of range"
-    ],
-    "severity": "Low",
-    "urgency": "Monitor",
-    "first_seen": null,
-    "last_seen": null,
-    "occurrence_count": 0
-  },
-  {
-    "code": "SPN 524017",
-    "system": "Telematics",
-    "component": "Off Vehicle Gateway",
-    "meaning": "Off-vehicle gateway internal condition (FMI 31). Similar to SPN 524074 \u2014 typically non-critical software state.",
-    "causes": [
-      "Firmware state condition",
-      "Module reboot required",
-      "CAN segment unreachable"
-    ],
-    "severity": "Low",
-    "urgency": "Monitor",
-    "first_seen": null,
-    "last_seen": null,
-    "occurrence_count": 0
-  },
-  {
-    "code": "FAN SPEED (SPN 1639)",
-    "system": "Engine Cooling",
     "component": "Engine #2",
-    "meaning": "Engine cooling fan speed is erratic, intermittent, or incorrect. The fan is not operating within its expected RPM range for current engine temperature.",
-    "causes": [
-      "Viscous fan clutch failure",
-      "Fan drive solenoid fault",
-      "CAN signal dropout from engine ECU",
-      "Cooling fan wiring damage"
+    "estimated_downtime": "2-4 hours",
+    "explanation": "Engine Oil Level Sensor Fault",
+    "first_seen": "2026-05-13T09:26:13.304816+00:00",
+    "last_seen": "2026-05-13T13:42:32.614040+00:00",
+    "meaning": "Engine Oil Level Sensor Fault",
+    "occurrence_count": 18,
+    "parts_likely_needed": [
+      "Engine Oil Level Sensor"
     ],
-    "severity": "High",
-    "urgency": "Schedule Maintenance",
-    "first_seen": null,
-    "last_seen": null,
-    "occurrence_count": 0
-  },
-  {
-    "code": "SPN 523010",
-    "system": "Advanced Driver Assistance",
-    "component": "Headway Controller",
-    "meaning": "Headway controller (collision mitigation / adaptive cruise) reported a non-standard condition (FMI 31).",
-    "causes": [
-      "Radar sensor blocked or misaligned",
-      "Software state outside normal range",
-      "CAN communication drop"
-    ],
-    "severity": "Low",
-    "urgency": "Monitor",
-    "first_seen": null,
-    "last_seen": null,
-    "occurrence_count": 0
-  },
-  {
-    "code": "SPN 520363",
-    "system": "Emissions",
-    "component": "Exhaust Emission Controller",
-    "meaning": "Current below normal on an aftertreatment actuator circuit, indicating an open circuit or failed component in the emissions control system.",
-    "causes": [
-      "DEF injector circuit open",
-      "Wiring harness damage",
-      "Emissions controller relay failure",
-      "Faulty actuator"
-    ],
-    "severity": "High",
-    "urgency": "Schedule Maintenance",
-    "first_seen": null,
-    "last_seen": null,
-    "occurrence_count": 0
-  },
-  {
-    "code": "SPN 520349",
-    "system": "Emissions",
-    "component": "Exhaust Emission Controller",
-    "meaning": "Special instruction fault from the exhaust emission controller. Indicates the ECU is requesting a specific service action or recalibration.",
-    "causes": [
-      "DPF regeneration required",
-      "DEF quality issue",
-      "Aftertreatment service interval exceeded",
-      "SCR catalyst degradation"
+    "resolution_steps": [
+      "Check and adjust engine oil level",
+      "Replace oil level sensor if faulty"
     ],
     "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Engine #2",
     "urgency": "Schedule Maintenance",
-    "first_seen": null,
-    "last_seen": null,
-    "occurrence_count": 0
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
   },
   {
-    "code": "AFTERTREATMENT 1 INTAKE GAS SENSOR HEATER CONTROL (SPN 3223)",
-    "system": "Emissions",
-    "component": "Exhaust Emission Controller",
-    "meaning": "The heater element of the intake NOx or O2 sensor before the aftertreatment system is not responding properly. The sensor requires heating to reach operating temperature.",
+    "code": "SPN 524127",
     "causes": [
-      "Sensor heater element open circuit",
-      "Wiring short to ground",
-      "ECU heater driver failure",
-      "Sensor contamination"
+      "Data transmission error between ECU and network"
+    ],
+    "component": "ECU 232",
+    "estimated_downtime": "2-4 hours",
+    "explanation": "Data transmission error between ECU and network",
+    "first_seen": "2026-05-13T09:27:31.829809+00:00",
+    "last_seen": "2026-05-14T09:17:57.550919+00:00",
+    "meaning": "Data transmission error between ECU and network",
+    "occurrence_count": 28,
+    "parts_likely_needed": [
+      "Network Interface Module"
+    ],
+    "resolution_steps": [
+      "Check wiring and connectors for damage or corrosion",
+      "Replace network interface module if faulty",
+      "Update ECU software to latest version"
     ],
     "severity": "Medium",
+    "source": "auto_learned",
+    "system": "ECU 232",
     "urgency": "Schedule Maintenance",
-    "first_seen": null,
-    "last_seen": null,
-    "occurrence_count": 0
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "SPN 523000",
+    "causes": [
+      "Engine speed sensor failure or malfunction"
+    ],
+    "component": "ECU 127",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "Engine speed sensor failure or malfunction",
+    "first_seen": "2026-05-13T09:27:31.833055+00:00",
+    "last_seen": "2026-05-13T13:42:32.788053+00:00",
+    "meaning": "Engine speed sensor failure or malfunction",
+    "occurrence_count": 18,
+    "parts_likely_needed": [
+      "Engine Speed Sensor"
+    ],
+    "resolution_steps": [
+      "Replace engine speed sensor with a new one",
+      "Check and repair any damaged wiring or connectors",
+      "Update ECU software to latest version"
+    ],
+    "severity": "High",
+    "source": "auto_learned",
+    "system": "ECU 127",
+    "urgency": "Immediate Action",
+    "who_can_fix": "Certified technician required"
+  },
+  {
+    "code": "WHEEL SENSOR ABS AXLE 1 RIGHT (SPN 790)",
+    "causes": [
+      "Low wheel speed sensor signal from right front axle"
+    ],
+    "component": "Brakes - System Controller",
+    "estimated_downtime": "2 hours",
+    "explanation": "Low wheel speed sensor signal from right front axle",
+    "first_seen": "2026-05-13T09:30:33.793703+00:00",
+    "last_seen": "2026-05-13T13:42:31.068924+00:00",
+    "meaning": "Low wheel speed sensor signal from right front axle",
+    "occurrence_count": 9,
+    "parts_likely_needed": [
+      "Wheel Speed Sensor - Right Front Axle"
+    ],
+    "resolution_steps": [
+      "Check and clean the wheel speed sensor and its electrical connections",
+      "Replace the wheel speed sensor if faulty"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Brakes - System Controller",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team"
   },
   {
     "code": "SPN 520230",
-    "system": "Engine",
+    "causes": [
+      "Engine #1 fuel system fault"
+    ],
     "component": "Engine #1",
-    "meaning": "Engine #1 component failure. A monitored engine parameter has reached a failed state.",
-    "causes": [
-      "Sensor failure",
-      "Internal engine component fault",
-      "Wiring harness damage",
-      "ECU internal fault"
+    "estimated_downtime": "4 hours",
+    "explanation": "Engine #1 fuel system fault",
+    "first_seen": "2026-05-13T09:30:33.796114+00:00",
+    "last_seen": "2026-05-14T09:32:42.676484+00:00",
+    "meaning": "Engine #1 fuel system fault",
+    "occurrence_count": 24,
+    "parts_likely_needed": [
+      "Fuel Filter",
+      "Fuel Pump"
+    ],
+    "resolution_steps": [
+      "Check and replace the fuel filter if clogged",
+      "Verify fuel level and top up as necessary",
+      "Replace the fuel pump if faulty"
     ],
     "severity": "High",
+    "source": "auto_learned",
+    "system": "Engine #1",
     "urgency": "Immediate Action",
-    "first_seen": null,
-    "last_seen": null,
-    "occurrence_count": 0
+    "who_can_fix": "Certified technician required"
   },
   {
-    "code": "TIRE TEMPERATURE (SPN 242)",
-    "system": "Tire Pressure Monitoring",
-    "component": "Tire Pressure Controller",
-    "meaning": "A tire temperature reading is erratic, intermittent, or incorrect. Sensor data cannot be trusted for monitoring.",
+    "code": "SPN 0",
     "causes": [
-      "Temperature sensor fault within TPMS sensor",
-      "Sensor battery low",
-      "Interference or signal loss",
-      "Sensor not seated correctly after tire service"
+      "ECU 237 system fault - unknown cause"
     ],
-    "severity": "Low",
-    "urgency": "Monitor",
-    "first_seen": null,
-    "last_seen": null,
-    "occurrence_count": 0
+    "component": "ECU 237",
+    "estimated_downtime": "8 hours",
+    "explanation": "ECU 237 system fault - unknown cause",
+    "first_seen": "2026-05-13T09:30:33.799869+00:00",
+    "last_seen": "2026-05-14T13:03:05.173823+00:00",
+    "meaning": "ECU 237 system fault - unknown cause",
+    "occurrence_count": 611,
+    "parts_likely_needed": [
+      "ECU 237"
+    ],
+    "resolution_steps": [
+      "Contact the manufacturer for assistance and guidance",
+      "Replace the ECU if faulty"
+    ],
+    "severity": "Critical",
+    "source": "auto_learned",
+    "system": "ECU 237",
+    "urgency": "Immediate Action",
+    "who_can_fix": "Certified technician required"
   },
   {
-    "code": "P0128",
-    "system": "Engine Cooling",
-    "component": "Engine Thermostat",
-    "meaning": "Coolant temperature is below the expected threshold for the current operating time, indicating the thermostat is stuck open and the engine is running too cold.",
+    "code": "SPN 520761",
     "causes": [
-      "Thermostat stuck in open position",
-      "Coolant temperature sensor failure",
-      "Low coolant level causing incorrect readings"
+      "Body Controller electrical system fault - high voltage detected"
+    ],
+    "component": "Body Controller",
+    "estimated_downtime": "6 hours",
+    "explanation": "Body Controller electrical system fault - high voltage detected",
+    "first_seen": "2026-05-13T09:30:33.801642+00:00",
+    "last_seen": "2026-05-14T09:34:48.582393+00:00",
+    "meaning": "Body Controller electrical system fault - high voltage detected",
+    "occurrence_count": 19,
+    "parts_likely_needed": [
+      "Electrical System Components"
+    ],
+    "resolution_steps": [
+      "Check and repair any damaged wiring or connectors",
+      "Replace any faulty components in the electrical system"
+    ],
+    "severity": "High",
+    "source": "auto_learned",
+    "system": "Body Controller",
+    "urgency": "Immediate Action",
+    "who_can_fix": "Certified technician required"
+  },
+  {
+    "code": "SPN 524017",
+    "causes": [
+      "Off Vehicle Gateway communication fault - unknown cause"
+    ],
+    "component": "Off Vehicle Gateway",
+    "estimated_downtime": "8 hours",
+    "explanation": "Off Vehicle Gateway communication fault - unknown cause",
+    "first_seen": "2026-05-13T09:30:33.803419+00:00",
+    "last_seen": "2026-05-14T09:32:42.677483+00:00",
+    "meaning": "Off Vehicle Gateway communication fault - unknown cause",
+    "occurrence_count": 19,
+    "parts_likely_needed": [
+      "Off Vehicle Gateway"
+    ],
+    "resolution_steps": [
+      "Contact the manufacturer for assistance and guidance",
+      "Replace the Off Vehicle Gateway if faulty"
+    ],
+    "severity": "Critical",
+    "source": "auto_learned",
+    "system": "Off Vehicle Gateway",
+    "urgency": "Immediate Action",
+    "who_can_fix": "Certified technician required"
+  },
+  {
+    "code": "SPN 520762",
+    "causes": [
+      "Body Controller is not receiving enough current, possibly due to a faulty battery or wiring issue."
+    ],
+    "component": "Body Controller",
+    "estimated_downtime": 2,
+    "explanation": "Body Controller is not receiving enough current, possibly due to a faulty battery or wiring issue.",
+    "first_seen": "2026-05-13T09:35:23.690985+00:00",
+    "last_seen": "2026-05-13T13:46:41.739729+00:00",
+    "meaning": "Body Controller is not receiving enough current, possibly due to a faulty battery or wiring issue.",
+    "occurrence_count": 42,
+    "parts_likely_needed": [],
+    "resolution_steps": [
+      "Check and replace the battery if necessary",
+      "Inspect and clean all wiring connections"
     ],
     "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Body Controller",
     "urgency": "Schedule Maintenance",
-    "first_seen": null,
-    "last_seen": null,
-    "occurrence_count": 0
+    "who_can_fix": "Fleet maintenance team"
   },
   {
-    "code": "CTI WHEEL END ELECTRICAL FAULT (SPN 1697)",
-    "system": "Tire Inflation",
-    "component": "Tire Pressure Controller",
-    "meaning": "Central Tire Inflation (CTI) system has detected an electrical fault at a wheel end, suggesting a wiring or sensor issue in the air inflation circuit.",
+    "code": "SPN 524051",
     "causes": [
-      "Wheel end valve wiring damaged",
-      "CTI rotary union seal leak",
-      "Wheel end sensor failure",
-      "Corroded connector at wheel hub"
+      "Off Vehicle Gateway is not functioning properly, possibly due to a software issue or hardware failure."
     ],
-    "severity": "Medium",
-    "urgency": "Schedule Maintenance",
-    "first_seen": null,
-    "last_seen": null,
-    "occurrence_count": 0
-  },
-  {
-    "code": "P0299",
-    "system": "Engine - Forced Induction",
-    "component": "Turbocharger / Supercharger",
-    "meaning": "Turbocharger or supercharger is producing less boost than commanded, resulting in under-boost condition that reduces engine power output.",
-    "causes": [
-      "Turbocharger wear or damage",
-      "Boost pressure leak in intake piping",
-      "Wastegate stuck open",
-      "Intercooler leak",
-      "EGR valve stuck open"
+    "component": "Off Vehicle Gateway",
+    "estimated_downtime": 4,
+    "explanation": "Off Vehicle Gateway is not functioning properly, possibly due to a software issue or hardware failure.",
+    "first_seen": "2026-05-13T09:35:23.693178+00:00",
+    "last_seen": "2026-05-14T09:32:42.170298+00:00",
+    "meaning": "Off Vehicle Gateway is not functioning properly, possibly due to a software issue or hardware failure.",
+    "occurrence_count": 84,
+    "parts_likely_needed": [
+      "ECU replacement"
+    ],
+    "resolution_steps": [
+      "Try resetting the ECU",
+      "Replace the ECU if necessary"
     ],
     "severity": "High",
-    "urgency": "Schedule Maintenance",
-    "first_seen": null,
-    "last_seen": null,
-    "occurrence_count": 0
-  },
-  {
-    "code": "SPN 521133",
-    "system": "Engine Control",
-    "component": "Engine #2",
-    "meaning": "Engine #2 parameter is out of calibration, indicating a mismatch between expected and measured values for an engine sensor or actuator.",
-    "causes": [
-      "ECU calibration file mismatch after software update",
-      "Sensor replaced without recalibration",
-      "Injector trim data reset"
-    ],
-    "severity": "Medium",
-    "urgency": "Schedule Maintenance",
-    "first_seen": null,
-    "last_seen": null,
-    "occurrence_count": 0
-  },
-  {
-    "code": "SPN 61683",
-    "system": "Cruise Control",
-    "component": "Cruise Control",
-    "meaning": "Cruise control parameter is above normal range with moderate severity, indicating an over-speed or signal anomaly in the cruise system.",
-    "causes": [
-      "Vehicle speed sensor fault",
-      "Cruise control actuator issue",
-      "CAN signal interference",
-      "Driver input conflict"
-    ],
-    "severity": "Medium",
-    "urgency": "Monitor",
-    "first_seen": null,
-    "last_seen": null,
-    "occurrence_count": 0
-  },
-  {
-    "code": "J1939 NETWORK #2 (SPN 1231)",
-    "system": "CAN Network",
-    "component": "ECU 232",
-    "meaning": "J1939 secondary network is experiencing abnormal update rate, meaning expected periodic CAN messages are delayed or missing.",
-    "causes": [
-      "CAN bus termination issue",
-      "ECU connected to J1939 network #2 offline",
-      "Bus load too high",
-      "Damaged CAN wiring"
-    ],
-    "severity": "Medium",
-    "urgency": "Schedule Maintenance",
-    "first_seen": null,
-    "last_seen": null,
-    "occurrence_count": 0
-  },
-  {
-    "code": "RELAY DIAGONAL 1 (SPN 802)",
-    "system": "Braking System",
-    "component": "Brakes - System Controller",
-    "meaning": "Voltage below normal on brake system relay diagonal 1. The relay may not be energizing correctly, affecting ABS or EBS operation.",
-    "causes": [
-      "Relay coil failure",
-      "Voltage supply fault to brake module",
-      "Corroded relay socket",
-      "Wiring short to ground"
-    ],
-    "severity": "High",
+    "source": "auto_learned",
+    "system": "Off Vehicle Gateway",
     "urgency": "Immediate Action",
-    "first_seen": null,
-    "last_seen": null,
-    "occurrence_count": 0
+    "who_can_fix": "Certified technician required"
   },
   {
-    "code": "WHEEL SENSOR ABS AXLE 3 RIGHT (SPN 794)",
-    "system": "Braking System - ABS",
-    "component": "Brakes - System Controller",
-    "meaning": "ABS wheel speed sensor on axle 3 right is reporting abnormal update rate, meaning the signal is intermittent or the sensor pulse count is unexpected.",
+    "code": "SPN 520363",
     "causes": [
-      "Damaged wheel speed sensor",
-      "Tone ring teeth chipped or dirty",
-      "Sensor gap too large",
-      "Wiring harness chafed near axle"
+      "Exhaust Emission Controller is not receiving enough current, possibly due to a faulty sensor or wiring issue."
     ],
-    "severity": "High",
-    "urgency": "Immediate Action",
-    "first_seen": null,
-    "last_seen": null,
-    "occurrence_count": 0
-  },
-  {
-    "code": "WHEEL SENSOR ABS AXLE 3 LEFT (SPN 793)",
-    "system": "Braking System - ABS",
-    "component": "Brakes - System Controller",
-    "meaning": "ABS wheel speed sensor on axle 3 left is reading a value below the expected minimum, possibly due to a slow wheel or sensor failure.",
-    "causes": [
-      "Wheel bearing failure causing drag",
-      "Sensor air gap too large",
-      "Tone ring damage",
-      "Wiring connector corrosion"
-    ],
-    "severity": "High",
-    "urgency": "Immediate Action",
-    "first_seen": null,
-    "last_seen": null,
-    "occurrence_count": 0
-  },
-  {
-    "code": "ENGINE COOLANT LEVEL (SPN 111)",
-    "system": "Engine Cooling",
-    "component": "Engine #1",
-    "meaning": "Engine coolant level is below the minimum threshold. Insufficient coolant risks overheating and engine damage.",
-    "causes": [
-      "Coolant leak from hose, gasket, or radiator",
-      "Coolant level sensor failure",
-      "Coolant reservoir crack",
-      "Head gasket seeping internally"
-    ],
-    "severity": "High",
-    "urgency": "Immediate Action",
-    "first_seen": null,
-    "last_seen": null,
-    "occurrence_count": 0
-  },
-  {
-    "code": "ENGINE COOLANT SYSTEM THERMOSTAT (SPN 1659)",
-    "system": "Engine Cooling",
-    "component": "Engine #2",
-    "meaning": "The engine coolant thermostat is not responding as expected. Engine may be running outside optimal temperature range.",
-    "causes": [
-      "Thermostat stuck open or closed",
-      "Thermostat housing gasket failed",
-      "Coolant flow obstruction",
-      "Incorrect thermostat installed after service"
-    ],
-    "severity": "High",
-    "urgency": "Schedule Maintenance",
-    "first_seen": null,
-    "last_seen": null,
-    "occurrence_count": 0
-  },
-  {
-    "code": "AFTERTREATMENT 1 INTAKE NOX (SPN 3216)",
-    "system": "Emissions",
     "component": "Exhaust Emission Controller",
-    "meaning": "Intake NOx sensor is reading a value that has drifted high beyond the calibrated range, suggesting sensor degradation or actual high NOx levels.",
-    "causes": [
-      "NOx sensor aging or contamination",
-      "EGR system malfunction increasing NOx",
-      "SCR catalyst degradation",
-      "DEF dosing system fault"
-    ],
-    "severity": "High",
-    "urgency": "Schedule Maintenance",
-    "first_seen": null,
-    "last_seen": null,
-    "occurrence_count": 0
-  },
-  {
-    "code": "AFTERTREATMENT 1 DIESEL EXHAUST FLUID TANK LEVEL (SPN 1761)",
-    "system": "Emissions - DEF",
-    "component": "Exhaust Emission Controller",
-    "meaning": "DEF (AdBlue) tank level sensor is reading below normal voltage. DEF level may be critically low or the sensor has failed.",
-    "causes": [
-      "DEF tank nearly empty",
-      "DEF level sensor circuit fault",
-      "Wiring short to ground",
-      "Sensor connector corrosion"
-    ],
-    "severity": "High",
-    "urgency": "Immediate Action",
-    "first_seen": null,
-    "last_seen": null,
-    "occurrence_count": 0
-  },
-  {
-    "code": "SPN 520966",
-    "system": "Drivetrain",
-    "component": "Transmission #1",
-    "meaning": "Transmission parameter reading is below the expected minimum, indicating a potential internal transmission fault or fluid pressure issue.",
-    "causes": [
-      "Low transmission fluid level",
-      "Transmission pressure sensor failure",
-      "Clutch pack wear",
-      "Solenoid valve fault"
-    ],
-    "severity": "High",
-    "urgency": "Schedule Maintenance",
-    "first_seen": null,
-    "last_seen": null,
-    "occurrence_count": 0
-  },
-  {
-    "code": "ABS FULLY OPERATIONAL (SPN 1243)",
-    "system": "Braking System - ABS",
-    "component": "Headway Controller",
-    "meaning": "Headway controller reports the ABS system status as erratic or incorrect, meaning ABS availability cannot be confirmed by the collision avoidance system.",
-    "causes": [
-      "ABS module fault",
-      "CAN communication loss between ABS and headway controller",
-      "ABS wheel sensor failure affecting system status"
-    ],
-    "severity": "High",
-    "urgency": "Immediate Action",
-    "first_seen": null,
-    "last_seen": null,
-    "occurrence_count": 0
-  },
-  {
-    "code": "ADAPTIVE CRUISE CONTROL MODE (SPN 1590)",
-    "system": "Advanced Driver Assistance",
-    "component": "Engine #1",
-    "meaning": "Adaptive cruise control system has detected a failure, disabling or limiting ACC functionality.",
-    "causes": [
-      "Radar sensor failure or obstruction",
-      "ACC module fault",
-      "Vehicle speed sensor signal issue",
-      "CAN bus message timeout"
+    "estimated_downtime": 2,
+    "explanation": "Exhaust Emission Controller is not receiving enough current, possibly due to a faulty sensor or wiring issue.",
+    "first_seen": "2026-05-13T09:35:23.694546+00:00",
+    "last_seen": "2026-05-14T09:32:42.677252+00:00",
+    "meaning": "Exhaust Emission Controller is not receiving enough current, possibly due to a faulty sensor or wiring issue.",
+    "occurrence_count": 25,
+    "parts_likely_needed": [],
+    "resolution_steps": [
+      "Check and replace the sensor if necessary",
+      "Inspect and clean all wiring connections"
     ],
     "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Exhaust Emission Controller",
     "urgency": "Schedule Maintenance",
-    "first_seen": null,
-    "last_seen": null,
-    "occurrence_count": 0
-  },
-  {
-    "code": "AFTERTREATMENT 1 DIESEL EXHAUST FLUID PUMP DRIVE PERCENTAGE (SPN 4375)",
-    "system": "Emissions - DEF",
-    "component": "Exhaust Emission Controller",
-    "meaning": "DEF pump drive circuit is reading current below normal, indicating the pump is not drawing expected current and may not be dosing DEF correctly.",
-    "causes": [
-      "DEF pump motor failure",
-      "DEF pump wiring open circuit",
-      "DEF pump filter clogged",
-      "DEF frozen in cold conditions"
-    ],
-    "severity": "High",
-    "urgency": "Schedule Maintenance",
-    "first_seen": null,
-    "last_seen": null,
-    "occurrence_count": 0
-  },
-  {
-    "code": "AFTERTREATMENT 1 DIESEL EXHAUST FLUID PUMP MOTOR SPEED (SPN 4374)",
-    "system": "Emissions - DEF",
-    "component": "Exhaust Emission Controller",
-    "meaning": "DEF pump motor speed is above the maximum expected value, suggesting runaway pump, incorrect pump, or sensor fault.",
-    "causes": [
-      "DEF pump motor fault",
-      "Speed sensor failure on pump",
-      "ECU control loop issue",
-      "Air ingestion in DEF lines"
-    ],
-    "severity": "High",
-    "urgency": "Schedule Maintenance",
-    "first_seen": null,
-    "last_seen": null,
-    "occurrence_count": 0
-  },
-  {
-    "code": "AFTERTREATMENT 1 DIESEL EXHAUST FLUID PUMP STATE (SPN 5435)",
-    "system": "Emissions - DEF",
-    "component": "Exhaust Emission Controller",
-    "meaning": "DEF pump is not responding as commanded, indicating a pump failure or communication issue in the DEF dosing system.",
-    "causes": [
-      "DEF pump mechanical failure",
-      "DEF pump relay fault",
-      "ECU command not reaching pump",
-      "DEF crystallization blocking pump"
-    ],
-    "severity": "High",
-    "urgency": "Schedule Maintenance",
-    "first_seen": null,
-    "last_seen": null,
-    "occurrence_count": 0
+    "who_can_fix": "Fleet maintenance team"
   },
   {
     "code": "SPN 524133",
-    "system": "Telematics",
-    "component": "Off Vehicle Gateway",
-    "meaning": "Off-vehicle gateway internal condition (FMI 31). Non-standard state in the telematics module.",
     "causes": [
-      "Gateway firmware state",
-      "Configuration parameter out of range",
-      "Remote server communication loss"
+      "ECU 232 is updating its software at an abnormal rate, possibly due to a faulty communication link or software issue."
+    ],
+    "component": "ECU 232",
+    "estimated_downtime": 1,
+    "explanation": "ECU 232 is updating its software at an abnormal rate, possibly due to a faulty communication link or software issue.",
+    "first_seen": "2026-05-13T09:35:23.695709+00:00",
+    "last_seen": "2026-05-13T13:42:32.690894+00:00",
+    "meaning": "ECU 232 is updating its software at an abnormal rate, possibly due to a faulty communication link or software issue.",
+    "occurrence_count": 32,
+    "parts_likely_needed": [],
+    "resolution_steps": [
+      "Check and replace the communication cable if necessary",
+      "Try resetting the ECU"
     ],
     "severity": "Low",
+    "source": "auto_learned",
+    "system": "ECU 232",
     "urgency": "Monitor",
-    "first_seen": null,
-    "last_seen": null,
-    "occurrence_count": 0
+    "who_can_fix": "Fleet maintenance team"
   },
   {
-    "code": "SPN 523100",
-    "system": "Braking System",
-    "component": "Brakes - System Controller",
-    "meaning": "Brake system controller reported a fault with FMI 23, indicating a special condition or fault not covered by standard failure modes.",
+    "code": "AFTERTREATMENT 1 INTAKE GAS SENSOR HEATER CONTROL (SPN 3223)",
     "causes": [
-      "Brake pressure sensor fault",
-      "EBS valve issue",
-      "Internal brake ECU condition"
+      "Aftertreatment 1 Intake Gas Sensor Heater Control is not functioning properly, possibly due to a faulty sensor or wiring issue."
     ],
-    "severity": "High",
-    "urgency": "Schedule Maintenance",
-    "first_seen": null,
-    "last_seen": null,
-    "occurrence_count": 0
-  },
-  {
-    "code": "STEERING WHEEL ANGLE (SPN 1807)",
-    "system": "Chassis / Stability",
-    "component": "Brakes - System Controller",
-    "meaning": "Brake or stability controller is requesting special service action related to the steering wheel angle sensor, typically requiring sensor calibration.",
-    "causes": [
-      "Steering angle sensor not calibrated after alignment",
-      "Sensor replacement without calibration",
-      "Sensor mounting shifted"
+    "component": "Exhaust Emission Controller",
+    "estimated_downtime": 2,
+    "explanation": "Aftertreatment 1 Intake Gas Sensor Heater Control is not functioning properly, possibly due to a faulty sensor or wiring issue.",
+    "first_seen": "2026-05-13T09:35:23.696760+00:00",
+    "last_seen": "2026-05-14T09:32:42.677043+00:00",
+    "meaning": "Aftertreatment 1 Intake Gas Sensor Heater Control is not functioning properly, possibly due to a faulty sensor or wiring issue.",
+    "occurrence_count": 21,
+    "parts_likely_needed": [],
+    "resolution_steps": [
+      "Check and replace the sensor if necessary",
+      "Inspect and clean all wiring connections"
     ],
     "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Exhaust Emission Controller",
     "urgency": "Schedule Maintenance",
-    "first_seen": null,
-    "last_seen": null,
-    "occurrence_count": 0
+    "who_can_fix": "Fleet maintenance team"
+  },
+  {
+    "code": "SPN 520353",
+    "causes": [
+      "Exhaust Emission Controller is detecting a low level of emissions, possibly due to a faulty sensor or clogged exhaust system."
+    ],
+    "component": "Exhaust Emission Controller",
+    "estimated_downtime": 1,
+    "explanation": "Exhaust Emission Controller is detecting a low level of emissions, possibly due to a faulty sensor or clogged exhaust system.",
+    "first_seen": "2026-05-13T09:35:23.698813+00:00",
+    "last_seen": "2026-05-13T13:42:31.109899+00:00",
+    "meaning": "Exhaust Emission Controller is detecting a low level of emissions, possibly due to a faulty sensor or clogged exhaust system.",
+    "occurrence_count": 5,
+    "parts_likely_needed": [],
+    "resolution_steps": [
+      "Check and replace the sensor if necessary",
+      "Inspect and clean the exhaust system"
+    ],
+    "severity": "Low",
+    "source": "auto_learned",
+    "system": "Exhaust Emission Controller",
+    "urgency": "Monitor",
+    "who_can_fix": "Fleet maintenance team"
+  },
+  {
+    "code": "SPN 520372",
+    "causes": [
+      "Exhaust Emission Controller is detecting a high level of emissions, possibly due to a faulty sensor or clogged exhaust system."
+    ],
+    "component": "Exhaust Emission Controller",
+    "estimated_downtime": 4,
+    "explanation": "Exhaust Emission Controller is detecting a high level of emissions, possibly due to a faulty sensor or clogged exhaust system.",
+    "first_seen": "2026-05-13T09:35:23.699753+00:00",
+    "last_seen": "2026-05-14T13:03:05.134526+00:00",
+    "meaning": "Exhaust Emission Controller is detecting a high level of emissions, possibly due to a faulty sensor or clogged exhaust system.",
+    "occurrence_count": 16,
+    "parts_likely_needed": [],
+    "resolution_steps": [
+      "Check and replace the sensor if necessary",
+      "Inspect and clean the exhaust system"
+    ],
+    "severity": "High",
+    "source": "auto_learned",
+    "system": "Exhaust Emission Controller",
+    "urgency": "Immediate Action",
+    "who_can_fix": "Fleet maintenance team"
+  },
+  {
+    "code": "SPN 522001",
+    "causes": [
+      "Fuel level below normal"
+    ],
+    "component": "ECU 232",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The fuel level is below the normal operating range, which could lead to reduced fuel efficiency and potential fuel starvation.",
+    "first_seen": "2026-05-13T09:38:24.060720+00:00",
+    "last_seen": "2026-05-13T13:42:32.688345+00:00",
+    "meaning": "Fuel system performance",
+    "occurrence_count": 23,
+    "parts_likely_needed": [
+      "Fuel tank sealant",
+      "Fuel level sensor"
+    ],
+    "resolution_steps": [
+      "Check for any leaks or blockages in the fuel system",
+      "Verify that the fuel tank is properly filled and sealed"
+    ],
+    "severity": "Low",
+    "source": "auto_learned",
+    "system": "ECU 232",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Driver only|Fleet maintenance team"
+  },
+  {
+    "code": "SPN 56981",
+    "causes": [
+      "High engine coolant temperature detected"
+    ],
+    "component": "Instrument Cluster #1",
+    "estimated_downtime": "2-4 hours",
+    "explanation": "The instrument cluster is detecting an extremely high engine coolant temperature, which could cause inaccurate or missing readings.",
+    "first_seen": "2026-05-13T09:38:24.061945+00:00",
+    "last_seen": "2026-05-13T13:42:32.396574+00:00",
+    "meaning": "Instrument cluster functionality",
+    "occurrence_count": 9,
+    "parts_likely_needed": [
+      "Engine coolant",
+      "Thermostat",
+      "Water pump"
+    ],
+    "resolution_steps": [
+      "Check and top off engine coolant level",
+      "Inspect for any signs of leaks or blockages in the cooling system"
+    ],
+    "severity": "Low",
+    "source": "auto_learned",
+    "system": "Instrument Cluster #1",
+    "urgency": "Immediate Action",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "SPN 520247",
+    "causes": [
+      "No data available (FMI 31)"
+    ],
+    "component": "Brakes - System Controller",
+    "estimated_downtime": "2-4 hours",
+    "explanation": "The brake system controller is not providing any data, which could indicate a potential issue with the brakes.",
+    "first_seen": "2026-05-13T09:38:24.063165+00:00",
+    "last_seen": "2026-05-13T13:42:32.397116+00:00",
+    "meaning": "Brake system performance",
+    "occurrence_count": 9,
+    "parts_likely_needed": [
+      "Brake pads",
+      "Brake rotors",
+      "Brake fluid"
+    ],
+    "resolution_steps": [
+      "Check for any signs of wear or damage on the brake pads and rotors",
+      "Verify that the brake fluid level is within the recommended range"
+    ],
+    "severity": "Low",
+    "source": "auto_learned",
+    "system": "Brakes - System Controller",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
   },
   {
     "code": "SPN 521063",
-    "system": "Engine",
-    "component": "Engine #1",
-    "meaning": "Engine #1 ECU is issuing a special instruction, requesting a specific service action or parameter reset.",
     "causes": [
-      "Service interval reached",
-      "Software update required",
-      "Injector calibration needed"
+      "Possible engine control module malfunction"
+    ],
+    "component": "Engine #1",
+    "estimated_downtime": "2-4 hours",
+    "explanation": "The engine control module is malfunctioning, which can cause serious problems with the engine's performance and safety.",
+    "first_seen": "2026-05-13T09:43:11.430058+00:00",
+    "last_seen": "2026-05-13T13:42:32.612023+00:00",
+    "meaning": "Engine control module functionality",
+    "occurrence_count": 32,
+    "parts_likely_needed": [
+      "Engine control module"
+    ],
+    "resolution_steps": [
+      "Disconnect the battery to prevent any further damage",
+      "Replace the engine control module with a new one"
+    ],
+    "severity": "Critical",
+    "source": "auto_learned",
+    "system": "Engine #1",
+    "urgency": "Immediate Action",
+    "who_can_fix": "Certified technician required"
+  },
+  {
+    "code": "SPN 523021",
+    "causes": [
+      "Faulty instrument cluster display or sensor reading"
+    ],
+    "component": "Instrument Cluster #1",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The instrument cluster display is faulty or not reading sensor data correctly, which can cause the driver to get incorrect information about the vehicle's speed and fuel level.",
+    "first_seen": "2026-05-13T09:43:11.431278+00:00",
+    "last_seen": "2026-05-13T13:42:33.400683+00:00",
+    "meaning": "Instrument cluster display and functionality",
+    "occurrence_count": 75,
+    "parts_likely_needed": [
+      "Instrument cluster display"
+    ],
+    "resolution_steps": [
+      "Replace the instrument cluster display with a new one"
+    ],
+    "severity": "Low",
+    "source": "auto_learned",
+    "system": "Instrument Cluster #1",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team"
+  },
+  {
+    "code": "TIRE PRESSURE (SPN 241)",
+    "causes": [
+      "Low tire pressure detected"
+    ],
+    "component": "Tire Pressure Controller",
+    "estimated_downtime": "30 minutes",
+    "explanation": "The tire pressure is low, which can cause uneven wear and increase the risk of a blowout.",
+    "first_seen": "2026-05-13T09:43:11.432944+00:00",
+    "last_seen": "2026-05-14T09:32:42.182716+00:00",
+    "meaning": "Tire pressure monitoring system",
+    "occurrence_count": 98,
+    "parts_likely_needed": [],
+    "resolution_steps": [
+      "Check and inflate the tires to the recommended pressure",
+      "Monitor the tire pressure regularly to prevent future issues"
+    ],
+    "severity": "Low",
+    "source": "auto_learned",
+    "system": "Tire Pressure Controller",
+    "urgency": "Immediate Action",
+    "who_can_fix": "Driver only"
+  },
+  {
+    "code": "TIRE LOCATION (SPN 929)",
+    "causes": [
+      "Faulty tire location sensor reading"
+    ],
+    "component": "Tire Pressure Controller",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The tire location sensor is faulty, which can cause incorrect readings about the tire pressure and location.",
+    "first_seen": "2026-05-13T09:43:11.436736+00:00",
+    "last_seen": "2026-05-14T09:32:42.223726+00:00",
+    "meaning": "Tire location and pressure monitoring system",
+    "occurrence_count": 107,
+    "parts_likely_needed": [
+      "Tire location sensor"
+    ],
+    "resolution_steps": [
+      "Replace the tire location sensor with a new one"
+    ],
+    "severity": "Low",
+    "source": "auto_learned",
+    "system": "Tire Pressure Controller",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team"
+  },
+  {
+    "code": "SPN 524074",
+    "causes": [
+      "Off Vehicle Gateway: Communication Error - Count Exceeded"
+    ],
+    "component": "Off Vehicle Gateway",
+    "estimated_downtime": "1 hour",
+    "explanation": "Off Vehicle Gateway: Communication Error - Count Exceeded",
+    "first_seen": "2026-05-13T09:47:07.554464+00:00",
+    "last_seen": "2026-05-14T09:32:42.703959+00:00",
+    "meaning": "Off Vehicle Gateway: Communication Error - Count Exceeded",
+    "occurrence_count": 23,
+    "parts_likely_needed": [],
+    "resolution_steps": [
+      "Reset the off-vehicle gateway and check for loose connections"
     ],
     "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Off Vehicle Gateway",
     "urgency": "Schedule Maintenance",
-    "first_seen": null,
-    "last_seen": null,
-    "occurrence_count": 0
+    "who_can_fix": "Fleet maintenance team"
   },
   {
-    "code": "CRUISE CONTROL ENABLE SWITCH (SPN 596)",
-    "system": "Cruise Control",
-    "component": "Engine #1",
-    "meaning": "Cruise control enable switch signal is out of calibration, meaning the switch position does not match the expected voltage or state.",
+    "code": "SPN 523013",
     "causes": [
-      "Switch contact wear",
-      "Wiring short or open to switch",
-      "Cruise control stalk damage",
-      "ECU calibration drift"
+      "Sensor reading is higher than normal due to high engine coolant temperature (358.5\u00b0C)"
+    ],
+    "component": "ECU 232",
+    "estimated_downtime": "2 hours",
+    "explanation": "The engine temperature sensor is reading an unusually high temperature due to the actual coolant temperature being too high.",
+    "first_seen": "2026-05-13T09:50:27.442184+00:00",
+    "last_seen": "2026-05-14T09:33:29.495725+00:00",
+    "meaning": "Engine temperature sensor",
+    "occurrence_count": 54,
+    "parts_likely_needed": [
+      "Engine coolant",
+      "Cooling system components (if necessary)"
+    ],
+    "resolution_steps": [
+      "Check and top off engine coolant as needed",
+      "Inspect cooling system for leaks or blockages"
     ],
     "severity": "Low",
-    "urgency": "Monitor",
-    "first_seen": null,
-    "last_seen": null,
-    "occurrence_count": 0
+    "source": "auto_learned",
+    "system": "ECU 232",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team"
   },
   {
-    "code": "CRUISE CONTROL ACCELERATE SWITCH (SPN 602)",
-    "system": "Cruise Control",
-    "component": "Engine #1",
-    "meaning": "Cruise control accelerate (Resume/Accel) switch signal is out of calibration.",
+    "code": "SPN 520349",
     "causes": [
-      "Switch wear",
-      "Steering column wiring harness damage",
-      "Clock spring fault"
+      "System is not functioning as intended due to high count of special instructions (5) from the ECU"
     ],
-    "severity": "Low",
+    "component": "Exhaust Emission Controller",
+    "estimated_downtime": "4 hours",
+    "explanation": "The exhaust gas recirculation system is not functioning correctly due to an excessive number of special instructions from the ECU.",
+    "first_seen": "2026-05-13T09:50:27.444535+00:00",
+    "last_seen": "2026-05-14T13:03:05.141622+00:00",
+    "meaning": "Exhaust gas recirculation system",
+    "occurrence_count": 30,
+    "parts_likely_needed": [],
+    "resolution_steps": [
+      "Clear any stored trouble codes related to the issue",
+      "Check and update software for the Exhaust Emission Controller"
+    ],
+    "severity": "Critical",
+    "source": "auto_learned",
+    "system": "Exhaust Emission Controller",
     "urgency": "Monitor",
-    "first_seen": null,
-    "last_seen": null,
-    "occurrence_count": 0
+    "who_can_fix": "Certified technician required"
   },
   {
-    "code": "CRUISE CONTROL COAST (DECELERATE) SWITCH (SPN 600)",
-    "system": "Cruise Control",
-    "component": "Engine #1",
-    "meaning": "Cruise control coast/decelerate switch signal is out of calibration.",
+    "code": "STEERING WHEEL ANGLE (SPN 1807)",
     "causes": [
-      "Switch wear",
-      "Steering column wiring fault",
-      "Clock spring internal failure"
+      "Steering wheel angle sensor is reporting an abnormal signal"
     ],
-    "severity": "Low",
-    "urgency": "Monitor",
-    "first_seen": null,
-    "last_seen": null,
-    "occurrence_count": 0
-  },
-  {
-    "code": "POWER SUPPLY (OBSOLETE) (SPN 627)",
-    "system": "Braking System",
     "component": "Brakes - System Controller",
-    "meaning": "Low-severity power supply condition on the brake module. Voltage is slightly below the normal operating minimum.",
-    "causes": [
-      "Battery voltage low",
-      "Charging system issue",
-      "High resistance in brake module power supply circuit"
+    "estimated_downtime": "2-4 hours",
+    "explanation": "Steering wheel angle sensor is reporting an abnormal signal",
+    "first_seen": "2026-05-13T09:52:12.572674+00:00",
+    "last_seen": "2026-05-14T13:03:05.134194+00:00",
+    "meaning": "Steering wheel angle sensor is reporting an abnormal signal",
+    "occurrence_count": 13,
+    "parts_likely_needed": [
+      "Steering Wheel Angle Sensor"
     ],
-    "severity": "Low",
-    "urgency": "Monitor",
-    "first_seen": null,
-    "last_seen": null,
-    "occurrence_count": 0
+    "resolution_steps": [
+      "Check and clean the electrical connections to the sensor",
+      "Replace the steering wheel angle sensor if faulty"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Brakes - System Controller",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
   },
   {
-    "code": "VDC FULLY OPERATIONAL (SPN 1814)",
-    "system": "Stability Control",
+    "code": "SPN 520880",
+    "causes": [
+      "Body Controller is out of calibration"
+    ],
+    "component": "Body Controller",
+    "estimated_downtime": "4-6 hours",
+    "explanation": "Body Controller is out of calibration",
+    "first_seen": "2026-05-13T09:52:12.574294+00:00",
+    "last_seen": "2026-05-14T12:53:29.045749+00:00",
+    "meaning": "Body Controller is out of calibration",
+    "occurrence_count": 44,
+    "parts_likely_needed": [
+      "Body Controller"
+    ],
+    "resolution_steps": [
+      "Check and update the Body Controller software to latest version",
+      "Perform a full system reset on the Body Controller if necessary",
+      "Replace the Body Controller if faulty"
+    ],
+    "severity": "High",
+    "source": "auto_learned",
+    "system": "Body Controller",
+    "urgency": "Immediate Action",
+    "who_can_fix": "Certified technician required"
+  },
+  {
+    "code": "SPN 29844",
+    "causes": [
+      "The Instrument Cluster is reporting a low level of a critical system, but we can't determine what it is because there's no knowledge base entry for this code"
+    ],
+    "component": "Instrument Cluster #1",
+    "estimated_downtime": "2 hours",
+    "explanation": "The Instrument Cluster is reporting a low level of a critical system, but we can't determine what it is because there's no knowledge base entry for this code.",
+    "first_seen": "2026-05-13T09:59:21.790213+00:00",
+    "last_seen": "2026-05-13T13:42:32.672048+00:00",
+    "meaning": "Displays vehicle speed and other vital signs to the driver",
+    "occurrence_count": 7,
+    "parts_likely_needed": [
+      "Instrument Cluster"
+    ],
+    "resolution_steps": [
+      "Check the Instrument Cluster wiring and connections for any signs of damage or corrosion.",
+      "Verify that all sensors and modules are properly connected to the Instrument Cluster.",
+      "If none of the above steps resolve the issue, replace the Instrument Cluster with a new one."
+    ],
+    "severity": "Low",
+    "source": "auto_learned",
+    "system": "Instrument Cluster #1",
+    "urgency": "Monitor",
+    "who_can_fix": "Fleet maintenance team"
+  },
+  {
+    "code": "P00C6",
+    "causes": [
+      "Fuel System Performance (Bank 1 Sensor 2) Malfunction"
+    ],
+    "component": "Engine",
+    "estimated_downtime": "2-4 hours",
+    "explanation": "Fuel System Performance (Bank 1 Sensor 2) Malfunction",
+    "first_seen": "2026-05-13T10:00:32.025695+00:00",
+    "last_seen": "2026-05-14T09:17:57.562269+00:00",
+    "meaning": "Fuel System Performance (Bank 1 Sensor 2) Malfunction",
+    "occurrence_count": 15,
+    "parts_likely_needed": [
+      "Fuel Pressure Sensor"
+    ],
+    "resolution_steps": [
+      "Check and replace the fuel pressure sensor if faulty",
+      "Verify the electrical connection to the fuel pressure sensor is secure and clean"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Engine",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "SPN 523020",
+    "causes": [
+      "Oil pressure sensor reading is inconsistent (21 times)"
+    ],
+    "component": "ECU 127",
+    "estimated_downtime": "2-4 hours",
+    "explanation": "The engine oil pressure sensor is sending inconsistent readings, which may indicate a problem with the oil pump or the sensor itself.",
+    "first_seen": "2026-05-13T10:01:28.516307+00:00",
+    "last_seen": "2026-05-13T13:42:32.823196+00:00",
+    "meaning": "Engine Oil Pressure Sensor",
+    "occurrence_count": 15,
+    "parts_likely_needed": [
+      "Engine Oil Pressure Sensor",
+      "Oil Pump (if faulty)"
+    ],
+    "resolution_steps": [
+      "Check the engine oil level and top it off if necessary",
+      "Inspect the oil filter for any signs of damage or wear"
+    ],
+    "severity": "Low",
+    "source": "auto_learned",
+    "system": "ECU 127",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "SPN 520981",
+    "causes": [
+      "The Body Controller is not receiving enough current to function properly"
+    ],
+    "component": "Body Controller",
+    "estimated_downtime": "2 hours",
+    "explanation": "The Body Controller is not receiving enough current to function properly due to a potential issue with the wiring or electrical system.",
+    "first_seen": "2026-05-13T10:03:41.183016+00:00",
+    "last_seen": "2026-05-13T13:42:32.179434+00:00",
+    "meaning": "Controls various body functions such as lights and wipers",
+    "occurrence_count": 6,
+    "parts_likely_needed": [
+      "Body Controller wiring harness"
+    ],
+    "resolution_steps": [
+      "Check and clean all connections between the Body Controller and other components.",
+      "Verify that there are no signs of damage, corrosion, or wear on any wires or connectors.",
+      "If necessary, replace damaged or worn-out parts."
+    ],
+    "severity": "Low",
+    "source": "auto_learned",
+    "system": "Body Controller",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team"
+  },
+  {
+    "code": "CTI WHEEL END ELECTRICAL FAULT (SPN 1697)",
+    "causes": [
+      "There is an electrical fault in the wheel end of one or more tires"
+    ],
+    "component": "Tire Pressure Controller",
+    "estimated_downtime": "4 hours",
+    "explanation": "There is an electrical fault in the wheel end of one or more tires, which can cause issues with tire pressure monitoring.",
+    "first_seen": "2026-05-13T10:03:41.185027+00:00",
+    "last_seen": "2026-05-14T09:33:29.496037+00:00",
+    "meaning": "Monitors and controls tire pressure",
+    "occurrence_count": 8,
+    "parts_likely_needed": [
+      "Tire or wheel end assembly"
+    ],
+    "resolution_steps": [
+      "Check for any signs of physical damage to the tire or wheel end.",
+      "Inspect and clean all electrical connections at the wheel end.",
+      "Replace the affected tire or wheel end if necessary."
+    ],
+    "severity": "Low",
+    "source": "auto_learned",
+    "system": "Tire Pressure Controller",
+    "urgency": "Immediate Action",
+    "who_can_fix": "Certified technician required"
+  },
+  {
+    "code": "PC010",
+    "causes": [
+      "Fuel System Pressure Sensor Circuit Low Input"
+    ],
+    "component": "Engine",
+    "estimated_downtime": "2-4 hours",
+    "explanation": "Fuel System Pressure Sensor Circuit Low Input",
+    "first_seen": "2026-05-13T10:04:44.616108+00:00",
+    "last_seen": "2026-05-13T13:42:31.541310+00:00",
+    "meaning": "Fuel System Pressure Sensor Circuit Low Input",
+    "occurrence_count": 22,
+    "parts_likely_needed": [
+      "Fuel System Pressure Sensor"
+    ],
+    "resolution_steps": [
+      "Check and replace the fuel system pressure sensor if faulty",
+      "Verify and clean all wiring connections"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Engine",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "PC323",
+    "causes": [
+      "Engine Oil Temperature Sensor Circuit High Input"
+    ],
+    "component": "Engine",
+    "estimated_downtime": "4-6 hours",
+    "explanation": "Engine Oil Temperature Sensor Circuit High Input",
+    "first_seen": "2026-05-13T10:04:44.617638+00:00",
+    "last_seen": "2026-05-14T09:32:42.728871+00:00",
+    "meaning": "Engine Oil Temperature Sensor Circuit High Input",
+    "occurrence_count": 15,
+    "parts_likely_needed": [
+      "Engine Oil Temperature Sensor"
+    ],
+    "resolution_steps": [
+      "Check and replace the engine oil temperature sensor if faulty",
+      "Verify correct installation and calibration of the sensor"
+    ],
+    "severity": "High",
+    "source": "auto_learned",
+    "system": "Engine",
+    "urgency": "Immediate Action",
+    "who_can_fix": "Certified technician required"
+  },
+  {
+    "code": "P24DA",
+    "causes": [
+      "Fuel System Pressure Regulator Control Circuit Low Voltage"
+    ],
+    "component": "Engine",
+    "estimated_downtime": "6-8 hours",
+    "explanation": "Fuel System Pressure Regulator Control Circuit Low Voltage",
+    "first_seen": "2026-05-13T10:04:44.618615+00:00",
+    "last_seen": "2026-05-14T09:32:42.729126+00:00",
+    "meaning": "Fuel System Pressure Regulator Control Circuit Low Voltage",
+    "occurrence_count": 16,
+    "parts_likely_needed": [
+      "Fuel System Pressure Regulator"
+    ],
+    "resolution_steps": [
+      "Check and replace the fuel system pressure regulator if faulty",
+      "Verify correct wiring and electrical connections"
+    ],
+    "severity": "Critical",
+    "source": "auto_learned",
+    "system": "Engine",
+    "urgency": "Immediate Action",
+    "who_can_fix": "Certified technician required"
+  },
+  {
+    "code": "SPN 520980",
+    "causes": [
+      "Body Controller is detecting low current levels, possibly due to a faulty battery or alternator."
+    ],
+    "component": "Body Controller",
+    "estimated_downtime": "2-4 hours",
+    "explanation": "Body Controller is detecting low current levels, possibly due to a faulty battery or alternator.",
+    "first_seen": "2026-05-13T10:09:57.462570+00:00",
+    "last_seen": "2026-05-13T13:42:31.388814+00:00",
+    "meaning": "Body Controller is detecting low current levels, possibly due to a faulty battery or alternator.",
+    "occurrence_count": 5,
+    "parts_likely_needed": [
+      "Battery",
+      "Alternator"
+    ],
+    "resolution_steps": [
+      "Check battery voltage and condition",
+      "Inspect electrical connections for damage or corrosion",
+      "Replace alternator if necessary"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Body Controller",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "SPN 521141",
+    "causes": [
+      "Engine #2 is detecting low voltage levels, possibly due to a faulty battery or alternator."
+    ],
+    "component": "Engine #2",
+    "estimated_downtime": "2-4 hours",
+    "explanation": "Engine #2 is detecting low voltage levels, possibly due to a faulty battery or alternator.",
+    "first_seen": "2026-05-13T10:09:57.464383+00:00",
+    "last_seen": "2026-05-13T13:42:31.390906+00:00",
+    "meaning": "Engine #2 is detecting low voltage levels, possibly due to a faulty battery or alternator.",
+    "occurrence_count": 5,
+    "parts_likely_needed": [
+      "Battery",
+      "Alternator"
+    ],
+    "resolution_steps": [
+      "Check engine battery voltage and condition",
+      "Inspect electrical connections for damage or corrosion",
+      "Replace alternator if necessary"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Engine #2",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "SPN 521140",
+    "causes": [
+      "Engine #2 is detecting low voltage levels, possibly due to a faulty battery or alternator."
+    ],
+    "component": "Engine #2",
+    "estimated_downtime": "2-4 hours",
+    "explanation": "Engine #2 is detecting low voltage levels, possibly due to a faulty battery or alternator.",
+    "first_seen": "2026-05-13T10:09:57.465452+00:00",
+    "last_seen": "2026-05-13T13:42:31.392909+00:00",
+    "meaning": "Engine #2 is detecting low voltage levels, possibly due to a faulty battery or alternator.",
+    "occurrence_count": 5,
+    "parts_likely_needed": [
+      "Battery",
+      "Alternator"
+    ],
+    "resolution_steps": [
+      "Check engine battery voltage and condition",
+      "Inspect electrical connections for damage or corrosion",
+      "Replace alternator if necessary"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Engine #2",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "SPN 521180",
+    "causes": [
+      "The Body Controller is detecting an abnormally low current flow, which may indicate a problem with the electrical system."
+    ],
+    "component": "Body Controller",
+    "estimated_downtime": "2-4 hours",
+    "explanation": "The Body Controller is detecting an abnormally low current flow, which may indicate a problem with the electrical system.",
+    "first_seen": "2026-05-13T10:10:28.305183+00:00",
+    "last_seen": "2026-05-13T13:42:32.414548+00:00",
+    "meaning": "The Body Controller is detecting an abnormally low current flow, which may indicate a problem with the electrical system.",
+    "occurrence_count": 22,
+    "parts_likely_needed": [
+      "Battery, Alternator"
+    ],
+    "resolution_steps": [
+      "Check and clean battery terminals",
+      "Inspect and replace the alternator if necessary",
+      "Test battery capacity and consider replacement if low"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Body Controller",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team"
+  },
+  {
+    "code": "P229E",
+    "causes": [
+      "Fuel System Pressure Sensor Circuit Range/Performance Problem"
+    ],
+    "component": "Engine",
+    "estimated_downtime": "2-4 hours",
+    "explanation": "Fuel System Pressure Sensor Circuit Range/Performance Problem",
+    "first_seen": "2026-05-13T10:12:55.583585+00:00",
+    "last_seen": "2026-05-13T13:42:31.471236+00:00",
+    "meaning": "Fuel System Pressure Sensor Circuit Range/Performance Problem",
+    "occurrence_count": 9,
+    "parts_likely_needed": [
+      "Fuel System Pressure Sensor"
+    ],
+    "resolution_steps": [
+      "Check and replace the fuel system pressure sensor if faulty",
+      "Verify and repair any damaged or corroded wiring"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Engine",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "P22A3",
+    "causes": [
+      "Engine Oil Temperature Sensor Circuit Range/Performance Problem"
+    ],
+    "component": "Engine",
+    "estimated_downtime": "2-4 hours",
+    "explanation": "Engine Oil Temperature Sensor Circuit Range/Performance Problem",
+    "first_seen": "2026-05-13T10:12:55.585111+00:00",
+    "last_seen": "2026-05-13T13:42:31.473613+00:00",
+    "meaning": "Engine Oil Temperature Sensor Circuit Range/Performance Problem",
+    "occurrence_count": 9,
+    "parts_likely_needed": [
+      "Engine Oil Temperature Sensor"
+    ],
+    "resolution_steps": [
+      "Check and replace the engine oil temperature sensor if faulty",
+      "Verify and repair any damaged or corroded wiring"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Engine",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "P0070",
+    "causes": [
+      "Intake Air Temperature Sensor Circuit Range/Performance Problem"
+    ],
+    "component": "Engine",
+    "estimated_downtime": "2-4 hours",
+    "explanation": "Intake Air Temperature Sensor Circuit Range/Performance Problem",
+    "first_seen": "2026-05-13T10:12:55.586235+00:00",
+    "last_seen": "2026-05-13T13:42:31.476013+00:00",
+    "meaning": "Intake Air Temperature Sensor Circuit Range/Performance Problem",
+    "occurrence_count": 8,
+    "parts_likely_needed": [
+      "Intake Air Temperature Sensor"
+    ],
+    "resolution_steps": [
+      "Check and replace the intake air temperature sensor if faulty",
+      "Verify and repair any damaged or corroded wiring"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Engine",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "P016F",
+    "causes": [
+      "Fuel System Lean Condition Detected"
+    ],
+    "component": "Engine",
+    "estimated_downtime": "2-4 hours",
+    "explanation": "Fuel System Lean Condition Detected",
+    "first_seen": "2026-05-13T10:14:36.581433+00:00",
+    "last_seen": "2026-05-14T09:32:42.728575+00:00",
+    "meaning": "Fuel System Lean Condition Detected",
+    "occurrence_count": 26,
+    "parts_likely_needed": [
+      "Fuel injector replacement",
+      "Fuel filter replacement"
+    ],
+    "resolution_steps": [
+      "Check fuel system for leaks or damage",
+      "Inspect and clean fuel filter",
+      "Verify correct fuel type is being used"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Engine",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "P2002",
+    "causes": [
+      "Particulate Filter Efficiency Below Threshold (Bank 1)"
+    ],
+    "component": "Engine",
+    "estimated_downtime": "4-6 hours",
+    "explanation": "Particulate Filter Efficiency Below Threshold (Bank 1)",
+    "first_seen": "2026-05-13T10:14:36.582995+00:00",
+    "last_seen": "2026-05-13T13:42:31.492882+00:00",
+    "meaning": "Particulate Filter Efficiency Below Threshold (Bank 1)",
+    "occurrence_count": 4,
+    "parts_likely_needed": [
+      "Particulate filter replacement"
+    ],
+    "resolution_steps": [
+      "Replace particulate filter",
+      "Verify correct fuel type is being used",
+      "Update engine control module software"
+    ],
+    "severity": "High",
+    "source": "auto_learned",
+    "system": "Engine",
+    "urgency": "Immediate Action",
+    "who_can_fix": "Certified technician required"
+  },
+  {
+    "code": "P1036",
+    "causes": [
+      "Engine Oil Temperature Sensor Circuit Range/Performance Problem"
+    ],
+    "component": "Engine",
+    "estimated_downtime": "1-3 hours",
+    "explanation": "Engine Oil Temperature Sensor Circuit Range/Performance Problem",
+    "first_seen": "2026-05-13T10:14:36.584007+00:00",
+    "last_seen": "2026-05-14T09:32:42.729405+00:00",
+    "meaning": "Engine Oil Temperature Sensor Circuit Range/Performance Problem",
+    "occurrence_count": 9,
+    "parts_likely_needed": [
+      "Engine oil temperature sensor replacement"
+    ],
+    "resolution_steps": [
+      "Replace engine oil temperature sensor",
+      "Inspect and repair sensor wiring",
+      "Verify correct sensor calibration"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Engine",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "P228F",
+    "causes": [
+      "Fuel System Performance Problem (Bank 2)"
+    ],
+    "component": "Engine",
+    "estimated_downtime": "2-4 hours",
+    "explanation": "Fuel System Performance Problem (Bank 2)",
+    "first_seen": "2026-05-13T10:14:36.584944+00:00",
+    "last_seen": "2026-05-14T09:17:57.524905+00:00",
+    "meaning": "Fuel System Performance Problem (Bank 2)",
+    "occurrence_count": 17,
+    "parts_likely_needed": [
+      "Fuel injector replacement",
+      "Fuel filter replacement"
+    ],
+    "resolution_steps": [
+      "Check and clean fuel filter on Bank 2",
+      "Verify correct fuel type is being used",
+      "Inspect and replace faulty fuel injector on Bank 2"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Engine",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "TIRE TEMPERATURE (SPN 242)",
+    "causes": [],
+    "component": "Tire Pressure Controller",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The tire temperature sensor is not providing accurate readings. This can be due to a faulty sensor or issues with its electrical connection.",
+    "first_seen": "2026-05-13T10:15:08.849533+00:00",
+    "last_seen": "2026-05-13T13:57:53.126584+00:00",
+    "meaning": "",
+    "occurrence_count": 13,
+    "parts_likely_needed": [
+      "Tire temperature sensor"
+    ],
+    "resolution_steps": [
+      "Check and clean the sensor's electrical connections",
+      "Replace the tire temperature sensor if necessary"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Tire Pressure Controller",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "SPN 523010",
+    "causes": [
+      "Headway Controller malfunction due to invalid sensor data"
+    ],
     "component": "Headway Controller",
-    "meaning": "Vehicle Dynamic Control (stability) system status is erratic or incorrect as seen by the headway controller.",
-    "causes": [
-      "VDC sensor fault",
-      "CAN communication loss",
-      "Yaw rate sensor issue",
-      "Stability system in degraded mode"
+    "estimated_downtime": "2-4 hours",
+    "explanation": "Headway Controller malfunction due to invalid sensor data",
+    "first_seen": "2026-05-13T10:16:01.636083+00:00",
+    "last_seen": "2026-05-14T09:34:48.581188+00:00",
+    "meaning": "Headway Controller malfunction due to invalid sensor data",
+    "occurrence_count": 22,
+    "parts_likely_needed": [
+      "Headway Sensor",
+      "Wiring harness"
     ],
-    "severity": "High",
-    "urgency": "Immediate Action",
-    "first_seen": null,
-    "last_seen": null,
-    "occurrence_count": 0
+    "resolution_steps": [
+      "Check headway sensor for physical damage or corrosion",
+      "Verify sensor wiring connections and repair if necessary"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Headway Controller",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
   },
   {
-    "code": "J1939 NETWORK #1 PRIMARY VEHICLE NETWORK (SPN 639)",
-    "system": "CAN Network",
-    "component": "Brakes - System Controller",
-    "meaning": "Primary J1939 CAN bus is experiencing erratic or incorrect message timing as seen by the brake controller.",
+    "code": "SPN 524042",
     "causes": [
-      "CAN bus termination resistor fault",
-      "High bus load from multiple ECU resets",
-      "Damaged CAN wiring",
-      "Ground offset between ECUs"
+      "ECU 232 data error due to communication issue"
     ],
-    "severity": "High",
+    "component": "ECU 232",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "ECU 232 data error due to communication issue",
+    "first_seen": "2026-05-13T10:16:01.637625+00:00",
+    "last_seen": "2026-05-13T13:42:32.413317+00:00",
+    "meaning": "ECU 232 data error due to communication issue",
+    "occurrence_count": 31,
+    "parts_likely_needed": [
+      "Communication Interface",
+      "ECU software update"
+    ],
+    "resolution_steps": [
+      "Check ECU software for updates and apply if necessary",
+      "Verify communication interface connections and repair if necessary"
+    ],
+    "severity": "Low",
+    "source": "auto_learned",
+    "system": "ECU 232",
+    "urgency": "Monitor",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "1",
+    "causes": [
+      "Unknown fault code"
+    ],
+    "component": "Unknown",
+    "estimated_downtime": "Indeterminate",
+    "explanation": "Unknown fault code",
+    "first_seen": "2026-05-13T10:16:58.324785+00:00",
+    "last_seen": "2026-05-14T09:32:42.728261+00:00",
+    "meaning": "Unknown fault code",
+    "occurrence_count": 22,
+    "parts_likely_needed": [],
+    "resolution_steps": [
+      "Contact manufacturer or authorized dealer for assistance"
+    ],
+    "severity": "Critical",
+    "source": "auto_learned",
+    "system": "Unknown",
     "urgency": "Immediate Action",
-    "first_seen": null,
-    "last_seen": null,
-    "occurrence_count": 0
+    "who_can_fix": "Certified technician required"
+  },
+  {
+    "code": "ENGINE INJECTOR METERING RAIL 1 PRESSURE (SPN 157)",
+    "causes": [],
+    "component": "Engine #2",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The engine's fuel system is detecting a high pressure reading in the injector metering rail, which can cause poor engine performance and potentially damage components.",
+    "first_seen": "2026-05-13T10:17:30.300273+00:00",
+    "last_seen": "2026-05-13T13:42:32.165643+00:00",
+    "meaning": "",
+    "occurrence_count": 5,
+    "parts_likely_needed": [
+      "Fuel filter",
+      "Fuel injector"
+    ],
+    "resolution_steps": [
+      "Check and replace the fuel filter if clogged",
+      "Inspect and clean or replace faulty fuel injectors"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Engine #2",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "DIESEL PARTICULATE FILTER 1 ASH LOAD PERCENT (SPN 3720)",
+    "causes": [
+      "The diesel particulate filter is not cleaning properly due to excessive ash buildup"
+    ],
+    "component": "Exhaust Emission Controller",
+    "estimated_downtime": "2-4 hours",
+    "explanation": "The diesel particulate filter is not cleaning properly due to excessive ash buildup",
+    "first_seen": "2026-05-13T10:18:02.712243+00:00",
+    "last_seen": "2026-05-13T13:59:25.219331+00:00",
+    "meaning": "The diesel particulate filter is not cleaning properly due to excessive ash buildup",
+    "occurrence_count": 8,
+    "parts_likely_needed": [
+      "Diesel Particulate Filter Cleaning Kit"
+    ],
+    "resolution_steps": [
+      "Check and clean the DPF according to manufacturer's guidelines",
+      "Replace the DPF if cleaning is not possible"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Exhaust Emission Controller",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team"
+  },
+  {
+    "code": "SPN 521181",
+    "causes": [],
+    "component": "Body Controller",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The body controller monitors the electrical system to ensure it's functioning properly. If it detects an unusually low current draw, it will trigger this fault code.",
+    "first_seen": "2026-05-13T10:18:38.392892+00:00",
+    "last_seen": "2026-05-13T13:42:33.413190+00:00",
+    "meaning": "",
+    "occurrence_count": 27,
+    "parts_likely_needed": [
+      "Battery cables",
+      "Alternator or Generator"
+    ],
+    "resolution_steps": [
+      "Check and clean all battery terminals and connections",
+      "Inspect and replace the alternator or generator if necessary"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Body Controller",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "ENGINE COOLANT LEVEL (SPN 111)",
+    "causes": [
+      "Engine coolant level sensor fault"
+    ],
+    "component": "Engine #1",
+    "estimated_downtime": "2 hours",
+    "explanation": "Engine coolant level sensor fault",
+    "first_seen": "2026-05-13T10:19:08.704291+00:00",
+    "last_seen": "2026-05-14T12:53:28.981661+00:00",
+    "meaning": "Engine coolant level sensor fault",
+    "occurrence_count": 7,
+    "parts_likely_needed": [
+      "Coolant Level Sensor"
+    ],
+    "resolution_steps": [
+      "Check engine coolant level and top up if necessary",
+      "Inspect coolant level sensor wiring for damage or corrosion",
+      "Replace coolant level sensor if faulty"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Engine #1",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
   },
   {
     "code": "OXYGEN (OR EXHAUST GAS) SENSOR BANK 2 MONITOR (SPN 3057)",
-    "system": "Emissions",
+    "causes": [],
     "component": "Exhaust Emission Controller",
-    "meaning": "Exhaust gas oxygen/NOx sensor on bank 2 of the aftertreatment system is providing erratic readings.",
-    "causes": [
-      "Sensor contamination or aging",
-      "Exhaust leak upstream of sensor",
-      "Sensor heater fault",
-      "Wiring intermittent"
+    "estimated_downtime": "1-2 hours",
+    "explanation": "This fault code indicates that the oxygen sensor in Bank 2 is not functioning correctly, which can cause the vehicle to emit excessive pollutants and decrease fuel efficiency.",
+    "first_seen": "2026-05-13T10:19:51.186143+00:00",
+    "last_seen": "2026-05-14T09:34:48.581542+00:00",
+    "meaning": "",
+    "occurrence_count": 7,
+    "parts_likely_needed": [
+      "Oxygen Sensor"
+    ],
+    "resolution_steps": [
+      "Check wiring and connections for damage or corrosion",
+      "Replace oxygen sensor if faulty"
     ],
     "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Exhaust Emission Controller",
     "urgency": "Schedule Maintenance",
-    "first_seen": null,
-    "last_seen": null,
-    "occurrence_count": 0
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "DIF 2 - ASR VALVE (SPN 807)",
+    "causes": [
+      "ASR valve not functioning correctly"
+    ],
+    "component": "Brakes - System Controller",
+    "estimated_downtime": "2 hours",
+    "explanation": "ASR valve not functioning correctly",
+    "first_seen": "2026-05-13T10:26:50.553111+00:00",
+    "last_seen": "2026-05-13T13:59:25.735614+00:00",
+    "meaning": "ASR valve not functioning correctly",
+    "occurrence_count": 4,
+    "parts_likely_needed": [
+      "ASR valve"
+    ],
+    "resolution_steps": [
+      "Check brake fluid level and top off if necessary",
+      "Inspect brake components for wear or damage",
+      "Replace faulty ASR valve"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Brakes - System Controller",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team"
+  },
+  {
+    "code": "SPN 520367",
+    "causes": [
+      "Exhaust gas recirculation (EGR) system malfunction"
+    ],
+    "component": "Exhaust Emission Controller",
+    "estimated_downtime": "4 hours",
+    "explanation": "Exhaust gas recirculation (EGR) system malfunction",
+    "first_seen": "2026-05-13T10:26:50.554740+00:00",
+    "last_seen": "2026-05-13T13:59:25.737965+00:00",
+    "meaning": "Exhaust gas recirculation (EGR) system malfunction",
+    "occurrence_count": 4,
+    "parts_likely_needed": [
+      "EGR cooler",
+      "EGR sensor"
+    ],
+    "resolution_steps": [
+      "Clean or replace EGR cooler",
+      "Check and replace faulty EGR sensor",
+      "Check engine oil level and top off if necessary"
+    ],
+    "severity": "High",
+    "source": "auto_learned",
+    "system": "Exhaust Emission Controller",
+    "urgency": "Immediate Action",
+    "who_can_fix": "Certified technician required"
+  },
+  {
+    "code": "AFTERTREATMENT 1 INTAKE O2 (SPN 3217)",
+    "causes": [
+      "Oxygen sensor malfunction in aftertreatment system"
+    ],
+    "component": "Exhaust Emission Controller",
+    "estimated_downtime": "2 hours",
+    "explanation": "Oxygen sensor malfunction in aftertreatment system",
+    "first_seen": "2026-05-13T10:26:50.556094+00:00",
+    "last_seen": "2026-05-13T13:59:25.738510+00:00",
+    "meaning": "Oxygen sensor malfunction in aftertreatment system",
+    "occurrence_count": 4,
+    "parts_likely_needed": [
+      "Oxygen sensor"
+    ],
+    "resolution_steps": [
+      "Check and replace faulty oxygen sensor",
+      "Inspect and clean exhaust components"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Exhaust Emission Controller",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team"
+  },
+  {
+    "code": "SPN 520364",
+    "causes": [
+      "Exhaust gas recirculation (EGR) system malfunction"
+    ],
+    "component": "Exhaust Emission Controller",
+    "estimated_downtime": "4 hours",
+    "explanation": "Exhaust gas recirculation (EGR) system malfunction",
+    "first_seen": "2026-05-13T10:26:50.558390+00:00",
+    "last_seen": "2026-05-13T13:59:25.739092+00:00",
+    "meaning": "Exhaust gas recirculation (EGR) system malfunction",
+    "occurrence_count": 4,
+    "parts_likely_needed": [
+      "EGR cooler",
+      "EGR sensor"
+    ],
+    "resolution_steps": [
+      "Clean or replace EGR cooler",
+      "Check and replace faulty EGR sensor",
+      "Check engine oil level and top off if necessary"
+    ],
+    "severity": "High",
+    "source": "auto_learned",
+    "system": "Exhaust Emission Controller",
+    "urgency": "Immediate Action",
+    "who_can_fix": "Certified technician required"
+  },
+  {
+    "code": "AFTERTREATMENT 1 INTAKE NOX (SPN 3216)",
+    "causes": [
+      "Nitrogen oxide (NOx) sensor malfunction in aftertreatment system"
+    ],
+    "component": "Engine #2",
+    "estimated_downtime": "2 hours",
+    "explanation": "Nitrogen oxide (NOx) sensor malfunction in aftertreatment system",
+    "first_seen": "2026-05-13T10:26:50.560182+00:00",
+    "last_seen": "2026-05-13T13:59:25.739650+00:00",
+    "meaning": "Nitrogen oxide (NOx) sensor malfunction in aftertreatment system",
+    "occurrence_count": 18,
+    "parts_likely_needed": [
+      "NOx sensor"
+    ],
+    "resolution_steps": [
+      "Check and replace faulty NOx sensor",
+      "Inspect and clean exhaust components"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Engine #2",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team"
+  },
+  {
+    "code": "SPN 520371",
+    "causes": [
+      "Exhaust gas recirculation (EGR) system malfunction"
+    ],
+    "component": "Exhaust Emission Controller",
+    "estimated_downtime": "4 hours",
+    "explanation": "Exhaust gas recirculation (EGR) system malfunction",
+    "first_seen": "2026-05-13T10:26:50.561567+00:00",
+    "last_seen": "2026-05-14T13:03:05.134979+00:00",
+    "meaning": "Exhaust gas recirculation (EGR) system malfunction",
+    "occurrence_count": 11,
+    "parts_likely_needed": [
+      "EGR cooler",
+      "EGR sensor"
+    ],
+    "resolution_steps": [
+      "Clean or replace EGR cooler",
+      "Check and replace faulty EGR sensor",
+      "Check engine oil level and top off if necessary"
+    ],
+    "severity": "High",
+    "source": "auto_learned",
+    "system": "Exhaust Emission Controller",
+    "urgency": "Immediate Action",
+    "who_can_fix": "Certified technician required"
+  },
+  {
+    "code": "CRUISE CONTROL COAST (DECELERATE) SWITCH (SPN 600)",
+    "causes": [
+      "Cruise control coast switch malfunction"
+    ],
+    "component": "Engine #1",
+    "estimated_downtime": "1 hour",
+    "explanation": "Cruise control coast switch malfunction",
+    "first_seen": "2026-05-13T10:26:50.563215+00:00",
+    "last_seen": "2026-05-13T13:59:25.740607+00:00",
+    "meaning": "Cruise control coast switch malfunction",
+    "occurrence_count": 10,
+    "parts_likely_needed": [
+      "Cruise control switch"
+    ],
+    "resolution_steps": [
+      "Check and replace faulty cruise control switch",
+      "Inspect and repair worn or damaged wiring"
+    ],
+    "severity": "Low",
+    "source": "auto_learned",
+    "system": "Engine #1",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team"
+  },
+  {
+    "code": "CRUISE CONTROL ENABLE SWITCH (SPN 596)",
+    "causes": [
+      "Cruise control enable switch malfunction"
+    ],
+    "component": "Engine #1",
+    "estimated_downtime": "1 hour",
+    "explanation": "Cruise control enable switch malfunction",
+    "first_seen": "2026-05-13T10:26:50.564705+00:00",
+    "last_seen": "2026-05-13T13:59:25.741102+00:00",
+    "meaning": "Cruise control enable switch malfunction",
+    "occurrence_count": 10,
+    "parts_likely_needed": [
+      "Cruise control switch"
+    ],
+    "resolution_steps": [
+      "Check and replace faulty cruise control switch",
+      "Inspect and repair worn or damaged wiring"
+    ],
+    "severity": "Low",
+    "source": "auto_learned",
+    "system": "Engine #1",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team"
+  },
+  {
+    "code": "CRUISE CONTROL ACCELERATE SWITCH (SPN 602)",
+    "causes": [
+      "Cruise control accelerate switch malfunction"
+    ],
+    "component": "Engine #1",
+    "estimated_downtime": "1 hour",
+    "explanation": "Cruise control accelerate switch malfunction",
+    "first_seen": "2026-05-13T10:26:50.566149+00:00",
+    "last_seen": "2026-05-13T13:59:25.741590+00:00",
+    "meaning": "Cruise control accelerate switch malfunction",
+    "occurrence_count": 10,
+    "parts_likely_needed": [
+      "Cruise control switch"
+    ],
+    "resolution_steps": [
+      "Check and replace faulty cruise control switch",
+      "Inspect and repair worn or damaged wiring"
+    ],
+    "severity": "Low",
+    "source": "auto_learned",
+    "system": "Engine #1",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team"
+  },
+  {
+    "code": "SPN 520216",
+    "causes": [],
+    "component": "Brakes - System Controller",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The brake system controller is monitoring the brake pads and fluid levels. If it detects excessive wear or a low fluid level, it will trigger this fault code to alert you to potential safety issues.",
+    "first_seen": "2026-05-13T10:28:21.029144+00:00",
+    "last_seen": "2026-05-14T09:47:22.624921+00:00",
+    "meaning": "",
+    "occurrence_count": 35,
+    "parts_likely_needed": [
+      "Brake fluid",
+      "Brake pads"
+    ],
+    "resolution_steps": [
+      "Check brake fluid level and top off as needed",
+      "Inspect brake pads for excessive wear"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Brakes - System Controller",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "ENGINE FUEL INJECTION PUMP CONTROLLER (SPN 1077)",
+    "causes": [],
+    "component": "Engine #2",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "This fault code indicates that the engine's fuel injection pump controller has detected an error in the fuel system. It may be caused by a faulty fuel injection pump controller, clogged fuel filter, or low fuel pressure.",
+    "first_seen": "2026-05-13T10:30:26.160890+00:00",
+    "last_seen": "2026-05-14T13:03:05.135385+00:00",
+    "meaning": "",
+    "occurrence_count": 12,
+    "parts_likely_needed": [
+      "Fuel filter",
+      "Fuel injector cleaning kit"
+    ],
+    "resolution_steps": [
+      "Check and replace the fuel filter if necessary",
+      "Inspect and clean the fuel injectors",
+      "Verify proper fuel pressure"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Engine #2",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "SPN 11412",
+    "causes": [],
+    "component": "Instrument Cluster #1",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The instrument cluster is detecting an error in the data it receives, which can cause inaccurate readings on the dashboard. This may be due to a faulty sensor or damaged wiring.",
+    "first_seen": "2026-05-13T10:31:13.814930+00:00",
+    "last_seen": "2026-05-13T13:42:31.286223+00:00",
+    "meaning": "",
+    "occurrence_count": 5,
+    "parts_likely_needed": [
+      "Instrument cluster sensor",
+      "Wiring harness"
+    ],
+    "resolution_steps": [
+      "Check and replace faulty sensors or wiring as needed"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Instrument Cluster #1",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "AUXILIARY I/O #04 (SPN 704)",
+    "causes": [],
+    "component": "Brakes - System Controller",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "This code indicates that the auxiliary input/output circuit #04 is not receiving sufficient current, which can cause issues with the brake system. It's essential to investigate and resolve this issue promptly to ensure safe vehicle operation.",
+    "first_seen": "2026-05-13T10:32:15.947269+00:00",
+    "last_seen": "2026-05-13T13:42:31.288189+00:00",
+    "meaning": "",
+    "occurrence_count": 5,
+    "parts_likely_needed": [
+      "Brake System Controller",
+      "Wiring harness"
+    ],
+    "resolution_steps": [
+      "Check wiring and connections for damage or corrosion",
+      "Verify Brake System Controller functionality"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Brakes - System Controller",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "SPN 520215",
+    "causes": [],
+    "component": "Cruise Control",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The cruise control system has detected a low current reading, which may be caused by a faulty power module or loose/corroded electrical connections. This can cause the cruise control to malfunction or not function at all.",
+    "first_seen": "2026-05-13T10:33:07.283001+00:00",
+    "last_seen": "2026-05-13T13:42:31.289796+00:00",
+    "meaning": "",
+    "occurrence_count": 5,
+    "parts_likely_needed": [
+      "Power Module"
+    ],
+    "resolution_steps": [
+      "Check and clean electrical connections",
+      "Replace power module if necessary"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Cruise Control",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "P2200",
+    "causes": [],
+    "component": "Engine",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The engine is running too lean, meaning there's not enough fuel being injected into the cylinders. This can cause damage to the engine over time.",
+    "first_seen": "2026-05-13T10:33:52.833587+00:00",
+    "last_seen": "2026-05-13T13:42:31.446889+00:00",
+    "meaning": "",
+    "occurrence_count": 18,
+    "parts_likely_needed": [
+      "Fuel injector cleaning kit"
+    ],
+    "resolution_steps": [
+      "Check and clean the fuel injectors",
+      "Adjust or replace the fuel injectors as needed"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Engine",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "P2208",
+    "causes": [],
+    "component": "Engine",
+    "estimated_downtime": "2 hours",
+    "explanation": "The engine's computer has detected that the air-fuel mixture is too lean on bank 1, sensor 1. This can cause damage to the engine over time.",
+    "first_seen": "2026-05-13T10:34:40.111000+00:00",
+    "last_seen": "2026-05-13T13:42:31.448160+00:00",
+    "meaning": "",
+    "occurrence_count": 22,
+    "parts_likely_needed": [
+      "Fuel injector"
+    ],
+    "resolution_steps": [
+      "Check and clean or replace the fuel injectors",
+      "Verify correct injector calibration"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Engine",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "P2205",
+    "causes": [],
+    "component": "Engine",
+    "estimated_downtime": "2-4 hours",
+    "explanation": "The engine's computer has detected that the air-fuel mixture is too lean on bank 1, sensor 1. This can cause damage to the engine over time.",
+    "first_seen": "2026-05-13T10:35:22.326900+00:00",
+    "last_seen": "2026-05-13T13:42:31.449170+00:00",
+    "meaning": "",
+    "occurrence_count": 18,
+    "parts_likely_needed": [
+      "Fuel injector"
+    ],
+    "resolution_steps": [
+      "Check and clean or replace the fuel injectors",
+      "Verify correct injector calibration"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Engine",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "FAN SPEED (SPN 1639)",
+    "causes": [],
+    "component": "Engine #2",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "This fault code indicates that the engine fan speed sensor is not sending accurate information to the Engine Control Module. This can cause the cooling system to malfunction, potentially leading to overheating.",
+    "first_seen": "2026-05-13T10:48:42.150487+00:00",
+    "last_seen": "2026-05-14T09:47:22.625271+00:00",
+    "meaning": "",
+    "occurrence_count": 18,
+    "parts_likely_needed": [
+      "Fan Speed Sensor"
+    ],
+    "resolution_steps": [
+      "Check and clean the fan speed sensor connections",
+      "Replace the fan speed sensor if necessary"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Engine #2",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "SPN 524011",
+    "causes": [],
+    "component": "ECU 232",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The Engine Control Module (ECM) is experiencing a data transmission error, which can cause issues with engine performance and other vehicle systems. This fault code indicates that the ECM has detected 59 consecutive errors in its communication with other modules.",
+    "first_seen": "2026-05-13T10:51:51.775313+00:00",
+    "last_seen": "2026-05-14T09:34:48.582741+00:00",
+    "meaning": "",
+    "occurrence_count": 32,
+    "parts_likely_needed": [
+      "Communication module"
+    ],
+    "resolution_steps": [
+      "Check for loose or damaged wiring and connectors",
+      "Scan for any software updates for the ECU"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "ECU 232",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "WHEEL SENSOR ABS AXLE 2 LEFT (SPN 791)",
+    "causes": [],
+    "component": "Brakes - System Controller",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The wheel speed sensor on the left rear axle is not sending accurate data to the ABS system. This can cause the ABS system to malfunction and may lead to reduced braking performance.",
+    "first_seen": "2026-05-13T10:54:56.641570+00:00",
+    "last_seen": "2026-05-13T13:42:30.355051+00:00",
+    "meaning": "",
+    "occurrence_count": 13,
+    "parts_likely_needed": [
+      "Wheel Speed Sensor, Rear Left"
+    ],
+    "resolution_steps": [
+      "Check for loose or corroded electrical connections to the sensor",
+      "Replace the wheel speed sensor if faulty"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Brakes - System Controller",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "ENGINE CRANKCASE BREATHER OIL SEPARATOR SPEED (SPN 5444)",
+    "causes": [],
+    "component": "Engine #2",
+    "estimated_downtime": "2-4 hours",
+    "explanation": "The engine's crankcase breather oil separator is not functioning correctly, which can lead to oil leaks and contamination of the engine and other components.",
+    "first_seen": "2026-05-13T11:22:44.718559+00:00",
+    "last_seen": "2026-05-13T13:42:29.066742+00:00",
+    "meaning": "",
+    "occurrence_count": 14,
+    "parts_likely_needed": [
+      "Crankcase Breather Oil Separator"
+    ],
+    "resolution_steps": [
+      "Check and clean the oil separator",
+      "Replace the oil separator if necessary"
+    ],
+    "severity": "High",
+    "source": "auto_learned",
+    "system": "Engine #2",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "SPN 521133",
+    "causes": [],
+    "component": "Engine #2",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The engine speed sensor is not providing accurate readings, which can cause the engine to run rough or stall. This may be due to a faulty sensor or a wiring problem.",
+    "first_seen": "2026-05-13T11:23:26.447238+00:00",
+    "last_seen": "2026-05-13T13:42:29.003153+00:00",
+    "meaning": "",
+    "occurrence_count": 6,
+    "parts_likely_needed": [
+      "Engine Speed Sensor"
+    ],
+    "resolution_steps": [
+      "Check and replace the engine speed sensor if necessary",
+      "Verify that all connections are secure"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Engine #2",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "WHEEL SENSOR ABS AXLE 3 RIGHT (SPN 794)",
+    "causes": [],
+    "component": "Brakes - System Controller",
+    "estimated_downtime": "1 hour",
+    "explanation": "The wheel speed sensor monitors the rotation of the right rear axle and sends a signal to the ABS system. If this signal is weak or missing, it can cause the ABS system to malfunction.",
+    "first_seen": "2026-05-13T11:24:17.780454+00:00",
+    "last_seen": "2026-05-13T13:42:33.471829+00:00",
+    "meaning": "",
+    "occurrence_count": 11,
+    "parts_likely_needed": [
+      "Wheel Speed Sensor - Right Rear Axle"
+    ],
+    "resolution_steps": [
+      "Check for loose or corroded electrical connections between the sensor and ECU"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Brakes - System Controller",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team"
+  },
+  {
+    "code": "SPN 523530",
+    "causes": [],
+    "component": "Cab Controller - Primary",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The air suspension sensor has detected a fault or an air leak in the system, which can cause uneven ride height and affect vehicle stability.",
+    "first_seen": "2026-05-13T11:24:59.666877+00:00",
+    "last_seen": "2026-05-14T13:03:05.133712+00:00",
+    "meaning": "",
+    "occurrence_count": 7,
+    "parts_likely_needed": [
+      "Air Suspension Sensor"
+    ],
+    "resolution_steps": [
+      "Check for any signs of damage to the air lines or fittings",
+      "Inspect and clean the air suspension sensor connections"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Cab Controller - Primary",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "A/C EVAPORATOR TEMPERATURE (SPN 1547)",
+    "causes": [],
+    "component": "Auxiliary Heater #2",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The evaporator temperature sensor is sending an incorrect reading to the ECU, which can cause the auxiliary heater to malfunction or not function at all.",
+    "first_seen": "2026-05-13T11:25:56.832768+00:00",
+    "last_seen": "2026-05-13T13:42:29.087699+00:00",
+    "meaning": "",
+    "occurrence_count": 5,
+    "parts_likely_needed": [
+      "Evaporator Temperature Sensor"
+    ],
+    "resolution_steps": [
+      "Check wiring and connections for damage or corrosion",
+      "Replace Evaporator Temperature Sensor if faulty"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Auxiliary Heater #2",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "SPN 61683",
+    "causes": [],
+    "component": "Cruise Control",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The cruise control system has detected a problem with one of its components, which may be causing it to malfunction. This could be due to a faulty sensor or actuator, or an issue with the wiring.",
+    "first_seen": "2026-05-13T13:14:21.634078+00:00",
+    "last_seen": "2026-05-13T13:42:33.402119+00:00",
+    "meaning": "",
+    "occurrence_count": 4,
+    "parts_likely_needed": [
+      "Cruise control sensor",
+      "Actuator"
+    ],
+    "resolution_steps": [
+      "Check and replace faulty component",
+      "Inspect and repair wiring as needed"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Cruise Control",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "P0256",
+    "causes": [],
+    "component": "Engine",
+    "estimated_downtime": "2-4 hours",
+    "explanation": "The engine's computer is detecting a problem with the injection pump's ability to accurately meter fuel. This can cause poor engine performance, decreased power, and potentially damage the engine over time.",
+    "first_seen": "2026-05-13T13:15:08.034885+00:00",
+    "last_seen": "2026-05-14T12:53:29.103153+00:00",
+    "meaning": "",
+    "occurrence_count": 5,
+    "parts_likely_needed": [
+      "Fuel filter",
+      "Camshaft",
+      "Rotor",
+      "Injector"
+    ],
+    "resolution_steps": [
+      "Check and replace the fuel filter if clogged",
+      "Inspect and clean or replace the camshaft, rotor, or injector as needed"
+    ],
+    "severity": "High",
+    "source": "auto_learned",
+    "system": "Engine",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "P0087",
+    "causes": [],
+    "component": "Engine",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The fuel pressure regulator is not maintaining the correct fuel rail pressure, which can cause problems with engine performance and fuel efficiency.",
+    "first_seen": "2026-05-13T13:15:50.125996+00:00",
+    "last_seen": "2026-05-14T09:22:38.157893+00:00",
+    "meaning": "",
+    "occurrence_count": 6,
+    "parts_likely_needed": [
+      "Fuel Pressure Regulator",
+      "Fuel Filter"
+    ],
+    "resolution_steps": [
+      "Check fuel level and top off if necessary",
+      "Inspect and replace fuel filter as needed",
+      "Replace fuel pressure regulator if faulty"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Engine",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "SPN 14229",
+    "causes": [],
+    "component": "Instrument Cluster #1",
+    "estimated_downtime": "1 hour",
+    "explanation": "The instrument cluster is detecting an unusually low fuel level, indicating a potential issue with the fuel level sensor or its calibration.",
+    "first_seen": "2026-05-13T13:16:23.132372+00:00",
+    "last_seen": "2026-05-13T13:42:30.818663+00:00",
+    "meaning": "",
+    "occurrence_count": 4,
+    "parts_likely_needed": [
+      "Fuel Level Sensor"
+    ],
+    "resolution_steps": [
+      "Check fuel level manually to confirm accuracy",
+      "Replace faulty fuel level sensor if necessary"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Instrument Cluster #1",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "SPN 524000",
+    "causes": [],
+    "component": "ECU 232",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "This fault code indicates that the Engine Control Module (ECM) is receiving an abnormal number of updates from the Transmission Control Module (TCM). This can be caused by a faulty TCM, loose or corroded wiring between the modules, or other issues.",
+    "first_seen": "2026-05-13T13:17:07.989597+00:00",
+    "last_seen": "2026-05-13T13:42:33.019561+00:00",
+    "meaning": "",
+    "occurrence_count": 4,
+    "parts_likely_needed": [
+      "Transmission Control Module"
+    ],
+    "resolution_steps": [
+      "Check and repair any loose or corroded wiring",
+      "Replace the Transmission Control Module if necessary"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "ECU 232",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "P0521",
+    "causes": [],
+    "component": "Engine",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The engine oil pressure sensor is not sending a correct signal to the Engine Control Unit (ECU). This can be due to a faulty sensor, low engine oil level, or a clogged oil filter.",
+    "first_seen": "2026-05-13T13:18:27.259780+00:00",
+    "last_seen": "2026-05-13T13:42:29.673786+00:00",
+    "meaning": "",
+    "occurrence_count": 3,
+    "parts_likely_needed": [
+      "Oil Pressure Sensor",
+      "Oil Filter"
+    ],
+    "resolution_steps": [
+      "Check and top up engine oil level",
+      "Replace oil filter if necessary",
+      "Inspect and replace oil pressure sensor"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Engine",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "P22FE",
+    "causes": [],
+    "component": "Engine",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The engine's fuel system has detected a leak, which can cause poor engine performance and potentially lead to more serious issues if left unaddressed.",
+    "first_seen": "2026-05-13T13:22:41.439144+00:00",
+    "last_seen": "2026-05-13T13:42:29.711443+00:00",
+    "meaning": "",
+    "occurrence_count": 3,
+    "parts_likely_needed": [
+      "Fuel Pressure Sensor",
+      "Fuel Line"
+    ],
+    "resolution_steps": [
+      "Check the fuel line for any signs of damage or leaks",
+      "Replace the fuel pressure sensor if faulty"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Engine",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "P220F",
+    "causes": [],
+    "component": "Engine",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The engine's fuel system has detected a leak, which can cause poor engine performance and potentially lead to more serious issues if left unaddressed.",
+    "first_seen": "2026-05-13T13:23:17.034299+00:00",
+    "last_seen": "2026-05-13T13:42:29.715583+00:00",
+    "meaning": "",
+    "occurrence_count": 3,
+    "parts_likely_needed": [
+      "Fuel Pressure Sensor",
+      "Fuel Line"
+    ],
+    "resolution_steps": [
+      "Check the fuel line for any signs of damage or leaks",
+      "Replace the fuel pressure sensor if faulty"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Engine",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "P22A6",
+    "causes": [],
+    "component": "Engine",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The engine's fuel system has detected a leak, which can cause poor engine performance and potentially lead to more serious issues if left unaddressed.",
+    "first_seen": "2026-05-13T13:23:52.556536+00:00",
+    "last_seen": "2026-05-13T13:42:29.716894+00:00",
+    "meaning": "",
+    "occurrence_count": 3,
+    "parts_likely_needed": [
+      "Fuel Pressure Sensor",
+      "Fuel Line"
+    ],
+    "resolution_steps": [
+      "Check the fuel line for any signs of damage or leaks",
+      "Replace the fuel pressure sensor if faulty"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Engine",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "ENGINE COOLANT TEMPERATURE (SPN 110)",
+    "causes": [],
+    "component": "Engine #2",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The engine control module is receiving a faulty signal from the engine coolant temperature sensor, indicating that the engine is overheating. This can cause damage to the engine and other components if not addressed.",
+    "first_seen": "2026-05-13T13:24:34.449608+00:00",
+    "last_seen": "2026-05-13T13:42:29.756992+00:00",
+    "meaning": "",
+    "occurrence_count": 3,
+    "parts_likely_needed": [
+      "Engine Coolant Temperature Sensor"
+    ],
+    "resolution_steps": [
+      "Check the engine coolant level and top off as needed",
+      "Inspect the engine coolant temperature sensor for signs of damage or corrosion"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Engine #2",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "SPN 524049",
+    "causes": [],
+    "component": "ECU 127",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The Engine Control Module is experiencing a data transmission error, which can cause issues with engine performance and safety features. This fault code indicates that the ECU has detected an error in the data it receives from other vehicle systems.",
+    "first_seen": "2026-05-13T13:25:11.404920+00:00",
+    "last_seen": "2026-05-13T13:42:30.059935+00:00",
+    "meaning": "",
+    "occurrence_count": 5,
+    "parts_likely_needed": [
+      "Communication wiring harness"
+    ],
+    "resolution_steps": [
+      "Check communication wiring and connectors for damage or corrosion"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "ECU 127",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team"
+  },
+  {
+    "code": "SPN 521241",
+    "causes": [],
+    "component": "Body Controller",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The body controller is monitoring the vehicle's electrical system and has detected a low voltage supply. This can cause issues with lights, wipers, and other accessories.",
+    "first_seen": "2026-05-13T13:25:53.159551+00:00",
+    "last_seen": "2026-05-13T13:42:29.851480+00:00",
+    "meaning": "",
+    "occurrence_count": 3,
+    "parts_likely_needed": [
+      "Alternator or generator"
+    ],
+    "resolution_steps": [
+      "Check battery connections and ensure they are secure and clean"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Body Controller",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "SPN 524287",
+    "causes": [],
+    "component": "Headway Controller",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The headway sensor is not functioning correctly, which can lead to reduced safety features. This may be due to a faulty sensor or degraded signal quality.",
+    "first_seen": "2026-05-13T13:26:29.941581+00:00",
+    "last_seen": "2026-05-13T13:42:29.898581+00:00",
+    "meaning": "",
+    "occurrence_count": 3,
+    "parts_likely_needed": [
+      "Headway Sensor"
+    ],
+    "resolution_steps": [
+      "Check and replace the headway sensor if necessary",
+      "Verify proper installation of the headway sensor"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Headway Controller",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "J1939 NETWORK #2 (SPN 1231)",
+    "causes": [],
+    "component": "ECU 232",
+    "estimated_downtime": "2-4 hours",
+    "explanation": "This fault code indicates that the J1939 network is not functioning correctly, which can cause issues with vehicle communication and control. The exact cause may be related to a faulty ECU or wiring issue, or interference from other devices.",
+    "first_seen": "2026-05-13T13:27:15.536264+00:00",
+    "last_seen": "2026-05-14T12:53:28.981172+00:00",
+    "meaning": "",
+    "occurrence_count": 8,
+    "parts_likely_needed": [
+      "ECU 232 replacement"
+    ],
+    "resolution_steps": [
+      "Check for loose connections or damaged wiring",
+      "Verify ECU functionality using diagnostic tools"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "ECU 232",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "PC001",
+    "causes": [],
+    "component": "Transmission",
+    "estimated_downtime": "1 hour",
+    "explanation": "The transmission control module is unable to communicate with other vehicle systems, indicating a potential issue with the communication bus.",
+    "first_seen": "2026-05-13T13:27:43.968501+00:00",
+    "last_seen": "2026-05-13T13:42:29.941694+00:00",
+    "meaning": "",
+    "occurrence_count": 3,
+    "parts_likely_needed": [],
+    "resolution_steps": [
+      "Check for loose connections or damaged wiring"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Transmission",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "P24AF",
+    "causes": [],
+    "component": "Engine",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The engine's fuel system leak detection system has triggered a warning due to a potential issue with the fuel pressure sensor or fuel line.",
+    "first_seen": "2026-05-13T13:28:19.568949+00:00",
+    "last_seen": "2026-05-13T13:42:29.943255+00:00",
+    "meaning": "",
+    "occurrence_count": 3,
+    "parts_likely_needed": [
+      "Fuel Pressure Sensor"
+    ],
+    "resolution_steps": [
+      "Check and tighten all fuel lines and connections",
+      "Replace faulty fuel pressure sensor if necessary"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Engine",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "P0128",
+    "causes": [],
+    "component": "Engine",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The thermostat helps regulate the engine temperature. If it's not working properly, the engine may overheat or run too cool.",
+    "first_seen": "2026-05-13T13:28:56.844309+00:00",
+    "last_seen": "2026-05-14T09:17:57.558606+00:00",
+    "meaning": "",
+    "occurrence_count": 6,
+    "parts_likely_needed": [
+      "Thermostat"
+    ],
+    "resolution_steps": [
+      "Check and top off coolant levels",
+      "Inspect and clean coolant passages",
+      "Replace thermostat if faulty"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Engine",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "SPN 8620",
+    "causes": [],
+    "component": "Engine #2",
+    "estimated_downtime": "2-4 hours",
+    "explanation": "This fault code indicates that Engine #2 has experienced an other failure mode, which can be caused by a variety of issues related to the fuel system or engine control. The count of 27 suggests repeated occurrences.",
+    "first_seen": "2026-05-13T13:29:42.969638+00:00",
+    "last_seen": "2026-05-13T13:42:29.995597+00:00",
+    "meaning": "",
+    "occurrence_count": 3,
+    "parts_likely_needed": [
+      "Fuel Injector",
+      "Fuel Filter"
+    ],
+    "resolution_steps": [
+      "Check and replace faulty fuel injector",
+      "Inspect and clean clogged fuel filter",
+      "Verify fuel pressure is within specifications"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Engine #2",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "PRESSURE MODULATION VALVE ABS AXLE 3 LEFT (SPN 799)",
+    "causes": [],
+    "component": "Brakes - System Controller",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The pressure modulation valve helps control the ABS system. If it's not getting enough current, the system may not work properly, which can cause problems with braking performance.",
+    "first_seen": "2026-05-13T13:30:34.193051+00:00",
+    "last_seen": "2026-05-13T13:42:30.073602+00:00",
+    "meaning": "",
+    "occurrence_count": 3,
+    "parts_likely_needed": [
+      "Pressure Modulation Valve ABS Axle 3 Left"
+    ],
+    "resolution_steps": [
+      "Check and replace the wiring harness if damaged or worn",
+      "Inspect and replace the pressure modulation valve if faulty"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Brakes - System Controller",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "SPN 327680",
+    "causes": [],
+    "component": "Cruise Control",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The cruise control system is detecting an irregularity in the pulse width or period of the signals it receives, which can cause the system to malfunction.",
+    "first_seen": "2026-05-13T13:31:16.911277+00:00",
+    "last_seen": "2026-05-13T13:42:30.098145+00:00",
+    "meaning": "",
+    "occurrence_count": 3,
+    "parts_likely_needed": [
+      "Pulse Width Modulator"
+    ],
+    "resolution_steps": [
+      "Check and clean all electrical connections related to the cruise control system",
+      "Inspect and replace the Pulse Width Modulator if faulty"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Cruise Control",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "WHEEL SENSOR ABS AXLE 1 LEFT (SPN 789)",
+    "causes": [],
+    "component": "Brakes - System Controller",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The wheel speed sensor is not sending a signal to the ABS system, which can cause the system to malfunction and potentially lead to loss of control while driving.",
+    "first_seen": "2026-05-13T13:32:07.104865+00:00",
+    "last_seen": "2026-05-14T09:17:54.266231+00:00",
+    "meaning": "",
+    "occurrence_count": 4,
+    "parts_likely_needed": [
+      "Wheel Speed Sensor - Left Front Axle"
+    ],
+    "resolution_steps": [
+      "Check for loose or corroded electrical connections",
+      "Verify wiring integrity",
+      "Replace wheel speed sensor if faulty"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Brakes - System Controller",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "SPN 520966",
+    "causes": [],
+    "component": "Transmission #1",
+    "estimated_downtime": "2-4 hours",
+    "explanation": "The transmission temperature has exceeded a safe limit, which can cause damage to the transmission. This is likely due to a faulty sensor or low transmission fluid level.",
+    "first_seen": "2026-05-13T13:32:41.984172+00:00",
+    "last_seen": "2026-05-13T13:42:30.852952+00:00",
+    "meaning": "",
+    "occurrence_count": 3,
+    "parts_likely_needed": [
+      "Coolant temperature sensor"
+    ],
+    "resolution_steps": [
+      "Check and top up transmission fluid as needed",
+      "Inspect and clean the transmission cooler if clogged"
+    ],
+    "severity": "High",
+    "source": "auto_learned",
+    "system": "Transmission #1",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "WHEEL SENSOR ABS AXLE 2 RIGHT (SPN 792)",
+    "causes": [],
+    "component": "Brakes - System Controller",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The wheel speed sensor monitors the rotation speed of the right rear axle. If it's not sending a signal, the ABS system may not function properly.",
+    "first_seen": "2026-05-13T13:33:22.428759+00:00",
+    "last_seen": "2026-05-13T13:42:30.869878+00:00",
+    "meaning": "",
+    "occurrence_count": 3,
+    "parts_likely_needed": [
+      "Wheel Speed Sensor - Right Rear Axle"
+    ],
+    "resolution_steps": [
+      "Check and clean the electrical connections to the wheel speed sensor",
+      "Replace the wheel speed sensor if faulty"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Brakes - System Controller",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "ENGINE INTAKE MANIFOLD #1 ABSOLUTE PRESSURE (SPN 3563)",
+    "causes": [],
+    "component": "Engine #2",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The Engine Control Module is detecting a low intake manifold pressure on engine #1, which can cause poor engine performance and decreased fuel efficiency.",
+    "first_seen": "2026-05-13T13:34:00.995599+00:00",
+    "last_seen": "2026-05-13T13:42:30.906593+00:00",
+    "meaning": "",
+    "occurrence_count": 3,
+    "parts_likely_needed": [
+      "Intake Manifold Pressure Sensor"
+    ],
+    "resolution_steps": [
+      "Check and replace the air filter if necessary",
+      "Inspect the intake system for vacuum leaks",
+      "Replace the Intake Manifold Pressure Sensor"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Engine #2",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "SPN 521012",
+    "causes": [],
+    "component": "Engine #2",
+    "estimated_downtime": "2-4 hours",
+    "explanation": "The engine oil pressure sensor is not sending a signal to the Engine Control Module, indicating low oil pressure. This can cause serious damage to the engine if left unchecked.",
+    "first_seen": "2026-05-13T13:34:38.347998+00:00",
+    "last_seen": "2026-05-13T13:59:24.881703+00:00",
+    "meaning": "",
+    "occurrence_count": 7,
+    "parts_likely_needed": [
+      "Oil Pressure Sensor"
+    ],
+    "resolution_steps": [
+      "Check and top up engine oil level",
+      "Inspect oil pressure sensor for damage or wear"
+    ],
+    "severity": "High",
+    "source": "auto_learned",
+    "system": "Engine #2",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "P22FB",
+    "causes": [],
+    "component": "Engine",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The engine's fuel system has detected a leak, which can cause poor engine performance and potentially lead to more serious issues if left unaddressed.",
+    "first_seen": "2026-05-13T13:35:11.330440+00:00",
+    "last_seen": "2026-05-14T09:17:57.547144+00:00",
+    "meaning": "",
+    "occurrence_count": 4,
+    "parts_likely_needed": [
+      "Fuel Pressure Sensor",
+      "Fuel Line"
+    ],
+    "resolution_steps": [
+      "Check the fuel line for any signs of damage or leaks",
+      "Replace the fuel pressure sensor if faulty"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Engine",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "P220E",
+    "causes": [],
+    "component": "Engine",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The engine's fuel system has detected a leak, which can cause poor engine performance and potentially lead to more serious issues if left unaddressed.",
+    "first_seen": "2026-05-13T13:35:43.016523+00:00",
+    "last_seen": "2026-05-13T13:42:30.947470+00:00",
+    "meaning": "",
+    "occurrence_count": 3,
+    "parts_likely_needed": [
+      "Fuel Pressure Sensor"
+    ],
+    "resolution_steps": [
+      "Check the fuel line for any signs of damage or leaks",
+      "Replace the faulty fuel pressure sensor"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Engine",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "P0299",
+    "causes": [],
+    "component": "Engine",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The engine's turbocharger or supercharger is not producing enough boost pressure, which can cause the engine to run poorly and decrease performance.",
+    "first_seen": "2026-05-13T13:36:24.999864+00:00",
+    "last_seen": "2026-05-13T13:42:33.200743+00:00",
+    "meaning": "",
+    "occurrence_count": 3,
+    "parts_likely_needed": [
+      "New wastegate actuator",
+      "Cleaned or replaced air filter"
+    ],
+    "resolution_steps": [
+      "Check and clean the air filter",
+      "Inspect and replace the wastegate actuator if faulty",
+      "Verify fuel pressure is within specifications"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Engine",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "P226C",
+    "causes": [],
+    "component": "Engine",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The fuel system pressure is too high, which can cause damage to engine components. This fault code indicates a problem with the fuel pressure regulator or clogged fuel filter.",
+    "first_seen": "2026-05-13T13:36:58.881728+00:00",
+    "last_seen": "2026-05-13T13:42:33.201972+00:00",
+    "meaning": "",
+    "occurrence_count": 3,
+    "parts_likely_needed": [
+      "Fuel Pressure Regulator",
+      "Fuel Filter"
+    ],
+    "resolution_steps": [
+      "Check and replace the fuel filter if necessary",
+      "Inspect and clean or replace the fuel pressure regulator"
+    ],
+    "severity": "High",
+    "source": "auto_learned",
+    "system": "Engine",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "PC121",
+    "causes": [],
+    "component": "Engine",
+    "estimated_downtime": "1 hour",
+    "explanation": "The fuel system pressure sensor is not sending a correct signal to the engine control unit, which can cause issues with fuel injection and engine performance.",
+    "first_seen": "2026-05-13T13:37:31.553056+00:00",
+    "last_seen": "2026-05-14T09:17:57.562027+00:00",
+    "meaning": "",
+    "occurrence_count": 4,
+    "parts_likely_needed": [
+      "Fuel System Pressure Sensor"
+    ],
+    "resolution_steps": [
+      "Check and clean the fuel system pressure sensor and its connections",
+      "Replace the fuel system pressure sensor if necessary"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Engine",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "PC415",
+    "causes": [],
+    "component": "Engine",
+    "estimated_downtime": "1 hour",
+    "explanation": "The fuel system pressure sensor is not sending a correct signal to the engine control unit, which can cause issues with engine performance and fuel efficiency.",
+    "first_seen": "2026-05-13T13:38:05.039676+00:00",
+    "last_seen": "2026-05-13T13:42:33.203297+00:00",
+    "meaning": "",
+    "occurrence_count": 3,
+    "parts_likely_needed": [
+      "Fuel System Pressure Sensor"
+    ],
+    "resolution_steps": [
+      "Check and clean the fuel system pressure sensor and its connections",
+      "Replace the fuel system pressure sensor if necessary"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Engine",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "P205B",
+    "causes": [],
+    "component": "Engine",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The engine's fuel system has detected a leak, which can cause poor engine performance and potentially lead to more serious issues if left unaddressed.",
+    "first_seen": "2026-05-13T13:38:37.585413+00:00",
+    "last_seen": "2026-05-13T13:42:33.203845+00:00",
+    "meaning": "",
+    "occurrence_count": 3,
+    "parts_likely_needed": [
+      "Fuel Pressure Sensor",
+      "Fuel Line"
+    ],
+    "resolution_steps": [
+      "Check the fuel line for any signs of damage or leaks",
+      "Replace the fuel pressure sensor if faulty"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Engine",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "AFTERTREATMENT 1 INTAKE GAS SENSOR HEATER PRELIMINARY FMI (SPN 3222)",
+    "causes": [],
+    "component": "Engine #1",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "This fault code indicates that the aftertreatment intake gas sensor heater is not producing enough heat, which can cause emissions control issues and potentially lead to engine damage if left unaddressed.",
+    "first_seen": "2026-05-13T13:39:14.770932+00:00",
+    "last_seen": "2026-05-13T13:42:33.451848+00:00",
+    "meaning": "",
+    "occurrence_count": 3,
+    "parts_likely_needed": [
+      "Aftertreatment Intake Gas Sensor Heater element"
+    ],
+    "resolution_steps": [
+      "Check for loose or corroded electrical connections to the sensor heater"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Engine #1",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team"
   },
   {
     "code": "XBR SYSTEM STATE (SPN 2917)",
-    "system": "Braking System - AEBS",
+    "causes": [],
     "component": "Headway Controller",
-    "meaning": "External Brake Request (XBR / Emergency Braking) system state has data errors, indicating the headway controller cannot reliably issue emergency brake requests.",
-    "causes": [
-      "Headway sensor (radar/camera) failure",
-      "CAN bus data integrity issue",
-      "AEBS module firmware fault",
-      "Sensor calibration lost"
+    "estimated_downtime": "2-4 hours",
+    "explanation": "The Headway Controller relies on accurate data from various sensors to determine safe following distances. A data error can cause the system to malfunction, potentially leading to accidents.",
+    "first_seen": "2026-05-13T13:39:55.725925+00:00",
+    "last_seen": "2026-05-13T13:42:33.469224+00:00",
+    "meaning": "",
+    "occurrence_count": 3,
+    "parts_likely_needed": [
+      "Headway Controller ECU",
+      "Sensor(s) affected by error"
+    ],
+    "resolution_steps": [
+      "Check and clear any fault codes in the ECU",
+      "Inspect and replace faulty sensors or wiring as needed"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Headway Controller",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "ABS FULLY OPERATIONAL (SPN 1243)",
+    "causes": [],
+    "component": "Headway Controller",
+    "estimated_downtime": "30 minutes",
+    "explanation": "This fault code indicates that the Headway Controller is receiving incorrect or intermittent data from the ABS module, but the ABS system itself is functioning correctly.",
+    "first_seen": "2026-05-13T13:40:31.108741+00:00",
+    "last_seen": "2026-05-13T13:42:33.470372+00:00",
+    "meaning": "",
+    "occurrence_count": 3,
+    "parts_likely_needed": [],
+    "resolution_steps": [
+      "Check for loose connections between the Headway Controller and ABS module",
+      "Verify communication cables are not damaged"
+    ],
+    "severity": "Low",
+    "source": "auto_learned",
+    "system": "Headway Controller",
+    "urgency": "Monitor",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "WHEEL SENSOR ABS AXLE 3 LEFT (SPN 793)",
+    "causes": [],
+    "component": "Brakes - System Controller",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The wheel speed sensor on the left rear axle is not sending accurate data to the ABS system. This can cause the ABS system to malfunction and affect braking performance.",
+    "first_seen": "2026-05-13T13:41:10.052214+00:00",
+    "last_seen": "2026-05-14T09:34:48.580080+00:00",
+    "meaning": "",
+    "occurrence_count": 5,
+    "parts_likely_needed": [
+      "Wheel Speed Sensor"
+    ],
+    "resolution_steps": [
+      "Check and clean the sensor wiring, ensure it's securely connected",
+      "Replace the wheel speed sensor if necessary"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Brakes - System Controller",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "VDC FULLY OPERATIONAL (SPN 1814)",
+    "causes": [],
+    "component": "Headway Controller",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "This fault code indicates that the headway controller is experiencing issues with its sensor inputs, which can cause erratic or intermittent operation of the vehicle's speed and distance control systems.",
+    "first_seen": "2026-05-13T13:41:47.733405+00:00",
+    "last_seen": "2026-05-14T13:03:05.151142+00:00",
+    "meaning": "",
+    "occurrence_count": 5,
+    "parts_likely_needed": [
+      "Headway Sensor"
+    ],
+    "resolution_steps": [
+      "Check and clear any error codes on the Headway Controller ECU",
+      "Inspect and replace faulty headway sensors as needed"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Headway Controller",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "AFTERTREATMENT 1 OUTLET NOX (SPN 3226)",
+    "causes": [],
+    "component": "Engine #1",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "This fault code indicates that there's an issue with the NOx outlet on engine #1, which is part of the aftertreatment system. This system helps reduce emissions by cleaning up pollutants in the exhaust gas. If left unchecked, it can lead to increased emissions and potentially damage the engine or other components.",
+    "first_seen": "2026-05-13T13:42:41.992561+00:00",
+    "last_seen": "2026-05-13T13:46:41.717735+00:00",
+    "meaning": "",
+    "occurrence_count": 3,
+    "parts_likely_needed": [
+      "Exhaust component cleaning kit",
+      "Sensor or actuator replacement parts"
+    ],
+    "resolution_steps": [
+      "Check for any blockages or debris in the exhaust system",
+      "Inspect and clean or replace faulty sensors or actuators"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Engine #1",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "SPN 520506",
+    "causes": [],
+    "component": "Brakes - System Controller",
+    "estimated_downtime": "2-4 hours",
+    "explanation": "The brake system controller is not sending the correct signals to the vehicle's braking system, which can cause a loss of braking performance. This fault code indicates that the controller has failed to respond properly and may need to be replaced.",
+    "first_seen": "2026-05-13T13:44:21.620740+00:00",
+    "last_seen": "2026-05-13T13:46:41.733249+00:00",
+    "meaning": "",
+    "occurrence_count": 3,
+    "parts_likely_needed": [
+      "Brake System Controller"
+    ],
+    "resolution_steps": [
+      "Check for loose or corroded connections between the brake system controller and other components",
+      "Replace the brake system controller if necessary"
     ],
     "severity": "High",
+    "source": "auto_learned",
+    "system": "Brakes - System Controller",
     "urgency": "Immediate Action",
-    "first_seen": null,
-    "last_seen": null,
-    "occurrence_count": 0
+    "who_can_fix": "Certified technician required"
+  },
+  {
+    "code": "ENGINE EXHAUST GAS RECIRCULATION 1 (EGR1) MASS FLOW RATE (SPN 2659)",
+    "causes": [],
+    "component": "Engine #2",
+    "estimated_downtime": "2-4 hours",
+    "explanation": "The EGR system recirculates exhaust gases to reduce emissions, but excessive flow can cause engine overheating and damage. This fault code indicates the sensor is detecting an excessively high mass flow rate.",
+    "first_seen": "2026-05-13T13:45:48.997947+00:00",
+    "last_seen": "2026-05-13T13:46:41.740396+00:00",
+    "meaning": "",
+    "occurrence_count": 3,
+    "parts_likely_needed": [
+      "EGR1 Mass Flow Sensor"
+    ],
+    "resolution_steps": [
+      "Check for any blockages or restrictions in the EGR cooler tubes",
+      "Replace the EGR1 Mass Flow Sensor if faulty"
+    ],
+    "severity": "High",
+    "source": "auto_learned",
+    "system": "Engine #2",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "SPN 520197",
+    "causes": [],
+    "component": "Body Controller",
+    "estimated_downtime": "1 hour",
+    "explanation": "The Body Controller is monitoring the doors for proper operation. If it detects too many instances of a door being opened, it will trigger this fault code.",
+    "first_seen": "2026-05-13T13:47:27.905367+00:00",
+    "last_seen": "2026-05-14T13:03:05.164555+00:00",
+    "meaning": "",
+    "occurrence_count": 8,
+    "parts_likely_needed": [
+      "Door Sensor",
+      "Door Switch"
+    ],
+    "resolution_steps": [
+      "Check and clean door sensors and switches",
+      "Inspect door mechanisms for damage or wear"
+    ],
+    "severity": "Low",
+    "source": "auto_learned",
+    "system": "Body Controller",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "LOWERING CONTROL MODE REAR AXLE (SPN 1755)",
+    "causes": [],
+    "component": "Body Controller",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The lowering control system uses electrical signals to lower the rear axle. If the current flow is low, it may not function correctly, which can cause issues with the vehicle's stability and safety.",
+    "first_seen": "2026-05-13T13:48:57.490058+00:00",
+    "last_seen": "2026-05-13T13:53:32.514204+00:00",
+    "meaning": "",
+    "occurrence_count": 3,
+    "parts_likely_needed": [
+      "Rear Axle Lowering Control Module"
+    ],
+    "resolution_steps": [
+      "Check wiring harness for damage or wear",
+      "Inspect Rear Axle Lowering Control Module for faults"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Body Controller",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "SPN 520211",
+    "causes": [],
+    "component": "Passenger-Operator Climate Control #2",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "This fault code indicates that the passenger-operator climate control system is not functioning correctly. It may be due to a faulty module, loose or corroded wiring connections, or other issues.",
+    "first_seen": "2026-05-13T13:50:20.135573+00:00",
+    "last_seen": "2026-05-13T13:53:32.514890+00:00",
+    "meaning": "",
+    "occurrence_count": 3,
+    "parts_likely_needed": [
+      "Climate Control Module #2"
+    ],
+    "resolution_steps": [
+      "Check and clean all electrical connections",
+      "Inspect and replace the Climate Control Module #2 if necessary"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Passenger-Operator Climate Control #2",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "SPN 520210",
+    "causes": [],
+    "component": "Brakes - System Controller",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The vehicle's brake system is detecting low pressure, which can lead to reduced braking performance and increased stopping distance. This fault code indicates a severe condition that requires immediate attention.",
+    "first_seen": "2026-05-13T13:51:35.389166+00:00",
+    "last_seen": "2026-05-14T13:03:05.136111+00:00",
+    "meaning": "",
+    "occurrence_count": 5,
+    "parts_likely_needed": [
+      "Brake fluid",
+      "Brake pads"
+    ],
+    "resolution_steps": [
+      "Check brake fluid level and top off as needed",
+      "Inspect brake pads for wear or damage"
+    ],
+    "severity": "High",
+    "source": "auto_learned",
+    "system": "Brakes - System Controller",
+    "urgency": "Immediate Action",
+    "who_can_fix": "Certified technician required"
+  },
+  {
+    "code": "LIFTING CONTROL MODE REAR AXLE (SPN 1756)",
+    "causes": [],
+    "component": "Body Controller",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The rear axle lifting control system relies on a specific level of current to function correctly. If the current is too low, it can cause the system to malfunction and prevent the rear axle from lifting properly.",
+    "first_seen": "2026-05-13T13:52:55.724258+00:00",
+    "last_seen": "2026-05-13T13:53:32.516047+00:00",
+    "meaning": "",
+    "occurrence_count": 3,
+    "parts_likely_needed": [
+      "Lifting Control Module"
+    ],
+    "resolution_steps": [
+      "Check for loose connections or damaged wiring",
+      "Inspect and replace the lifting control module if necessary"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Body Controller",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
   },
   {
     "code": "SPN 520203",
-    "system": "Engine",
-    "component": "Oil Pressure Sensor",
-    "meaning": "Engine Oil Pressure Sensor Fault",
-    "causes": [
-      "Faulty oil pressure sensor",
-      "Wiring issues",
-      "Low oil level"
+    "causes": [],
+    "component": "Cab Controller - Primary",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "This fault code indicates that the cab controller is detecting an excessively high voltage supply, which could cause damage to the electrical system. It's essential to investigate and resolve this issue promptly.",
+    "first_seen": "2026-05-13T13:54:07.565600+00:00",
+    "last_seen": "2026-05-13T13:57:52.719362+00:00",
+    "meaning": "",
+    "occurrence_count": 3,
+    "parts_likely_needed": [
+      "Alternator"
+    ],
+    "resolution_steps": [
+      "Check alternator output voltage with a multimeter",
+      "Inspect wiring for any signs of wear or damage"
     ],
     "severity": "Medium",
-    "urgency": "Schedule Maintenance",
-    "explanation": "This fault indicates a problem with the engine oil pressure sensor, which can affect engine performance and lubrication.",
-    "resolution_steps": [
-      "Check oil level and top up if low",
-      "Inspect wiring and connections to the sensor",
-      "Replace the oil pressure sensor if faulty"
-    ],
-    "who_can_fix": "Certified technician required",
-    "parts_likely_needed": [
-      "Oil pressure sensor"
-    ],
     "source": "auto_learned",
-    "first_seen": "2026-05-22T12:03:02.244637+00:00",
-    "last_seen": "2026-05-22T12:03:02.244637+00:00"
+    "system": "Cab Controller - Primary",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
   },
   {
-    "code": "SPN 111222",
-    "system": "N/A",
-    "component": "N/A",
-    "meaning": "Unknown fault code",
-    "causes": [
-      "Fault code not recognized",
-      "Potential software issue"
+    "code": "SPN 523008",
+    "causes": [],
+    "component": "ECU 232",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The engine control module monitors the air/fuel mixture to ensure it's within the optimal range for efficient combustion. If this range is exceeded, a fault code will be triggered.",
+    "first_seen": "2026-05-13T13:55:17.843498+00:00",
+    "last_seen": "2026-05-13T13:57:52.719973+00:00",
+    "meaning": "",
+    "occurrence_count": 3,
+    "parts_likely_needed": [
+      "Air/Fuel Mixture Sensor"
+    ],
+    "resolution_steps": [
+      "Check and adjust the Air/Fuel Mixture Sensor calibration",
+      "Replace the sensor if necessary"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "ECU 232",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "ENGINE COOLANT SYSTEM THERMOSTAT (SPN 1659)",
+    "causes": [],
+    "component": "Engine #2",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The thermostat is not regulating the engine's temperature correctly, which can cause overheating and damage to the engine.",
+    "first_seen": "2026-05-13T13:56:20.234191+00:00",
+    "last_seen": "2026-05-13T13:57:52.720768+00:00",
+    "meaning": "",
+    "occurrence_count": 3,
+    "parts_likely_needed": [
+      "Engine Coolant Thermostat"
+    ],
+    "resolution_steps": [
+      "Check coolant level and top off as needed",
+      "Inspect and clean radiator hoses for blockages",
+      "Replace thermostat if faulty"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Engine #2",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "HVAC DUCT TEMPERATURE (SPN 1548)",
+    "causes": [],
+    "component": "Passenger-Operator Climate Control #1",
+    "estimated_downtime": "30 minutes",
+    "explanation": "This fault code indicates that the HVAC duct temperature sensor is not sending a signal to the ECU, causing the system to think the temperature is lower than it actually is.",
+    "first_seen": "2026-05-13T13:57:22.245397+00:00",
+    "last_seen": "2026-05-13T13:57:52.721858+00:00",
+    "meaning": "",
+    "occurrence_count": 3,
+    "parts_likely_needed": [
+      "HVAC duct temperature sensor"
+    ],
+    "resolution_steps": [
+      "Check and clean the sensor and its connections",
+      "Verify correct climate control settings"
     ],
     "severity": "Low",
+    "source": "auto_learned",
+    "system": "Passenger-Operator Climate Control #1",
     "urgency": "Monitor",
-    "explanation": "This fault code is not defined in the standard database, which may indicate a software glitch or an unrecognized issue.",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "AFTERTREATMENT 1 OUTLET SOOT (SPN 5741)",
+    "causes": [],
+    "component": "Exhaust Emission Controller",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "This fault code indicates that the aftertreatment system's soot filter outlet is not receiving enough power, which can cause the vehicle to fail emissions tests and potentially damage the engine.",
+    "first_seen": "2026-05-13T13:58:31.540015+00:00",
+    "last_seen": "2026-05-13T13:59:24.881183+00:00",
+    "meaning": "",
+    "occurrence_count": 3,
+    "parts_likely_needed": [
+      "Battery",
+      "Sensor or wiring harness"
+    ],
+    "resolution_steps": [
+      "Check battery voltage and charging system",
+      "Inspect and clean sensor and wiring connections"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Exhaust Emission Controller",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "P05E6",
+    "causes": [],
+    "component": "Engine",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The fuel system pressure sensor is not sending a correct signal to the engine control unit, which can cause issues with fuel injection and engine performance.",
+    "first_seen": "2026-05-14T09:18:45.161880+00:00",
+    "last_seen": "2026-05-14T09:22:38.148680+00:00",
+    "meaning": "",
+    "occurrence_count": 2,
+    "parts_likely_needed": [
+      "Fuel System Pressure Sensor"
+    ],
+    "resolution_steps": [
+      "Check and clean the fuel system pressure sensor and its connections",
+      "Replace the fuel system pressure sensor if necessary"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Engine",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "P0190",
+    "causes": [],
+    "component": "Engine",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "This fault code indicates that the fuel rail pressure sensor is not sending accurate readings to the engine control unit, which can lead to decreased engine performance and increased emissions.",
+    "first_seen": "2026-05-14T09:19:23.086448+00:00",
+    "last_seen": "2026-05-14T09:22:38.156954+00:00",
+    "meaning": "",
+    "occurrence_count": 2,
+    "parts_likely_needed": [
+      "Fuel Rail Pressure Sensor"
+    ],
+    "resolution_steps": [
+      "Check wiring and connections for damage or corrosion",
+      "Replace faulty fuel rail pressure sensor"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Engine",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "P0192",
+    "causes": [],
+    "component": "Engine",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "This fault code indicates that the fuel rail pressure sensor is not sending a correct signal to the engine ECU, which can cause issues with engine performance and fuel efficiency.",
+    "first_seen": "2026-05-14T09:20:03.722802+00:00",
+    "last_seen": "2026-05-14T09:22:38.157435+00:00",
+    "meaning": "",
+    "occurrence_count": 2,
+    "parts_likely_needed": [
+      "Fuel rail pressure sensor",
+      "Fuel filter"
+    ],
+    "resolution_steps": [
+      "Check fuel pressure using a gauge",
+      "Inspect and clean or replace the fuel filter"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Engine",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "P0194",
+    "causes": [],
+    "component": "Engine",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "This fault code indicates that the engine control unit (ECU) has detected an intermittent problem with the fuel rail pressure sensor circuit. This can cause issues with engine performance and fuel efficiency.",
+    "first_seen": "2026-05-14T09:20:41.533812+00:00",
+    "last_seen": "2026-05-14T09:22:38.158348+00:00",
+    "meaning": "",
+    "occurrence_count": 2,
+    "parts_likely_needed": [
+      "Fuel Rail Pressure Sensor"
+    ],
+    "resolution_steps": [
+      "Check wiring for damage or wear",
+      "Replace faulty sensor if necessary"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Engine",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "P244B",
+    "causes": [],
+    "component": "Engine",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The engine control module has detected a leak in the fuel system, which can cause problems with engine performance and emissions.",
+    "first_seen": "2026-05-14T09:21:18.947985+00:00",
+    "last_seen": "2026-05-14T09:22:38.163945+00:00",
+    "meaning": "",
+    "occurrence_count": 2,
+    "parts_likely_needed": [
+      "Fuel Pressure Regulator"
+    ],
+    "resolution_steps": [
+      "Check for loose connections and repair as necessary",
+      "Replace faulty fuel pressure regulator"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Engine",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "P2453",
+    "causes": [],
+    "component": "Engine",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The fuel system pressure sensor is not sending accurate readings to the engine control unit, which can cause problems with fuel injection and engine performance.",
+    "first_seen": "2026-05-14T09:22:00.064256+00:00",
+    "last_seen": "2026-05-14T09:22:38.164407+00:00",
+    "meaning": "",
+    "occurrence_count": 2,
+    "parts_likely_needed": [
+      "Fuel System Pressure Sensor"
+    ],
+    "resolution_steps": [
+      "Check and clean the fuel system pressure sensor and its connections",
+      "Replace the fuel system pressure sensor if necessary"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Engine",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "P2452",
+    "causes": [],
+    "component": "Transmission",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The transmission fluid temperature sensor is not sending a correct signal to the ECU, which can cause problems with gear shifting and transmission performance.",
+    "first_seen": "2026-05-14T09:22:38.141057+00:00",
+    "last_seen": "2026-05-14T09:22:38.164804+00:00",
+    "meaning": "",
+    "occurrence_count": 2,
+    "parts_likely_needed": [
+      "Transmission Fluid Temperature Sensor"
+    ],
+    "resolution_steps": [
+      "Check the sensor wiring for damage or corrosion",
+      "Replace the sensor if faulty"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Transmission",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "SPN 521201",
+    "causes": [],
+    "component": "Body Controller",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The body controller is monitoring the vehicle's electrical system and has detected a voltage level that is below normal. This can cause issues with lights, wipers, and other accessories.",
+    "first_seen": "2026-05-14T09:33:29.489847+00:00",
+    "last_seen": "2026-05-14T09:33:29.495472+00:00",
+    "meaning": "",
+    "occurrence_count": 2,
+    "parts_likely_needed": [
+      "Battery",
+      "Alternator Belt"
+    ],
+    "resolution_steps": [
+      "Check battery connections for tightness and cleanliness",
+      "Inspect alternator belt for wear or damage"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Body Controller",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "POWER SUPPLY (OBSOLETE) (SPN 627)",
+    "causes": [],
+    "component": "Brakes - System Controller",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The vehicle's brake system controller has detected a low voltage level, which can cause the brakes to malfunction. This is likely due to a problem with the electrical supply to the system.",
+    "first_seen": "2026-05-14T09:34:07.210505+00:00",
+    "last_seen": "2026-05-14T09:34:48.568778+00:00",
+    "meaning": "",
+    "occurrence_count": 2,
+    "parts_likely_needed": [
+      "Alternator or Generator"
+    ],
+    "resolution_steps": [
+      "Check and clean battery terminals",
+      "Inspect and replace alternator or generator if necessary"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Brakes - System Controller",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "SPN 520355",
+    "causes": [],
+    "component": "Exhaust Emission Controller",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The vehicle's computer has detected that the exhaust gas temperature sensor is sending a higher-than-expected reading. This can cause issues with emissions control and potentially lead to decreased fuel efficiency.",
+    "first_seen": "2026-05-14T09:34:48.562690+00:00",
+    "last_seen": "2026-05-14T09:34:48.581957+00:00",
+    "meaning": "",
+    "occurrence_count": 2,
+    "parts_likely_needed": [
+      "Exhaust Gas Temperature Sensor"
+    ],
+    "resolution_steps": [
+      "Check and replace the exhaust gas temperature sensor if necessary",
+      "Clear any stored trouble codes"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Exhaust Emission Controller",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "SPN 521005",
+    "causes": [],
+    "component": "Transmission #1",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The transmission temperature sensor is not sending a correct signal to the ECU, indicating a potential issue with the sensor or its wiring.",
+    "first_seen": "2026-05-14T12:54:14.520227+00:00",
+    "last_seen": "2026-05-14T13:03:05.135773+00:00",
+    "meaning": "",
+    "occurrence_count": 2,
+    "parts_likely_needed": [
+      "Transmission Temperature Sensor"
+    ],
+    "resolution_steps": [
+      "Check and clean the sensor and its connections",
+      "Replace the transmission temperature sensor if necessary"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Transmission #1",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "SPN 523318",
+    "causes": [],
+    "component": "Auxiliary Heater #2",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The auxiliary heater #2 is not receiving the correct amount of electrical power, which can cause it to malfunction or fail to operate. This could be due to a faulty control module, loose or corroded wiring connections, or low battery voltage.",
+    "first_seen": "2026-05-14T12:55:13.851390+00:00",
+    "last_seen": "2026-05-14T13:03:05.141179+00:00",
+    "meaning": "",
+    "occurrence_count": 2,
+    "parts_likely_needed": [
+      "Auxiliary Heater #2 Control Module"
+    ],
+    "resolution_steps": [
+      "Check and clean all wiring connections to the auxiliary heater #2 control module",
+      "Verify that the battery voltage is within the recommended range"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Auxiliary Heater #2",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "EGR SYSTEM MONITOR (SPN 3058)",
+    "causes": [],
+    "component": "Engine #1",
+    "estimated_downtime": "2-4 hours",
+    "explanation": "The EGR system helps reduce emissions by recirculating exhaust gases. If it's not functioning correctly, it can cause damage to the engine and increase emissions.",
+    "first_seen": "2026-05-14T12:56:00.795091+00:00",
+    "last_seen": "2026-05-14T13:03:05.150234+00:00",
+    "meaning": "",
+    "occurrence_count": 2,
+    "parts_likely_needed": [
+      "EGR cooler",
+      "EGR valve"
+    ],
+    "resolution_steps": [
+      "Check for any blockages in the EGR cooler or lines",
+      "Inspect and clean the EGR valve"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Engine #1",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "CALIBRATION MEMORY (SPN 630)",
+    "causes": [],
+    "component": "Brakes - System Controller",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "This fault code indicates that the brake system controller's calibration memory is not matching the expected values, which can affect the vehicle's braking performance. This may be due to a faulty brake system controller or incorrect calibration data.",
+    "first_seen": "2026-05-14T12:56:51.849786+00:00",
+    "last_seen": "2026-05-14T13:03:05.150731+00:00",
+    "meaning": "",
+    "occurrence_count": 2,
+    "parts_likely_needed": [
+      "Brake System Controller"
+    ],
+    "resolution_steps": [
+      "Check and update the brake system controller's calibration data",
+      "Inspect and replace the brake system controller if necessary"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Brakes - System Controller",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "YAW RATE (SPN 1808)",
+    "causes": [],
+    "component": "Brakes - System Controller",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "This fault code indicates that the brake system controller is receiving an abnormal update rate from the yaw rate sensor, which can affect the vehicle's stability and braking performance.",
+    "first_seen": "2026-05-14T12:57:37.948365+00:00",
+    "last_seen": "2026-05-14T13:03:05.151545+00:00",
+    "meaning": "",
+    "occurrence_count": 2,
+    "parts_likely_needed": [
+      "Yaw Rate Sensor"
+    ],
+    "resolution_steps": [
+      "Check the wiring connections to the yaw rate sensor for any signs of damage or corrosion"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Brakes - System Controller",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "EXHAUST SYSTEM HIGH TEMPERATURE LAMP COMMAND (SPN 3698)",
+    "causes": [],
+    "component": "Cab Controller - Primary",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "This fault code indicates that the exhaust system is running hotter than normal, which can cause damage to the engine and other components. It's likely due to a faulty temperature sensor, clogged exhaust system, or engine overheating.",
+    "first_seen": "2026-05-14T12:58:22.622920+00:00",
+    "last_seen": "2026-05-14T13:03:05.152002+00:00",
+    "meaning": "",
+    "occurrence_count": 2,
+    "parts_likely_needed": [
+      "Temperature sensor"
+    ],
+    "resolution_steps": [
+      "Check and clean the air filter and mass airflow sensor",
+      "Inspect and clear any blockages in the exhaust system"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Cab Controller - Primary",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "DIESEL PARTICULATE FILTER LAMP COMMAND (SPN 3697)",
+    "causes": [],
+    "component": "Cab Controller - Primary",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "This fault occurs when the engine control unit detects an unusual pattern in the diesel particulate filter's regeneration cycle. It may be caused by a faulty sensor or incorrect calibration.",
+    "first_seen": "2026-05-14T12:59:01.630254+00:00",
+    "last_seen": "2026-05-14T13:03:05.152456+00:00",
+    "meaning": "",
+    "occurrence_count": 2,
+    "parts_likely_needed": [
+      "DPF sensor"
+    ],
+    "resolution_steps": [
+      "Check and replace the DPF sensor if necessary",
+      "Verify DPF calibration settings"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Cab Controller - Primary",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "CCD DATA LINK (SPN 1564)",
+    "causes": [],
+    "component": "ECU 209",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The Engine Control Module is not receiving accurate data from the Transmission Control Module, which can cause erratic shifting or transmission failure.",
+    "first_seen": "2026-05-14T12:59:30.117900+00:00",
+    "last_seen": "2026-05-14T13:03:05.152881+00:00",
+    "meaning": "",
+    "occurrence_count": 2,
+    "parts_likely_needed": [
+      "Data Link Connector"
+    ],
+    "resolution_steps": [
+      "Check and clean all electrical connectors and wiring harnesses",
+      "Verify proper installation of Data Link Connector"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "ECU 209",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "SPN 520202",
+    "causes": [],
+    "component": "Communications Unit, Satellite",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The satellite communications unit is experiencing data errors due to a weak or interrupted signal. This can be caused by a faulty antenna, damaged wiring, or interference from other sources.",
+    "first_seen": "2026-05-14T12:59:59.175397+00:00",
+    "last_seen": "2026-05-14T13:03:05.153290+00:00",
+    "meaning": "",
+    "occurrence_count": 2,
+    "parts_likely_needed": [
+      "Satellite antenna",
+      "Wiring harness"
+    ],
+    "resolution_steps": [
+      "Check and adjust the antenna position for optimal signal strength",
+      "Inspect and repair any damaged wiring"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Communications Unit, Satellite",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "AFTERTREATMENT 1 DIESEL EXHAUST FLUID TANK TEMPERATURE (SPN 3031)",
+    "causes": [],
+    "component": "Engine #1",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "This fault code indicates that the engine control unit (ECU) is receiving incorrect or intermittent data from the diesel exhaust fluid tank temperature sensor.",
+    "first_seen": "2026-05-14T13:00:27.520497+00:00",
+    "last_seen": "2026-05-14T13:03:05.156633+00:00",
+    "meaning": "",
+    "occurrence_count": 2,
+    "parts_likely_needed": [
+      "Diesel Exhaust Fluid Tank Temperature Sensor"
+    ],
+    "resolution_steps": [
+      "Check and clean the sensor and its connections",
+      "Replace the temperature sensor if necessary"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Engine #1",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "SPN 520503",
+    "causes": [],
+    "component": "Brakes - System Controller",
+    "estimated_downtime": "2-4 hours",
+    "explanation": "The brake system controller is not functioning correctly, which can lead to loss of braking performance. This may be due to a faulty controller or issues with the electrical connections.",
+    "first_seen": "2026-05-14T13:00:54.730835+00:00",
+    "last_seen": "2026-05-14T13:03:05.162482+00:00",
+    "meaning": "",
+    "occurrence_count": 2,
+    "parts_likely_needed": [
+      "Brake System Controller"
+    ],
+    "resolution_steps": [
+      "Check and clean all electrical connections related to the brake system controller",
+      "Replace the brake system controller if necessary"
+    ],
+    "severity": "High",
+    "source": "auto_learned",
+    "system": "Brakes - System Controller",
+    "urgency": "Immediate Action",
+    "who_can_fix": "Certified technician required"
+  },
+  {
+    "code": "AMBIENT AIR TEMPERATURE (SPN 171)",
+    "causes": [],
+    "component": "Engine #2",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "This fault code indicates that the engine ECU is receiving incorrect or unreliable data from the ambient air temperature sensor, which can affect engine performance and fuel efficiency.",
+    "first_seen": "2026-05-14T13:01:31.377225+00:00",
+    "last_seen": "2026-05-14T13:03:05.169571+00:00",
+    "meaning": "",
+    "occurrence_count": 2,
+    "parts_likely_needed": [
+      "Ambient Air Temperature Sensor"
+    ],
+    "resolution_steps": [
+      "Check wiring and connections to the sensor for damage or corrosion",
+      "Replace the ambient air temperature sensor if faulty"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Engine #2",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "ENGINE MISFIRE CYLINDER #4 (SPN 1326)",
+    "causes": [],
+    "component": "Engine #2",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "The engine control module has detected a misfire in one of the cylinders, which can cause decreased fuel efficiency and potentially damage the engine over time.",
+    "first_seen": "2026-05-14T13:02:17.034896+00:00",
+    "last_seen": "2026-05-14T13:03:05.174255+00:00",
+    "meaning": "",
+    "occurrence_count": 2,
+    "parts_likely_needed": [
+      "Spark plug",
+      "Ignition coil"
+    ],
+    "resolution_steps": [
+      "Check and replace the spark plug if necessary",
+      "Inspect and clean or replace the ignition coil as needed"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Engine #2",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "SPN 8621",
+    "causes": [],
+    "component": "Off Vehicle Gateway",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "This fault code indicates that there is a problem with the communication between the vehicle and off-vehicle systems, which can cause issues with data transfer and system functionality.",
+    "first_seen": "2026-05-14T13:03:05.122276+00:00",
+    "last_seen": "2026-05-14T13:03:05.178221+00:00",
+    "meaning": "",
+    "occurrence_count": 2,
+    "parts_likely_needed": [
+      "CAN bus interface module"
+    ],
+    "resolution_steps": [
+      "Check CAN bus wiring for damage or corrosion",
+      "Scan for other fault codes related to the CAN bus interface"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Off Vehicle Gateway",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "SPN 999999",
+    "causes": [
+      "Faulty sensor or wiring issue"
+    ],
+    "component": "TestECU",
+    "estimated_downtime": "1-2 hours",
+    "explanation": "This code indicates that there is an unknown problem with the TestECU system, but the specific cause cannot be determined. It may be related to a faulty sensor or wiring issue.",
+    "first_seen": "2026-05-15T13:01:40.516524+00:00",
+    "last_seen": "2026-05-15T13:01:40.516524+00:00",
+    "meaning": "Unknown fault in the TestECU system",
+    "occurrence_count": 1,
+    "parts_likely_needed": [],
+    "resolution_steps": [
+      "Check for loose connections and clean any corrosion on electrical connectors",
+      "Use a scan tool to retrieve additional information about the fault"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "TestECU",
+    "urgency": "Schedule Maintenance",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "SPN_UAT_TEST_99999",
+    "causes": [
+      "Faulty sensor",
+      "Loose or corroded connections"
+    ],
+    "component": "Sensor Interface Circuit",
+    "estimated_downtime": "30 minutes",
+    "explanation": "The ECM is receiving unknown or invalid data from a sensor, which can be caused by a faulty sensor or loose/corroded connections.",
+    "first_seen": "2026-05-22T06:50:01.766624+00:00",
+    "last_seen": "2026-05-22T06:50:01.766624+00:00",
+    "meaning": "Unknown or invalid sensor data",
+    "occurrence_count": 1,
+    "parts_likely_needed": [
+      "Sensor replacement"
+    ],
+    "resolution_steps": [
+      "Check and clean all connections to the affected sensor",
+      "Replace the sensor if necessary"
+    ],
+    "severity": "Low",
+    "source": "auto_learned",
+    "system": "Engine Control Module (ECM)",
+    "urgency": "Monitor",
+    "who_can_fix": "Fleet maintenance team|Certified technician required"
+  },
+  {
+    "code": "SPN_OPENAI_TEST_88888",
+    "causes": [
+      "Diagnostic test initiated",
+      "Software update in progress"
+    ],
+    "component": "Engine Control Unit (ECU)",
+    "estimated_downtime": "0 minutes",
+    "explanation": "This code indicates a test condition and does not represent a fault in the vehicle.",
+    "first_seen": "2026-05-22T07:02:04.235913+00:00",
+    "last_seen": "2026-05-22T07:02:04.235913+00:00",
+    "meaning": "Test fault code for diagnostic purposes",
+    "occurrence_count": 1,
+    "parts_likely_needed": [],
+    "resolution_steps": [
+      "Verify if the code is active during normal operation",
+      "Clear the code if no issues are present"
+    ],
+    "severity": "Low",
+    "source": "auto_learned",
+    "system": "Engine Control",
+    "urgency": "Ignore",
+    "who_can_fix": "Driver only"
+  },
+  {
+    "code": "SPN_UAT2_FINAL_TEST",
+    "causes": [
+      "Transmission calibration issue",
+      "Software update required"
+    ],
+    "component": "Transmission control module",
+    "explanation": "This code indicates that the transmission system has completed a final test but may need attention to ensure proper operation.",
+    "first_seen": "2026-05-22T07:10:29.577496+00:00",
+    "last_seen": "2026-05-22T07:10:29.577496+00:00",
+    "meaning": "Final test for transmission system",
+    "occurrence_count": 1,
+    "parts_likely_needed": [
+      "Transmission control module software"
+    ],
+    "resolution_steps": [
+      "Check for any software updates for the transmission control module",
+      "Monitor transmission performance for any irregularities"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Transmission",
+    "urgency": "Monitor",
+    "who_can_fix": "Certified technician required"
+  },
+  {
+    "code": "SPN 888888",
+    "causes": [
+      "Unrecognized code",
+      "Potential software issue"
+    ],
+    "component": "N/A",
+    "explanation": "This fault code is not recognized in standard databases, which may indicate a software glitch or an unreported issue.",
+    "first_seen": "2026-05-22T08:34:35.087111+00:00",
+    "last_seen": "2026-05-22T08:34:35.087111+00:00",
+    "meaning": "Unknown fault code",
+    "occurrence_count": 1,
+    "parts_likely_needed": [
+      "N/A"
+    ],
+    "resolution_steps": [
+      "Check for software updates",
+      "Consult with a certified technician"
+    ],
+    "severity": "Medium",
+    "source": "auto_learned",
+    "system": "Engine",
+    "urgency": "Monitor",
+    "who_can_fix": "Certified technician required"
+  },
+  {
+    "code": "SPN 777777",
+    "causes": [
+      "Unrecognized fault code",
+      "Potential software issue"
+    ],
+    "component": "N/A",
+    "explanation": "This fault code is not recognized in standard databases, which may indicate a software glitch or an unreported issue.",
+    "first_seen": "2026-05-22T09:15:18.237475+00:00",
+    "last_seen": "2026-05-22T09:15:18.237475+00:00",
+    "meaning": "Unknown fault code",
+    "occurrence_count": 1,
+    "parts_likely_needed": [
+      "N/A"
+    ],
     "resolution_steps": [
       "Check for software updates",
       "Consult manufacturer documentation"
     ],
-    "who_can_fix": "Certified technician required",
-    "parts_likely_needed": [
-      "N/A"
-    ],
+    "severity": "Low",
     "source": "auto_learned",
-    "first_seen": "2026-05-22T12:03:06.089636+00:00",
-    "last_seen": "2026-05-22T12:03:06.089636+00:00"
+    "system": "Engine",
+    "urgency": "Monitor",
+    "who_can_fix": "Certified technician required"
   }
 ]
