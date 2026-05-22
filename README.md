@@ -21,6 +21,8 @@ lookup code in KB
 | New unknown code | OpenAI called once (~3–6s), result saved to KB permanently |
 | Same unknown code again | Already in KB — instant |
 
+The KB ships with 161 pre-seeded fault codes and grows automatically as new codes are encountered.
+
 ---
 
 ## Authentication Flow
@@ -56,7 +58,6 @@ Key points:
 ### Prerequisites
 
 - Python 3.11+
-- MongoDB running locally or accessible via URI
 - OpenAI API key
 
 ### Install
@@ -71,10 +72,10 @@ source .venv/bin/activate        # Linux / macOS
 pip install -r requirements.txt
 
 cp .env.example .env
-# Edit .env — set MONGO_URI, OPENAI_API_KEY, API_KEY
+# Edit .env — set OPENAI_API_KEY and API_KEY at minimum
 ```
 
-The knowledge base is seeded automatically on first startup (50 codes from `knowledge_base/seed_kb.json`).
+The knowledge base loads automatically on startup from `knowledge_base/seed_kb.json` (161 codes). No database required.
 
 ### Run
 
@@ -88,8 +89,6 @@ uvicorn api:app --port 8000
 docker build -t driverbook-diagnostics .
 docker run -p 8000:8000 --env-file .env driverbook-diagnostics
 ```
-
-> Use `host.docker.internal` instead of `localhost` in `.env` when running on Docker Desktop.
 
 ---
 
@@ -105,15 +104,15 @@ X-API-Key: <your-api-key>
 
 ### `GET /vehicles/faults/diagnose`
 
-Call when the user clicks the diagnose button on a fault. Returns full plain-language diagnostic.
+Call when the user clicks the diagnose button on a fault. Returns a full plain-language diagnostic.
 
 ```text
-GET /vehicles/faults/diagnose?vehicle_id={id}&code={fault_code}&ecu={ecu}
+GET /vehicles/faults/diagnose?vehicle_id={id}&code={fault_code}&ecu={ecu}&desc={desc}
 ```
 
 | Param | Required | Description |
 | --- | --- | --- |
-| `vehicle_id` | Yes | Vehicle MongoDB ObjectId |
+| `vehicle_id` | Yes | Vehicle ObjectId (24-character hex) |
 | `code` | Yes | Fault code, e.g. `SPN 520203` (URL-encode spaces) |
 | `ecu` | No | ECU name reporting the fault |
 | `desc` | No | Raw fault description (used to extract FMI) |
@@ -140,7 +139,7 @@ curl -H "X-API-Key: your-key" \
     "Check alternator output voltage with a multimeter",
     "Inspect wiring for any signs of wear or damage"
   ],
-  "who_can_fix": "Fleet maintenance team|Certified technician required",
+  "who_can_fix": "Fleet maintenance team",
   "parts_likely_needed": ["Alternator"],
   "from_kb": true
 }
@@ -164,6 +163,13 @@ List all entries in the knowledge base. Admin / inspection use only.
 curl -H "X-API-Key: your-key" http://localhost:8000/knowledge-base
 ```
 
+```json
+{
+  "count": 161,
+  "entries": [...]
+}
+```
+
 ---
 
 ### `GET /health`
@@ -179,11 +185,11 @@ curl http://localhost:8000/health
 
 ### `GET /ready`
 
-Readiness check — confirms MongoDB and OpenAI are reachable. No auth required.
+Readiness check — confirms OpenAI is reachable. No auth required.
 
 ```bash
 curl http://localhost:8000/ready
-# {"mongo": "ok", "openai": "ok"}
+# {"openai": "ok"}
 ```
 
 ---
@@ -192,17 +198,14 @@ curl http://localhost:8000/ready
 
 ```text
 diagnostic_agent/
-├── api.py                      # FastAPI entry point — endpoints + API key middleware
+├── api.py                      # FastAPI entry point — endpoints, API key + rate limit middleware
 ├── requirements.txt
 ├── Dockerfile
 ├── .env.example
 ├── config/
 │   └── settings.py             # Settings singleton — all env vars sourced here
 ├── core/
-│   ├── knowledge_base.py       # KB seed, lookup, auto-learn from LLM output
-│   └── telemetry_context.py    # Severity escalation rules
-├── db/
-│   └── connection.py           # Cached MongoClient per URI
+│   └── knowledge_base.py       # File-based KB: load, lookup, auto-learn
 ├── llm/
 │   ├── llm_client.py           # ChatOpenAI factory
 │   ├── prompts.py              # KB enrichment prompt templates
@@ -210,16 +213,8 @@ diagnostic_agent/
 ├── orchestration/
 │   └── diagnostic_graph.py     # _diag_from_kb, _diag_placeholder, enrich_unknown_codes
 └── knowledge_base/
-    └── seed_kb.json            # 50-code seed KB (loaded on first startup)
+    └── seed_kb.json            # 161-code seed KB — loaded at startup, grows as new codes are learned
 ```
-
----
-
-## MongoDB Collections
-
-| Collection | Purpose |
-| --- | --- |
-| `knowledge_base` | Known fault code definitions — seeded + OpenAI auto-learned |
 
 ---
 
@@ -227,7 +222,6 @@ diagnostic_agent/
 
 | Variable | Default | Description |
 | --- | --- | --- |
-| `MONGO_URI` | `mongodb://localhost:27017` | MongoDB connection string |
 | `OPENAI_API_KEY` | — | OpenAI API key |
 | `OPENAI_MODEL` | `gpt-4o-mini` | Model used for KB enrichment |
 | `ALLOWED_ORIGINS` | `http://localhost:5173,http://localhost:3000` | CORS allowed origins |
