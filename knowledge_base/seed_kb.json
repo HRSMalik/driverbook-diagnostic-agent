@@ -182,25 +182,30 @@
   {
     "code": "SPN 0",
     "causes": [
-      "ECU 237 system fault - unknown cause"
+      "Telematics or ELD device failed to decode the actual SPN/FMI from the ECU",
+      "ECU sent a proprietary manufacturer fault code not in the J1939 decoder database",
+      "Communication interruption between the telematics device and the ECU",
+      "Brake controller reported a generic internal fault without specific diagnostic data"
     ],
-    "component": "ECU 237",
-    "estimated_downtime": "8 hours",
-    "explanation": "ECU 237 system fault - unknown cause",
+    "component": "ECU 237 - Brake System Controller",
+    "explanation": "SPN 0 / FMI 0 is not a real J1939 fault code. It typically means the telematics or ELD device could not correctly read the actual fault from the ECU \u2014 either because the ECU sent a proprietary manufacturer code not in the decoder database, communication with the ECU was interrupted, or the brake controller reported a generic internal fault without specific diagnostic data. The actual fault detail needs to be retrieved directly from the ECU using a manufacturer diagnostic tool.",
     "first_seen": "2026-05-13T09:30:33.799869+00:00",
     "last_seen": "2026-05-14T13:03:05.173823+00:00",
-    "meaning": "ECU 237 system fault - unknown cause",
+    "meaning": "Invalid or undecodable fault code \u2014 SPN 0/FMI 0 is not a valid J1939 diagnostic combination. The telematics device received a fault signal from the ECU but could not decode the actual SPN and FMI values.",
     "occurrence_count": 611,
     "parts_likely_needed": [
-      "ECU 237"
+      "CAN bus diagnostic cable",
+      "ABS/EBS controller (if hardware fault confirmed)"
     ],
     "resolution_steps": [
-      "Contact the manufacturer for assistance and guidance",
-      "Replace the ECU if faulty"
+      "Connect a manufacturer-specific diagnostic tool (e.g. Wabco TOOLBOX, Bendix ACom) to read the actual fault codes from ECU 237 (Brake System Controller)",
+      "Check the CAN bus connection between the telematics device and the brake controller",
+      "Inspect wiring harness and connectors on the ABS/EBS controller for damage or corrosion",
+      "If no specific fault is found via manufacturer tool, perform a system reset and monitor"
     ],
     "severity": "Critical",
     "source": "auto_learned",
-    "system": "ECU 237",
+    "system": "Brake System Controller (ABS/EBS)",
     "urgency": "Immediate Action",
     "who_can_fix": "Certified technician required"
   },
