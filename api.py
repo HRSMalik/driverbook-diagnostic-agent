@@ -15,7 +15,7 @@ from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from config.settings import settings
-from core.knowledge_base import lookup, seed_knowledge_base
+from core.knowledge_base import lookup, reload_knowledge_base, seed_knowledge_base
 from orchestration.diagnostic_graph import (
     _diag_from_kb,
     _diag_placeholder,
@@ -197,3 +197,15 @@ def get_knowledge_base() -> dict:
     from core.knowledge_base import _KB
     entries = list(_KB.values())
     return {"count": len(entries), "entries": entries}
+
+
+@app.post("/admin/reload-kb")
+def admin_reload_kb() -> dict:
+    """Force reload of seed_kb.json into memory without restarting the server.
+
+    Returns:
+        dict: count of entries loaded after reload.
+    """
+    count = reload_knowledge_base()
+    logger.info("KB manually reloaded: %d entries.", count)
+    return {"reloaded": True, "count": count}

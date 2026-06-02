@@ -1,6 +1,6 @@
 # core/knowledge_base.py
-# File-based KB: seed_kb.json (read-only) + learned_kb.json (auto-written).
-# Both are merged into an in-memory dict at startup — lookups are O(1).
+# File-based KB: seed_kb.json loaded into an in-memory dict at startup — lookups are O(1).
+# Auto-reloads when seed_kb.json is modified on disk (mtime check on every lookup).
 
 import json
 import os
@@ -12,12 +12,14 @@ _SEED_PATH = os.path.join(_DIR, "seed_kb.json")
 
 # In-memory KB keyed by normalised code string (uppercase, stripped)
 _KB: dict[str, dict[str, Any]] = {}
+_last_mtime: float = 0.0
 
 
 # ── Load ──────────────────────────────────────────────────────────────────────
 
 def _load() -> None:
-    """Load seed_kb.json into _KB. Called once at import time."""
+    """Load seed_kb.json into _KB and record its mtime."""
+    global _last_mtime
     if not os.path.exists(_SEED_PATH):
         return
     with open(_SEED_PATH, "r") as f:
@@ -25,12 +27,34 @@ def _load() -> None:
             entries = json.load(f)
         except json.JSONDecodeError:
             entries = []
+    _KB.clear()
     for entry in entries:
         code = (entry.get("code") or "").strip().upper()
         if code:
             _KB[code] = entry
+    _last_mtime = os.path.getmtime(_SEED_PATH)
 
 _load()
+
+
+def reload_knowledge_base() -> int:
+    """Force a full reload of seed_kb.json into memory.
+
+    Returns:
+        Number of entries loaded.
+    """
+    _load()
+    return len(_KB)
+
+
+def _reload_if_changed() -> None:
+    """Silently reload KB if seed_kb.json has been modified since last load."""
+    try:
+        mtime = os.path.getmtime(_SEED_PATH)
+        if mtime > _last_mtime:
+            _load()
+    except OSError:
+        pass
 
 
 # ── Seed ──────────────────────────────────────────────────────────────────────
@@ -49,12 +73,15 @@ def seed_knowledge_base() -> int:
 def lookup(code: str) -> dict[str, Any] | None:
     """Return the KB entry for a fault code, or None if not found.
 
+    Silently reloads from disk if seed_kb.json has been modified since last load.
+
     Args:
         code: Raw fault code string (case-insensitive, whitespace-tolerant).
 
     Returns:
         KB entry dict, or None on miss.
     """
+    _reload_if_changed()
     return _KB.get(code.strip().upper())
 
 
