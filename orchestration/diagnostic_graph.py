@@ -41,6 +41,7 @@ def _diag_from_kb(fault: dict[str, Any], kb: dict[str, Any], telemetry: dict[str
         "is_unknown": False,
         "severity": adjusted,
         "urgency": kb.get("urgency", "Monitor"),
+        "causes": kb.get("causes") or [],
         "explanation": kb.get("explanation", ""),
         "resolution_steps": kb.get("resolution_steps") or [],
         "who_can_fix": kb.get("who_can_fix", "Fleet maintenance team"),
